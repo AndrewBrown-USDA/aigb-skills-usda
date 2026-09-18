@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "generated_by": "scripts/mine-history.js",
+  "generated_from": {
+    "repo": "aigb-skills-usda",
+    "evidence": [
+      "planning/EXECUTION_PLAN_1.md",
+      "planning/STATE_1.md"
+    ],
+    "note": "Uses the history evidence already established in the orchestration context; does not re-mine the full history store."
+  },
+  "skills": [
+    {
+      "name": "plan-first",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/plan-first/SKILL.md",
+      "selection_status": "direct-history",
+      "publishability": "publishable",
+      "rationale": "Highest-frequency planning workflow in the existing history briefing.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "agent-onboarding",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/agent-onboarding/SKILL.md",
+      "selection_status": "direct-history",
+      "publishability": "publishable",
+      "rationale": "Repeatedly used for repo grounding and local workflow setup.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "wave-orchestration",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/wave-orchestration/SKILL.md",
+      "selection_status": "direct-history",
+      "publishability": "publishable",
+      "rationale": "Core workflow for decomposing and coordinating larger task waves.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "plan-wave",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/plan-wave/SKILL.md",
+      "selection_status": "direct-history",
+      "publishability": "publishable",
+      "rationale": "Frequently paired with planning/wave execution and task decomposition.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "code-review-2axis",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source_repo": "mattpocock-skills",
+      "source_path": "skills/engineering/code-review/SKILL.md",
+      "selection_status": "direct-history",
+      "publishability": "publishable",
+      "rationale": "High-frequency review workflow derived from Matt Pocock's code-review skill.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "copilot-history-briefing",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/copilot-history-briefing/SKILL.md",
+      "selection_status": "direct-history",
+      "publishability": "publishable",
+      "rationale": "Supports the history-led research workflow that informed this catalog.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "tdd",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/tdd/SKILL.md",
+      "selection_status": "direct-history",
+      "publishability": "publishable",
+      "rationale": "Test-driven development support that the existing history already uses.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "install-skills",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/install-skills/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Supports the install/sync workflow that the public catalog is meant to expose.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "reviewer-architecture",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/reviewer-architecture/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Adjacent review support for code changes and structure-focused feedback.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "reviewer-correctness",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/reviewer-correctness/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Adjacent review support for bug-fix verification and correctness checks.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "skill-research",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/skill-research/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Useful for research-heavy tasks that feed planning and catalog decisions.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "doc-consistency",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/doc-consistency/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Keeps docs and examples aligned with the repo's established conventions.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "verbosity-cleaner",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/verbosity-cleaner/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Helpful for keeping generated outputs and handoffs concise.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "github-actions-ci",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/github-actions-ci/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Supports future CI validation for install and sync workflows.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "worker-validation",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/worker-validation/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Useful for verifying that workflow changes actually behave as intended.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "deep-investigative-research",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/deep-investigative-research/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Provides thorough, multi-source research support for complex decisions.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "makefile-development-workflow",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/makefile-development-workflow/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Useful when adding small reproducible command surfaces to the repo.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "json-processing-with-jq",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/json-processing-with-jq/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Helpful for working with the lockfile and other machine-readable outputs.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "grilling",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source_repo": "mattpocock-skills",
+      "source_path": "skills/productivity/grilling/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Referenced by plan-wave for decision interviewing.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "performance-benchmarking",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/performance-benchmarking/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Useful for future install/sync performance checks and comparisons.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "dr-lexus",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/dr-lexus/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Support workflow for diagnostic review and error triage.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "rubber-ducking",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/rubber-ducking/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Support workflow for interactive debugging and reasoning.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    },
+    {
+      "name": "web-source-bundler",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/web-source-bundler/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Captures web sources into deterministic Markdown reference bundles with checksums.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
+    }
+  ]
+}
