@@ -1,0 +1,26 @@
+{
+  "name": "aigb-skills-usda",
+  "version": "0.1.0",
+  "description": "Andrew Brown's curated public USDA skills repository with a thin skills CLI.",
+  "license": "MIT",
+  "private": false,
+  "type": "commonjs",
+  "main": "src/cli.js",
+  "exports": {
+    ".": "./src/cli.js"
+  },
+  "bin": {
+    "skills": "bin/skills.js"
+  },
+  "scripts": {
+    "help": "node bin/skills.js --help",
+    "smoke": "node scripts/smoke.js",
+    "test": "node scripts/smoke.js",
+    "catalog:mine": "node scripts/mine-history.js --output catalog/skills.lock.json",
+    "skills:sync": "node scripts/sync-skills.js",
+    "skills:install": "node scripts/install.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
