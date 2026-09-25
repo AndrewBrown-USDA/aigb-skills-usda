@@ -24,7 +24,7 @@ USAGE:
 
 OPTIONS:
     --target <agent>        Install to agent's skill directory
-                           Supported: claude, cursor, copilot, pi, antigravity
+                           Supported: claude, cursor, copilot, pi, antigravity, codex
     --target-path <path>    Install to custom directory instead
     --skill <name>          Install a single skill (e.g., python-code-style)
     --all                   Install all skills (default)

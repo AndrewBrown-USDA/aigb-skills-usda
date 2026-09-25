@@ -57,6 +57,9 @@ install_skills_get_agent_path() {
         antigravity)
             printf '%s\n' "${base_dir}/.antigravity/agent/skills"
             ;;
+        codex|openai-codex)
+            printf '%s\n' "${base_dir}/.codex/skills"
+            ;;
         *)
             install_skills_print_error "Unknown agent: $agent"
             return 1
