@@ -100,7 +100,7 @@ const curatedSkills = [
     source_path: 'skills/doc-consistency/SKILL.md',
     selection_status: 'dependency-support',
     publishability: 'publishable',
-    rationale: 'Keeps docs and examples aligned with the repo's established conventions.'
+    rationale: "Keeps docs and examples aligned with the repo's established conventions."
   },
   {
     name: 'verbosity-cleaner',
@@ -191,8 +191,84 @@ const curatedSkills = [
     selection_status: 'dependency-support',
     publishability: 'publishable',
     rationale: 'Captures web sources into deterministic Markdown reference bundles with checksums.'
+  },
+  {
+    name: 'apply-fed-oss-license',
+    source_repo: 'aigb-skills',
+    source_path: 'skills/apply-fed-oss-license/SKILL.md',
+    selection_status: 'dependency-support',
+    publishability: 'publishable',
+    rationale: 'Audit and update repositories to Code.mil federal open-source licensing model with 17 U.S.C. § 105 disclaimers.'
   }
 ];
+
+const REPO_ROOT = path.resolve(__dirname, '..');
+
+function resolveSourceRoot(sourceRepo) {
+  if (path.isAbsolute(sourceRepo)) {
+    return sourceRepo;
+  }
+
+  const siblingCandidate = path.resolve(REPO_ROOT, '..', sourceRepo);
+  if (fs.existsSync(siblingCandidate)) {
+    return siblingCandidate;
+  }
+
+  const localCandidate = path.resolve(REPO_ROOT, sourceRepo);
+  if (fs.existsSync(localCandidate)) {
+    return localCandidate;
+  }
+
+  return siblingCandidate;
+}
+
+function resolveSkillVersion(sourceRepo, sourcePath) {
+  try {
+    const sourceRoot = resolveSourceRoot(sourceRepo);
+    let fullPath = path.resolve(sourceRoot, sourcePath);
+
+    // Fallback if source root isn't present: check local skills/ folder in repo
+    if (!fs.existsSync(fullPath)) {
+      const localSkillCandidate = path.resolve(REPO_ROOT, 'skills', path.basename(path.dirname(sourcePath)), 'SKILL.md');
+      if (fs.existsSync(localSkillCandidate)) {
+        fullPath = localSkillCandidate;
+      } else {
+        return {
+          status: 'missing',
+          value: null
+        };
+      }
+    }
+
+    const content = fs.readFileSync(fullPath, 'utf8');
+    const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (!frontmatterMatch) {
+      return {
+        status: 'missing',
+        value: null
+      };
+    }
+
+    const frontmatter = frontmatterMatch[1];
+    const versionMatch = frontmatter.match(/^version:\s*["']?([^"'\r\n]+)["']?/m);
+    if (versionMatch && versionMatch[1].trim().length > 0) {
+      return {
+        status: 'resolved',
+        value: versionMatch[1].trim()
+      };
+    }
+
+    return {
+      status: 'missing',
+      value: null
+    };
+  } catch (err) {
+    return {
+      status: 'missing',
+      value: null
+    };
+  }
+}
 
 function parseArgs(argv) {
   const options = {};
@@ -230,10 +306,7 @@ function buildLockfile() {
     },
     skills: curatedSkills.map((skill) => ({
       ...skill,
-      version: {
-        status: 'unresolved',
-        value: null
-      }
+      version: resolveSkillVersion(skill.source_repo, skill.source_path)
     }))
   };
 }

@@ -93,9 +93,28 @@ function main() {
     assert.equal(typeof entry.source_repo, 'string');
     assert.equal(typeof entry.source_path, 'string');
     assert.equal(entry.publishability, 'publishable');
-    assert.equal(entry.version && entry.version.status, 'unresolved');
-    assert.equal(entry.version && entry.version.value, null);
+    assert.ok(entry.version && typeof entry.version === 'object', 'entry.version must be an object');
+    assert.ok(
+      entry.version.status === 'resolved' || entry.version.status === 'missing',
+      `invalid version status: ${entry.version.status} for ${entry.name}`
+    );
+    if (entry.version.status === 'resolved') {
+      assert.equal(typeof entry.version.value, 'string', `resolved version must be a string for ${entry.name}`);
+      assert.ok(entry.version.value.length > 0, `resolved version must not be empty for ${entry.name}`);
+    } else {
+      assert.equal(entry.version.value, null, `missing version value must be null for ${entry.name}`);
+    }
   }
+
+  const planFirst = lockfile.skills.find(s => s.name === 'plan-first');
+  assert.ok(planFirst, 'plan-first must exist');
+  assert.equal(planFirst.version.status, 'resolved');
+  assert.equal(planFirst.version.value, '1.0');
+
+  const applyFedOssLicense = lockfile.skills.find(s => s.name === 'apply-fed-oss-license');
+  assert.ok(applyFedOssLicense, 'apply-fed-oss-license must exist');
+  assert.equal(applyFedOssLicense.version.status, 'resolved');
+  assert.equal(applyFedOssLicense.version.value, '1.0.0');
 
   const expectedCount = lockfile.skills.length;
 

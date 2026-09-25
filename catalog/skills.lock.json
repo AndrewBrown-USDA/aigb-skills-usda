@@ -18,8 +18,8 @@
       "publishability": "publishable",
       "rationale": "Highest-frequency planning workflow in the existing history briefing.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -30,8 +30,8 @@
       "publishability": "publishable",
       "rationale": "Repeatedly used for repo grounding and local workflow setup.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -42,8 +42,8 @@
       "publishability": "publishable",
       "rationale": "Core workflow for decomposing and coordinating larger task waves.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -54,8 +54,8 @@
       "publishability": "publishable",
       "rationale": "Frequently paired with planning/wave execution and task decomposition.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -68,7 +68,7 @@
       "publishability": "publishable",
       "rationale": "High-frequency review workflow derived from Matt Pocock's code-review skill.",
       "version": {
-        "status": "unresolved",
+        "status": "missing",
         "value": null
       }
     },
@@ -80,8 +80,8 @@
       "publishability": "publishable",
       "rationale": "Supports the history-led research workflow that informed this catalog.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.3"
       }
     },
     {
@@ -92,8 +92,8 @@
       "publishability": "publishable",
       "rationale": "Test-driven development support that the existing history already uses.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -104,8 +104,8 @@
       "publishability": "publishable",
       "rationale": "Supports the install/sync workflow that the public catalog is meant to expose.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -116,8 +116,8 @@
       "publishability": "publishable",
       "rationale": "Adjacent review support for code changes and structure-focused feedback.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -128,8 +128,8 @@
       "publishability": "publishable",
       "rationale": "Adjacent review support for bug-fix verification and correctness checks.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -140,8 +140,8 @@
       "publishability": "publishable",
       "rationale": "Useful for research-heavy tasks that feed planning and catalog decisions.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -152,8 +152,8 @@
       "publishability": "publishable",
       "rationale": "Keeps docs and examples aligned with the repo's established conventions.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -164,8 +164,8 @@
       "publishability": "publishable",
       "rationale": "Helpful for keeping generated outputs and handoffs concise.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -176,8 +176,8 @@
       "publishability": "publishable",
       "rationale": "Supports future CI validation for install and sync workflows.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -188,8 +188,8 @@
       "publishability": "publishable",
       "rationale": "Useful for verifying that workflow changes actually behave as intended.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -200,8 +200,8 @@
       "publishability": "publishable",
       "rationale": "Provides thorough, multi-source research support for complex decisions.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -212,8 +212,8 @@
       "publishability": "publishable",
       "rationale": "Useful when adding small reproducible command surfaces to the repo.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -224,8 +224,8 @@
       "publishability": "publishable",
       "rationale": "Helpful for working with the lockfile and other machine-readable outputs.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -238,7 +238,7 @@
       "publishability": "publishable",
       "rationale": "Referenced by plan-wave for decision interviewing.",
       "version": {
-        "status": "unresolved",
+        "status": "missing",
         "value": null
       }
     },
@@ -250,8 +250,8 @@
       "publishability": "publishable",
       "rationale": "Useful for future install/sync performance checks and comparisons.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -262,8 +262,8 @@
       "publishability": "publishable",
       "rationale": "Support workflow for diagnostic review and error triage.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -274,8 +274,8 @@
       "publishability": "publishable",
       "rationale": "Support workflow for interactive debugging and reasoning.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
@@ -286,8 +286,8 @@
       "publishability": "publishable",
       "rationale": "Captures web sources into deterministic Markdown reference bundles with checksums.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.1.0"
       }
     },
     {
@@ -298,8 +298,8 @@
       "publishability": "publishable",
       "rationale": "Audit and update repositories to Code.mil federal open-source licensing model with 17 U.S.C. § 105 disclaimers.",
       "version": {
-        "status": "unresolved",
-        "value": null
+        "status": "resolved",
+        "value": "1.0.0"
       }
     }
   ]
