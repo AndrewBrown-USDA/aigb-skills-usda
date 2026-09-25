@@ -289,6 +289,18 @@
         "status": "unresolved",
         "value": null
       }
+    },
+    {
+      "name": "apply-fed-oss-license",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/apply-fed-oss-license/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Audit and update repositories to Code.mil federal open-source licensing model with 17 U.S.C. § 105 disclaimers.",
+      "version": {
+        "status": "unresolved",
+        "value": null
+      }
     }
   ]
 }
