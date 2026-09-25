@@ -23,6 +23,7 @@ The `install-skills` skill automates the process of installing skills from this 
 | **GitHub Copilot** | `copilot` | `.github/skills/` | Enterprise/premium feature |
 | **Pi** | `pi` | `.pi/agent/skills/` | Pi agent framework |
 | **Antigravity** | `antigravity` | `.antigravity/agent/skills/` | Google Antigravity IDE |
+| **OpenAI Codex** | `codex` | `.codex/skills/` | OpenAI Codex CLI / agent |
 | **Custom Path** | `--target-path <dir>` | Custom directory | Any arbitrary directory |
 
 ## Quick Start
@@ -60,7 +61,7 @@ bash skills/install-skills/scripts/install.sh --target-path ~/my-custom-skills -
 
 ### Target Selection
 
-- **`--target <agent>`** -- Install to a standard agent directory (claude, cursor, copilot, pi)
+- **`--target <agent>`** -- Install to a standard agent directory (claude, cursor, copilot, pi, antigravity, codex)
 - **`--target-path <path>`** -- Install to a custom directory instead
 
 ### Skill Selection

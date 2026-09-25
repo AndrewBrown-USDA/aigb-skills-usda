@@ -14,6 +14,8 @@ This reference lists where each supported coding agent looks for skills.
 | | Windows | `%APPDATA%/.github/skills/` | `%APPDATA%/.github/skills` |
 | **Pi** | Linux/macOS | `~/.pi/agent/skills/` | `$HOME/.pi/agent/skills` |
 | | Windows | `%APPDATA%/.pi/agent/skills/` | `%APPDATA%/.pi/agent/skills` |
+| **OpenAI Codex** | Linux/macOS | `~/.codex/skills/` | `$HOME/.codex/skills` |
+| | Windows | `%APPDATA%/.codex/skills/` | `%APPDATA%/.codex/skills` |
 
 ## Creating Directories
 
@@ -31,6 +33,9 @@ mkdir -p ~/.github/skills/
 
 # Pi
 mkdir -p ~/.pi/agent/skills/
+
+# OpenAI Codex
+mkdir -p ~/.codex/skills/
 ```
 
 On Windows, use `%APPDATA%` or the full Roaming path if you are creating the directory manually. The installer handles that resolution automatically.
