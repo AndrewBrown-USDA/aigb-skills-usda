@@ -5,7 +5,7 @@
 ## What is here
 
 - A ready-to-use npm package with the `skills` CLI (`npx skills`).
-- Curated skill catalog defined in `catalog/skills.lock.json` containing 23 curated skills (including `dr-lexus`, `rubber-ducking`, and `web-source-bundler`).
+- Curated skill catalog defined in `catalog/skills.lock.json` containing 24 curated skills (including `dr-lexus`, `rubber-ducking`, `web-source-bundler`, and `apply-fed-oss-license`).
 - Materialized and linkable skills in `skills/`.
 - Permissive MIT License at the repository root, with explicit third-party attribution for Matt Pocock skills (`grilling`, `code-review-2axis`).
 - Agent and repo conventions in `AGENTS.md`.
@@ -44,7 +44,7 @@ npm test
 
 ## Install and sync workflow
 
-The curated catalog is driven from `catalog/skills.lock.json`, which is the authoritative list of 23 skills to materialize. Each entry records the source repo, source path, publishability, and version status.
+The curated catalog is driven from `catalog/skills.lock.json`, which is the authoritative list of 24 skills to materialize. Each entry records the source repo, source path, publishability, and version status.
 
 - `version.status: unresolved` means the skill has not yet been pinned to a concrete version value.
 - `version.value: null` keeps that unresolved state explicit instead of guessing at a version.
@@ -74,16 +74,16 @@ Treat the lockfile as the single source of truth for selection and version statu
 
 ## Curated Skills & Attribution
 
-The catalog includes 23 curated skills:
+The catalog includes 24 curated skills:
 
 - **Matt Pocock Skills:** `grilling` and `code-review-2axis` (derived from `code-review`) are authored by Matt Pocock (https://github.com/mattpocock/skills) under the MIT License. Their `SKILL.md` frontmatter explicitly preserves `author: Matt Pocock (https://github.com/mattpocock/skills)` and `license: MIT`.
 - **Diagnostics & Debugging:** `dr-lexus` (diagnostic vocabulary and plain language) and `rubber-ducking` (interactive debugging with Python AST chunking and language detection utilities).
 - **Web Research & Documentation:** `web-source-bundler` (captures web sources, search results, and file lists into deterministic Markdown reference bundles with SHA-256 provenance).
-- **Core Engineering & Standards:** `agent-onboarding`, `copilot-history-briefing`, `deep-investigative-research`, `doc-consistency`, `github-actions-ci`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `plan-first`, `plan-wave`, `reviewer-architecture`, `reviewer-correctness`, `skill-research`, `tdd`, `verbosity-cleaner`, `wave-orchestration`, and `worker-validation`.
+- **Core Engineering & Standards:** `agent-onboarding`, `apply-fed-oss-license`, `copilot-history-briefing`, `deep-investigative-research`, `doc-consistency`, `github-actions-ci`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `plan-first`, `plan-wave`, `reviewer-architecture`, `reviewer-correctness`, `skill-research`, `tdd`, `verbosity-cleaner`, `wave-orchestration`, and `worker-validation`.
 
 ## Licensing Model
 
-- **Repository License:** MIT License (see `LICENSE`).
+- **Repository License:** MIT License with 17 U.S.C. § 105 federal public domain notice (see `LICENSE.md` and `INTENT.md`).
 - **Attribution:** All imported third-party skills maintain MIT compatibility with full author attribution in both `catalog/skills.lock.json` and `SKILL.md` YAML frontmatter.
 
 ## Troubleshooting
