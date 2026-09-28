@@ -301,6 +301,20 @@
         "status": "resolved",
         "value": "1.0.0"
       }
+    },
+    {
+      "name": "research",
+      "author": "Matt Pocock",
+      "license": "MIT",
+      "source_repo": "mattpocock-skills",
+      "source_path": "skills/engineering/research/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Investigate questions against high-trust primary sources and produce structured Markdown findings.",
+      "version": {
+        "status": "resolved",
+        "value": "1.1"
+      }
     }
   ]
 }
