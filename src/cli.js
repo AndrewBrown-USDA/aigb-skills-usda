@@ -1,7 +1,8 @@
 'use strict';
 
 const path = require('node:path');
-const { main: syncMain, printHelp: printSyncHelp } = require('../scripts/sync-skills');
+const { main: syncMain } = require('../scripts/sync-skills');
+const { main: installMain } = require('../scripts/install');
 
 function printHelp() {
   process.stdout.write([
@@ -9,22 +10,26 @@ function printHelp() {
     '',
     'Usage:',
     '  skills --help',
-    '  skills sync [options]',
-    '  skills install [options]',
+    '  skills install [options]   (Primary command for users & agents)',
+    '  skills sync [options]      (Maintainers only: sync from source repos)',
     '',
     'Overview:',
     '  Public CLI for the USDA skills repository.',
-    '  Synchronizes or installs curated skills from catalog/skills.lock.json.',
     '',
     'Commands:',
-    '  sync [options]     Sync skills into a target directory (default: ./skills)',
-    '  install [options]  Alias for sync to install skills into a target directory',
+    '  install [options]  Install pre-packaged skills into an agent skills directory',
+    '  sync [options]     (Maintainers only) Sync skills from source repos using lockfile',
     '  --help, -h         Show this help message',
     '',
-    'Sync & Install Options:',
+    'Install Options (Primary):',
+    '  --target <path>         Target directory (e.g. ~/.agents/skills or ~/.claude/skills)',
+    '  --source <path>         Source skills directory (default: ./skills)',
     '  --mode <copy|symlink>   Materialization mode (default: copy)',
+    '',
+    'Sync Options (Maintainers):',
+    '  --target <path>         Target directory (default: ./skills)',
     '  --lockfile <path>       Path to catalog/skills.lock.json',
-    '  --target <path>         Destination directory (default: ./skills)',
+    '  --mode <copy|symlink>   Materialization mode (default: copy)',
     ''
   ].join('\n') + '\n');
 }
@@ -39,7 +44,11 @@ function runCli(argv) {
 
   const subcommand = args[0];
 
-  if (subcommand === 'sync' || subcommand === 'install') {
+  if (subcommand === 'install') {
+    return installMain(args.slice(1));
+  }
+
+  if (subcommand === 'sync') {
     return syncMain(args.slice(1));
   }
 

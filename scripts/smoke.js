@@ -155,25 +155,38 @@ function main() {
   assertSkillLayout(syncTarget, lockfile.skills);
   assertSkillAttribution(syncTarget);
 
-  // 6. Test scripts/install.js (copy mode)
+  // 6. Test scripts/install.js (installing packaged skills directly)
   const installOutput = runNode([
     'scripts/install.js',
     '--mode',
     'copy',
-    '--lockfile',
-    lockfilePath,
     '--target',
     installTarget
   ]).trim();
 
   assert.equal(
     installOutput,
-    `Synced ${expectedCount} skills to ${installTarget} using copy mode.`
+    `Installed ${expectedCount} skills to ${installTarget} using copy mode.`
   );
   assertSkillLayout(installTarget, lockfile.skills);
   assertSkillAttribution(installTarget);
 
-  // 7. Test symlink mode
+  // 6b. Test CLI install command
+  const cliInstallOutput = runNode([
+    'bin/skills.js',
+    'install',
+    '--mode',
+    'copy',
+    '--target',
+    installTarget
+  ]).trim();
+
+  assert.equal(
+    cliInstallOutput,
+    `Installed ${expectedCount} skills to ${installTarget} using copy mode.`
+  );
+
+  // 7. Test symlink mode for sync
   const symlinkOutput = runNode([
     'scripts/sync-skills.js',
     '--mode',
@@ -190,7 +203,24 @@ function main() {
   );
   assertSkillLayout(symlinkTarget, lockfile.skills);
 
-  // 8. Verify non-destructive / amending behavior on pre-existing skills in target
+  // 8. Test symlink mode for install
+  const installSymlinkTarget = path.join(scratchRoot, 'smoke-install-symlink');
+  const installSymlinkOutput = runNode([
+    'bin/skills.js',
+    'install',
+    '--mode',
+    'symlink',
+    '--target',
+    installSymlinkTarget
+  ]).trim();
+
+  assert.equal(
+    installSymlinkOutput,
+    `Installed ${expectedCount} skills to ${installSymlinkTarget} using symlink mode.`
+  );
+  assertSkillLayout(installSymlinkTarget, lockfile.skills);
+
+  // 9. Verify non-destructive / amending behavior on pre-existing skills in target
   const foreignSkillDir = path.join(installTarget, 'untracked-custom-skill');
   fs.mkdirSync(foreignSkillDir, { recursive: true });
   fs.writeFileSync(path.join(foreignSkillDir, 'SKILL.md'), '---\nname: untracked-custom-skill\n---\n');
@@ -199,8 +229,6 @@ function main() {
     'scripts/install.js',
     '--mode',
     'copy',
-    '--lockfile',
-    lockfilePath,
     '--target',
     installTarget
   ]);
@@ -209,6 +237,38 @@ function main() {
     fs.existsSync(path.join(foreignSkillDir, 'SKILL.md')),
     'custom untracked skills must not be deleted when installing'
   );
+
+  // 10. Verify maintainer error message when sync fails due to missing source repos
+  let syncErrorCaught = false;
+  try {
+    const invalidLockfilePath = path.join(scratchRoot, 'invalid.lock.json');
+    fs.writeFileSync(
+      invalidLockfilePath,
+      JSON.stringify({
+        schema_version: 1,
+        skills: [
+          {
+            name: 'fake-skill',
+            source_repo: 'non-existent-source-repo-xyz',
+            source_path: 'skills/fake-skill/SKILL.md',
+            publishability: 'publishable',
+            version: { status: 'resolved', value: '1.0.0' }
+          }
+        ]
+      }, null, 2)
+    );
+    runNode([
+      'scripts/sync-skills.js',
+      '--lockfile',
+      invalidLockfilePath,
+      '--target',
+      path.join(scratchRoot, 'invalid-target')
+    ]);
+  } catch (err) {
+    syncErrorCaught = true;
+    assert.match(err.stderr || err.message, /Maintainer sync error/i);
+  }
+  assert.ok(syncErrorCaught, 'Sync must fail with clear maintainer error on missing source repos');
 
   cleanup();
   console.log(`Smoke checks passed for ${expectedCount} skills.`);

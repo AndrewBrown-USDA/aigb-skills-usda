@@ -5,16 +5,18 @@
 ## What is here
 
 - A ready-to-use npm package with the `skills` CLI (`npx skills`).
-- Curated skill catalog defined in `catalog/skills.lock.json` containing 24 curated skills (including `dr-lexus`, `rubber-ducking`, `web-source-bundler`, and `apply-fed-oss-license`).
+- Curated skill catalog defined in `catalog/skills.lock.json`
 - Materialized and linkable skills in `skills/`.
-- Permissive MIT License at the repository root, with explicit third-party attribution for Matt Pocock skills (`grilling`, `code-review-2axis`).
+- Permissive MIT License at the repository root, with explicit third-party attribution external skills.
 - Agent and repo conventions in `AGENTS.md`.
 
-## Quick Start
+## Quick Start (Installing Skills)
+
+To install packaged skills into your agent directory (works out of the box on any machine):
 
 ```bash
 npm install
-npx skills --help
+npx skills install --target ~/.agents/skills
 ```
 
 Or using `make`:
@@ -22,63 +24,45 @@ Or using `make`:
 ```bash
 make help
 make install
+make install-skills
 make test
-make sync
 ```
 
-You can sync or install skills using the CLI:
+### Common Agent Install Targets
+
+- Copilot CLI / Universal Agents: `npx skills install --target ~/.agents/skills`
+- Claude Code: `npx skills install --target ~/.claude/skills`
+- Cursor: `npx skills install --target ~/.cursor/skills`
+
+## Install vs. Maintainer Sync
+
+### 1. `skills install` (For Users & Agents)
+Installs pre-packaged skills directly from the local `./skills` directory into your agent directory without requiring external source repositories or network calls.
 
 ```bash
-# Sync into local ./skills directory
-npx skills sync --mode copy
+# Copy mode (default)
+npx skills install --mode copy --target ~/.agents/skills
 
-# Or install/link into your agent skills directory
+# Symlink / junction mode
 npx skills install --mode symlink --target ~/.agents/skills
 ```
 
-Run repository smoke checks:
+### 2. `skills sync` (Maintainers Only)
+Synchronizes the `./skills` directory from upstream source repositories listed in `catalog/skills.lock.json`. Requires local checkouts of source repositories.
 
 ```bash
-npm test
+# Maintainer sync
+npx skills sync --mode copy
+# or: make sync
 ```
-
-## Install and sync workflow
-
-The curated catalog is driven from `catalog/skills.lock.json`, which is the authoritative list of 24 skills to materialize. Each entry records the source repo, source path, publishability, and version status.
-
-- `version.status: unresolved` means the skill has not yet been pinned to a concrete version value.
-- `version.value: null` keeps that unresolved state explicit instead of guessing at a version.
-
-The sync and install commands materialize the approved list into a target directory (defaulting to `./skills`).
-
-### Sync Modes
-
-| Mode | Meaning |
-|---|---|
-| `copy` | Create a standalone copy of each approved skill directory. |
-| `symlink` | Point the target back at the source skill directory (useful for live local development). |
-
-Examples:
-
-```bash
-# Direct CLI invocation
-npx skills sync --mode copy --target .scratch/skills-sync
-npx skills install --mode symlink --target .scratch/skills-install
-
-# Or using npm script shortcuts
-npm run skills:sync -- --mode copy --target .scratch/skills-sync
-npm run skills:install -- --mode symlink --target .scratch/skills-install
-```
-
-Treat the lockfile as the single source of truth for selection and version status. The generated `skills/` tree should be treated as a materialized output rather than hand-edited source.
 
 ## Curated Skills & Attribution
 
-The catalog includes 24 curated skills:
+The catalog includes 25 curated skills:
 
-- **Matt Pocock Skills:** `grilling` and `code-review-2axis` (derived from `code-review`) are authored by Matt Pocock (https://github.com/mattpocock/skills) under the MIT License. Their `SKILL.md` frontmatter explicitly preserves `author: Matt Pocock (https://github.com/mattpocock/skills)` and `license: MIT`.
-- **Diagnostics & Debugging:** `dr-lexus` (diagnostic vocabulary and plain language) and `rubber-ducking` (interactive debugging with Python AST chunking and language detection utilities).
-- **Web Research & Documentation:** `web-source-bundler` (captures web sources, search results, and file lists into deterministic Markdown reference bundles with SHA-256 provenance).
+- **Matt Pocock Skills:** `grilling`, `code-review-2axis`, and `research` are authored or co-authored by Matt Pocock (https://github.com/mattpocock/skills) under the MIT License. Their `SKILL.md` frontmatter explicitly preserves `author: Matt Pocock (https://github.com/mattpocock/skills)` and `license: MIT`.
+- **Diagnostics & Debugging:** `dr-lexus` (plain language directive) and `rubber-ducking` (interactive user-driven explanation and debugging).
+- **Web Research & Documentation:** `web-source-bundler` (captures web sources, search results, and file lists into deterministic Markdown reference bundles with SHA-256 provenance) and `research` (structured primary source investigations).
 - **Core Engineering & Standards:** `agent-onboarding`, `apply-fed-oss-license`, `copilot-history-briefing`, `deep-investigative-research`, `doc-consistency`, `github-actions-ci`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `plan-first`, `plan-wave`, `reviewer-architecture`, `reviewer-correctness`, `skill-research`, `tdd`, `verbosity-cleaner`, `wave-orchestration`, and `worker-validation`.
 
 ## Licensing Model
@@ -89,6 +73,4 @@ The catalog includes 24 curated skills:
 ## Troubleshooting
 
 - **`skills: command not found`**: Run `npm install` first.
-- **Symlink mode on Windows**: If symlinks fail due to permissions, use `--mode copy`.
-
-
+- **Symlink mode on Windows**: If symlinks fail due to permissions, use `--mode copy` (default).

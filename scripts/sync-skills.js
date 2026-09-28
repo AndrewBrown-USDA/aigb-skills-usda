@@ -86,7 +86,14 @@ function loadLockfile(lockfilePath) {
 
 function resolveSourceRoot(sourceRepo) {
   if (path.isAbsolute(sourceRepo)) {
-    return sourceRepo;
+    if (fs.existsSync(sourceRepo)) {
+      return sourceRepo;
+    }
+    throw new Error(
+      `Maintainer sync error: Absolute source repository path does not exist: "${sourceRepo}". ` +
+      `"sync" is for maintainers synchronizing from upstream source repositories. ` +
+      `To install skills into your environment, run "npx skills install --target <dir>" instead.`
+    );
   }
 
   const siblingCandidate = path.resolve(REPO_ROOT, '..', sourceRepo);
@@ -99,7 +106,11 @@ function resolveSourceRoot(sourceRepo) {
     return localCandidate;
   }
 
-  return siblingCandidate;
+  throw new Error(
+    `Maintainer sync error: Upstream source repository "${sourceRepo}" was not found (checked "${siblingCandidate}" and "${localCandidate}"). ` +
+    `The "sync" command is intended for repository maintainers with local checkout of source repos. ` +
+    `For users and agents installing packaged skills, run "npx skills install --target <dir>" (or "make install-skills") instead.`
+  );
 }
 
 function validateEntry(entry) {
