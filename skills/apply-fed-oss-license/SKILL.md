@@ -1,6 +1,6 @@
 ---
 name: apply-fed-oss-license
-author: Andrew G. Brown (https://github.com/AndrewBrown-USDA)
+author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: Audit and update an arbitrary codebase to follow the Code.mil federal open-source licensing model (MIT with 17 U.S.C. Section  105 disclaimers and INTENT.md), including CRAN/R package DESCRIPTION setup.
 version: 1.0.0
