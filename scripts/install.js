@@ -68,13 +68,17 @@ function parseArgs(argv) {
       case '--skills': {
         const val = argv[i + 1];
         i += 1;
-        if (val) {
-          const parsed = val.split(',').map(s => s.trim()).filter(Boolean);
-          if (!options.skills) {
-            options.skills = [];
-          }
-          options.skills.push(...parsed);
+        if (!val || typeof val !== 'string' || val.trim().length === 0) {
+          throw new Error(`${arg} requires a non-empty skill name or comma-separated list`);
         }
+        const parsed = val.split(',').map(s => s.trim()).filter(Boolean);
+        if (parsed.length === 0) {
+          throw new Error(`${arg} requires at least one non-empty skill name`);
+        }
+        if (!options.skills) {
+          options.skills = [];
+        }
+        options.skills.push(...parsed);
         break;
       }
       case '--lockfile':
