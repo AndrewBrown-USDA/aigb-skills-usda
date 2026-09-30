@@ -284,6 +284,34 @@ function main() {
     /Skill\(s\) not found in/i
   );
 
+  // 6e. Test empty or missing --skill filter flag error
+  const emptySkillResult = runNodeResult([
+    'bin/skills.js',
+    'install',
+    '--target',
+    path.join(scratchRoot, 'smoke-filter-empty'),
+    '--skill',
+    ''
+  ]);
+  assert.equal(emptySkillResult.status, 1, 'Install must exit with status 1 on empty --skill argument');
+  assert.match(
+    emptySkillResult.stderr,
+    /requires a non-empty skill name/i
+  );
+
+  const missingSkillArgResult = runNodeResult([
+    'bin/skills.js',
+    'install',
+    '--target',
+    path.join(scratchRoot, 'smoke-filter-missing-arg'),
+    '--skill'
+  ]);
+  assert.equal(missingSkillArgResult.status, 1, 'Install must exit with status 1 when --skill is missing argument');
+  assert.match(
+    missingSkillArgResult.stderr,
+    /requires a non-empty skill name/i
+  );
+
   // 7. Test symlink mode for sync
   const symlinkResult = runNodeResult([
     'scripts/sync-skills.js',
