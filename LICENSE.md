@@ -2,7 +2,7 @@
 
 Copyright (c) 2026 U.S. Federal Government (in countries where recognized)
 Copyright (c) 2026 Project Contributors
-Copyright (c) 2026 Matt Pocock (skills: code-review-2axis, tdd, grilling; https://github.com/mattpocock/skills)
+Copyright (c) 2026 Matt Pocock (skills: code-review-2axis, tdd, grilling, research; https://github.com/mattpocock/skills)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

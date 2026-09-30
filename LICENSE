@@ -29,6 +29,3 @@ Portions of this software are a work of the United States Government and are in
 the public domain within the United States pursuant to 17 U.S.C. § 105. For
 jurisdictions where copyright may subsist, and for third-party contributions,
 the terms of the MIT License above apply.
-
-
-
