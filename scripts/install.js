@@ -17,15 +17,16 @@ function printHelp() {
     '  into an agent or user skills destination.',
     '',
     'Options:',
-    '  --target <path>         Destination directory (required or e.g. ~/.agents/skills)',
-    '  --source <path>         Source skills directory (default: ./skills)',
-    '  --mode <copy|symlink>   Materialization mode (default: copy)',
-    '  --help, -h              Show this help message',
+    '  --target <path>          Destination directory (required or e.g. ~/.agents/skills)',
+    '  --source <path>          Source skills directory (default: ./skills)',
+    '  --skill, --skills <name> Single skill name or comma-separated list of skills',
+    '  --mode <copy|symlink>    Materialization mode (default: copy)',
+    '  --help, -h               Show this help message',
     '',
     'Common target locations:',
-    '  ~/.agents/skills        Copilot CLI / Universal Agents directory',
-    '  ~/.claude/skills        Claude Code skills directory',
-    '  ~/.cursor/skills        Cursor skills directory',
+    '  ~/.agents/skills         Copilot CLI / Universal Agents directory',
+    '  ~/.claude/skills         Claude Code skills directory',
+    '  ~/.pi/agent/skills       Pi coding agent skills directory',
     ''
   ].join('\n'));
 }
@@ -43,6 +44,7 @@ function parseArgs(argv) {
     mode: 'copy',
     source: DEFAULT_SOURCE_DIR,
     target: null,
+    skills: null,
     help: false
   };
 
@@ -62,6 +64,19 @@ function parseArgs(argv) {
         options.target = path.resolve(process.cwd(), expandHomeDir(argv[i + 1]));
         i += 1;
         break;
+      case '--skill':
+      case '--skills': {
+        const val = argv[i + 1];
+        i += 1;
+        if (val) {
+          const parsed = val.split(',').map(s => s.trim()).filter(Boolean);
+          if (!options.skills) {
+            options.skills = [];
+          }
+          options.skills.push(...parsed);
+        }
+        break;
+      }
       case '--lockfile':
         i += 1;
         break;
@@ -138,12 +153,23 @@ function installSkills(options) {
   }
 
   const entries = fs.readdirSync(sourceDir, { withFileTypes: true });
-  const skillDirs = entries
+  const availableSkillDirs = entries
     .filter(entry => entry.isDirectory() && fs.existsSync(path.join(sourceDir, entry.name, 'SKILL.md')))
     .map(entry => entry.name);
 
-  if (skillDirs.length === 0) {
+  if (availableSkillDirs.length === 0) {
     throw new Error(`No skills with SKILL.md found in source directory: ${sourceDir}`);
+  }
+
+  let skillDirs = availableSkillDirs;
+
+  if (options.skills && options.skills.length > 0) {
+    const requested = Array.from(new Set(options.skills));
+    const missing = requested.filter(s => !availableSkillDirs.includes(s));
+    if (missing.length > 0) {
+      throw new Error(`Skill(s) not found in ${sourceDir}: ${missing.join(', ')}`);
+    }
+    skillDirs = requested;
   }
 
   if (!fs.existsSync(targetDir)) {

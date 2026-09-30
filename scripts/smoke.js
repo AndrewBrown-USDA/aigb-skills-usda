@@ -224,6 +224,56 @@ function main() {
     `Installed ${expectedCount} skills to ${installTarget} using copy mode.`
   );
 
+  // 6c. Test single and comma-separated skill filtering
+  const filterSingleTarget = path.join(scratchRoot, 'smoke-filter-single');
+  const cliSingleOutput = runNode([
+    'bin/skills.js',
+    'install',
+    '--target',
+    filterSingleTarget,
+    '--skill',
+    'plan-first'
+  ]).trim();
+  assert.equal(
+    cliSingleOutput,
+    `Installed 1 skills to ${filterSingleTarget} using copy mode.`
+  );
+  assert.ok(fs.existsSync(path.join(filterSingleTarget, 'plan-first', 'SKILL.md')));
+  assert.ok(!fs.existsSync(path.join(filterSingleTarget, 'dr-lexus')));
+
+  const filterMultiTarget = path.join(scratchRoot, 'smoke-filter-multi');
+  const cliMultiOutput = runNode([
+    'bin/skills.js',
+    'install',
+    '--target',
+    filterMultiTarget,
+    '--skills',
+    'plan-first, dr-lexus, grilling'
+  ]).trim();
+  assert.equal(
+    cliMultiOutput,
+    `Installed 3 skills to ${filterMultiTarget} using copy mode.`
+  );
+  assert.ok(fs.existsSync(path.join(filterMultiTarget, 'plan-first', 'SKILL.md')));
+  assert.ok(fs.existsSync(path.join(filterMultiTarget, 'dr-lexus', 'SKILL.md')));
+  assert.ok(fs.existsSync(path.join(filterMultiTarget, 'grilling', 'SKILL.md')));
+  assert.ok(!fs.existsSync(path.join(filterMultiTarget, 'rubber-ducking')));
+
+  // 6d. Test invalid skill name error
+  const invalidResult = runNodeResult([
+    'bin/skills.js',
+    'install',
+    '--target',
+    path.join(scratchRoot, 'smoke-filter-invalid'),
+    '--skill',
+    'non-existent-skill-xyz'
+  ]);
+  assert.equal(invalidResult.status, 1, 'Install must exit with status 1 on invalid skill');
+  assert.match(
+    invalidResult.stderr,
+    /Skill\(s\) not found in/i
+  );
+
   // 7. Test symlink mode for sync
   const symlinkResult = runNodeResult([
     'scripts/sync-skills.js',
