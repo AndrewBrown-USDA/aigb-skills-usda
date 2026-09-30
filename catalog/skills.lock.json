@@ -3,7 +3,10 @@
   "generated_by": "scripts/mine-history.js",
   "generated_from": {
     "repo": "aigb-skills-usda",
-    "evidence": ["planning/EXECUTION_PLAN_1.md", "planning/STATE_1.md"],
+    "evidence": [
+      "planning/EXECUTION_PLAN_1.md",
+      "planning/STATE_1.md"
+    ],
     "note": "Uses the history evidence already established in the orchestration context; does not re-mine the full history store."
   },
   "skills": [
@@ -33,6 +36,25 @@
       "version": {
         "status": "resolved",
         "value": "1.0.0"
+      }
+    },
+    {
+      "name": "caveman",
+      "author": "Julius Brussee (https://github.com/JuliusBrussee/caveman)",
+      "license": "MIT",
+      "source_repo": "JuliusBrussee-caveman",
+      "source_path": "skills/caveman/SKILL.md",
+      "source_ref": "v2.7.0",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/JuliusBrussee/caveman",
+        "ref": "v2.7.0"
+      },
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "version": {
+        "status": "missing",
+        "value": null
       }
     },
     {
@@ -119,7 +141,7 @@
       "source_path": "skills/github-actions-ci/SKILL.md",
       "selection_status": "dependency-support",
       "publishability": "publishable",
-      "rationale": "Supports future CI validation for install and sync workflows.",
+      "rationale": "Supports CI/CD for GitHub repositories.",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -233,6 +255,25 @@
       "version": {
         "status": "resolved",
         "value": "1.0"
+      }
+    },
+    {
+      "name": "ponytail",
+      "author": "Dietrich Gebert (https://github.com/DietrichGebert/ponytail)",
+      "license": "MIT",
+      "source_repo": "DietrichGebert-ponytail",
+      "source_path": "skills/ponytail/SKILL.md",
+      "source_ref": "v4.10.0",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/DietrichGebert/ponytail",
+        "ref": "v4.10.0"
+      },
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "version": {
+        "status": "missing",
+        "value": null
       }
     },
     {

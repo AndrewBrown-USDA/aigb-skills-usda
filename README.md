@@ -103,9 +103,9 @@ npx skills sync --mode copy
 
 ## Curated Skills & Attribution
 
-The catalog includes 25 curated skills:
+The catalog includes 27 curated skills:
 
-- **Matt Pocock Skills:** `grilling`, `code-review-2axis`, `research`, and `tdd` are authored or co-authored by Matt Pocock (https://github.com/mattpocock/skills) under the MIT License. Their `SKILL.md` frontmatter explicitly preserves `author: Matt Pocock (https://github.com/mattpocock/skills)` and `license: MIT`.
+- **External Skills:** `grilling`, `code-review-2axis`, `research`, and `tdd` are authored by Matt Pocock (https://github.com/mattpocock/skills). `caveman` is authored by Julius Brussee (https://github.com/JuliusBrussee/caveman). `ponytail` is authored by Dietrich Gebert (https://github.com/DietrichGebert/ponytail). All have pinned release references and upstream provenance in the catalog and `SKILL.md` frontmatter and are included under the terms of the MIT license.
 - **Diagnostics & Debugging:** `dr-lexus` (plain language directive) and `rubber-ducking` (interactive user-driven explanation and debugging).
 - **Web Research & Documentation:** `web-source-bundler` (captures web sources, search results, and file lists into deterministic Markdown reference bundles with SHA-256 provenance) and `research` (structured primary source investigations).
 - **Core Engineering & Standards:** `agent-onboarding`, `apply-fed-oss-license`, `copilot-history-briefing`, `deep-investigative-research`, `doc-consistency`, `github-actions-ci`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `plan-first`, `plan-wave`, `reviewer-architecture`, `reviewer-correctness`, `skill-research`, `tdd`, `verbosity-cleaner`, `wave-orchestration`, and `worker-validation`.
