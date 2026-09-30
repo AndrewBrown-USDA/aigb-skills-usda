@@ -3,6 +3,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_LOCKFILE = path.join(REPO_ROOT, 'catalog', 'skills.lock.json');
@@ -147,6 +148,63 @@ function validateSourceSkill(skillName, sourcePath) {
   }
 }
 
+function runGit(sourceRoot, args) {
+  return execFileSync('git', ['-C', sourceRoot, ...args], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+}
+
+function extractGitSkill(sourceRoot, sourceRef, sourceDirRel, destDir) {
+  const normalizedSourceDir = sourceDirRel.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+  let treeOutput;
+
+  try {
+    treeOutput = runGit(sourceRoot, [
+      'ls-tree',
+      '-r',
+      '--name-only',
+      sourceRef,
+      '--',
+      normalizedSourceDir
+    ]);
+  } catch (error) {
+    throw new Error(
+      `Unable to read git-pinned skill ${sourceRef}:${normalizedSourceDir}: ${error.message}`
+    );
+  }
+
+  const files = treeOutput.split(/\r?\n/).filter(Boolean);
+  if (files.length === 0) {
+    throw new Error(`Git-pinned skill contains no files: ${sourceRef}:${normalizedSourceDir}`);
+  }
+
+  if (fs.existsSync(destDir) || fs.lstatSync(destDir, { throwIfNoEntry: false })) {
+    fs.rmSync(destDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(destDir, { recursive: true });
+
+  for (const repositoryPath of files) {
+    const relativePath = repositoryPath.slice(normalizedSourceDir.length).replace(/^\/+/, '');
+    if (!relativePath || relativePath.includes('..')) {
+      continue;
+    }
+
+    const destinationPath = path.join(destDir, ...relativePath.split('/'));
+    fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+
+    let content;
+    try {
+      content = runGit(sourceRoot, ['show', `${sourceRef}:${repositoryPath}`]);
+    } catch (error) {
+      throw new Error(
+        `Unable to extract git-pinned file ${sourceRef}:${repositoryPath}: ${error.message}`
+      );
+    }
+    fs.writeFileSync(destinationPath, content, 'utf8');
+  }
+}
+
 function ensureTargetDir(targetDir) {
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
@@ -199,6 +257,53 @@ function copySkill(sourceDir, destDir) {
   });
 }
 
+function updateSkillMetadata(destSkillMd, entry) {
+  if (!fs.existsSync(destSkillMd)) {
+    return;
+  }
+
+  let content = fs.readFileSync(destSkillMd, 'utf8');
+  const metadata = [];
+  if (entry.author && entry.author.toLowerCase().includes('matt pocock')) {
+    metadata.push(['author', 'Matt Pocock (https://github.com/mattpocock/skills)']);
+    metadata.push(['license', entry.license || 'MIT']);
+  }
+  if (entry.source_ref || entry.provenance) {
+    metadata.push(['source', entry.source_repo]);
+  }
+  if (entry.source_ref) {
+    metadata.push(['source_ref', entry.source_ref]);
+  }
+  if (entry.provenance && entry.provenance.repository) {
+    metadata.push(['upstream', entry.provenance.repository]);
+  }
+
+  if (metadata.length === 0) {
+    return;
+  }
+
+  const addMissingMetadata = (block) => {
+    let updatedBlock = block.trimEnd();
+    for (const [key, value] of metadata) {
+      const keyPattern = new RegExp(`^${key}:`, 'm');
+      if (!keyPattern.test(updatedBlock)) {
+        updatedBlock += `\n${key}: ${value}`;
+      }
+    }
+    return updatedBlock;
+  };
+
+  if (/^---[\r\n]/.test(content)) {
+    content = content.replace(
+      /^---[\r\n]+([\s\S]*?)---[\r\n]*/,
+      (match, block) => `---\n${addMissingMetadata(block)}\n---\n`
+    );
+  } else {
+    content = `---\n${metadata.map(([key, value]) => `${key}: ${value}`).join('\n')}\n---\n\n${content}`;
+  }
+  fs.writeFileSync(destSkillMd, content, 'utf8');
+}
+
 function syncSkills(options) {
   const lockfile = loadLockfile(options.lockfile);
   const targetDir = options.target;
@@ -232,12 +337,18 @@ function syncSkills(options) {
 
     const sourcePath = path.resolve(sourceRoot, entry.source_path);
     const sourceDir = path.dirname(sourcePath);
+    const sourceDirRel = path.posix.dirname(entry.source_path.replace(/\\/g, '/'));
 
-    validateSourceSkill(entry.name, sourcePath);
+    if (!entry.source_ref) {
+      validateSourceSkill(entry.name, sourcePath);
+    }
 
     resolvedSkills.push({
       name: entry.name,
-      sourceDir
+      sourceDir,
+      sourceRoot,
+      sourceDirRel,
+      sourceRef: entry.source_ref || null
     });
   }
 
@@ -246,7 +357,14 @@ function syncSkills(options) {
   for (const skill of resolvedSkills) {
     const destDir = path.join(targetDir, skill.name);
 
-    if (mode === 'symlink') {
+    if (skill.sourceRef) {
+      if (mode === 'symlink') {
+        process.stderr.write(
+          `Warning: symlink mode is unavailable for git-pinned skill "${skill.name}"; falling back to copy mode.\n`
+        );
+      }
+      extractGitSkill(skill.sourceRoot, skill.sourceRef, skill.sourceDirRel, destDir);
+    } else if (mode === 'symlink') {
       linkSkill(skill.sourceDir, destDir);
     } else {
       copySkill(skill.sourceDir, destDir);
@@ -256,28 +374,7 @@ function syncSkills(options) {
   // Ensure Matt Pocock attribution is applied on copied skills if author is present
   if (mode === 'copy') {
     for (const entry of lockfile.skills) {
-      if (entry.author && entry.author.toLowerCase().includes('matt pocock')) {
-        const destSkillMd = path.join(targetDir, entry.name, 'SKILL.md');
-        if (fs.existsSync(destSkillMd)) {
-          let content = fs.readFileSync(destSkillMd, 'utf8');
-          if (!content.includes('author: Matt Pocock')) {
-            content = content.replace(
-              /^---[\r\n]+([\s\S]*?)---[\r\n]+/,
-              (match, p1) => {
-                let block = p1.trimEnd();
-                if (!block.includes('author:')) {
-                  block += '\nauthor: Matt Pocock (https://github.com/mattpocock/skills)';
-                }
-                if (!block.includes('license:')) {
-                  block += '\nlicense: MIT';
-                }
-                return `---\n${block}\n---\n\n`;
-              }
-            );
-            fs.writeFileSync(destSkillMd, content, 'utf8');
-          }
-        }
-      }
+      updateSkillMetadata(path.join(targetDir, entry.name, 'SKILL.md'), entry);
     }
   }
 
@@ -315,5 +412,6 @@ module.exports = {
   parseArgs,
   syncSkills,
   loadLockfile,
-  resolveSourceRoot
+  resolveSourceRoot,
+  extractGitSkill
 };
