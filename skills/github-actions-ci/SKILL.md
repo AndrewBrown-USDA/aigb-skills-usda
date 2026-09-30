@@ -4,6 +4,11 @@ author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: GitHub Actions CI/CD setup for Python, R, and multi-platform testing. Use when creating, debugging, or optimizing CI/CD pipelines.
 version: 1.0
+source: aigb-skills
+source_path: skills/github-actions-ci/SKILL.md
+selection_status: dependency-support
+publishability: publishable
+rationale: Supports CI/CD for GitHub repositories.
 ---
 
 # GitHub Actions CI/CD Setup

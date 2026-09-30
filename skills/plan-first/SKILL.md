@@ -5,9 +5,15 @@ license: MIT
 description: Structured planning workflow for any coding task. Use at the start of every new feature, bug fix, refactor, or implementation request. Analyzes the project, asks up to 5 clarifying questions, creates a TODO.md, gets user approval, then executes task by task. Never writes code before a plan is approved.
 version: 1.0
 source: aigb-skills
+source_path: skills/plan-first/SKILL.md
+selection_status: direct-history
+publishability: publishable
+rationale: Highest-frequency planning workflow in the existing history briefing.
 provenance:
   type: web
   url: https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js
+  author: SoAp9035 (Reddit)
+  note: Adapted and customized from original Reddit workflow by u/SoAp9035
 ---
 # Plan-First Workflow
 

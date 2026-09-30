@@ -3,33 +3,14 @@
   "generated_by": "scripts/mine-history.js",
   "generated_from": {
     "repo": "aigb-skills-usda",
-    "evidence": [
-      "planning/EXECUTION_PLAN_1.md",
-      "planning/STATE_1.md"
-    ],
+    "evidence": ["planning/EXECUTION_PLAN_1.md", "planning/STATE_1.md"],
     "note": "Uses the history evidence already established in the orchestration context; does not re-mine the full history store."
   },
   "skills": [
     {
-      "name": "plan-first",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/plan-first/SKILL.md",
-      "selection_status": "direct-history",
-      "publishability": "publishable",
-      "rationale": "Highest-frequency planning workflow in the existing history briefing.",
-      "provenance": {
-        "type": "web",
-        "url": "https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js",
-        "author": "SoAp9035 (Reddit)",
-        "note": "Adapted and customized from original Reddit workflow by u/SoAp9035"
-      },
-      "version": {
-        "status": "resolved",
-        "value": "1.0"
-      }
-    },
-    {
       "name": "agent-onboarding",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/agent-onboarding/SKILL.md",
       "selection_status": "direct-history",
@@ -41,32 +22,22 @@
       }
     },
     {
-      "name": "wave-orchestration",
+      "name": "apply-fed-oss-license",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
       "source_repo": "aigb-skills",
-      "source_path": "skills/wave-orchestration/SKILL.md",
-      "selection_status": "direct-history",
+      "source_path": "skills/apply-fed-oss-license/SKILL.md",
+      "selection_status": "dependency-support",
       "publishability": "publishable",
-      "rationale": "Core workflow for decomposing and coordinating larger task waves.",
+      "rationale": "Audit and update repositories to Code.mil federal open-source licensing model with 17 U.S.C. § 105 disclaimers.",
       "version": {
         "status": "resolved",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "plan-wave",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/plan-wave/SKILL.md",
-      "selection_status": "direct-history",
-      "publishability": "publishable",
-      "rationale": "Frequently paired with planning/wave execution and task decomposition.",
-      "version": {
-        "status": "resolved",
-        "value": "1.0"
+        "value": "1.0.0"
       }
     },
     {
       "name": "code-review-2axis",
-      "author": "Matt Pocock",
+      "author": "Matt Pocock (https://github.com/mattpocock/skills)",
       "license": "MIT",
       "source_repo": "mattpocock-skills",
       "source_path": "skills/engineering/code-review/SKILL.md",
@@ -86,6 +57,8 @@
     },
     {
       "name": "copilot-history-briefing",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/copilot-history-briefing/SKILL.md",
       "selection_status": "direct-history",
@@ -97,115 +70,9 @@
       }
     },
     {
-      "name": "tdd",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/tdd/SKILL.md",
-      "selection_status": "direct-history",
-      "publishability": "publishable",
-      "rationale": "Test-driven development support that the existing history already uses.",
-      "version": {
-        "status": "resolved",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "install-skills",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/install-skills/SKILL.md",
-      "selection_status": "dependency-support",
-      "publishability": "publishable",
-      "rationale": "Supports the install/sync workflow that the public catalog is meant to expose.",
-      "version": {
-        "status": "resolved",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "reviewer-architecture",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/reviewer-architecture/SKILL.md",
-      "selection_status": "dependency-support",
-      "publishability": "publishable",
-      "rationale": "Adjacent review support for code changes and structure-focused feedback.",
-      "version": {
-        "status": "resolved",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "reviewer-correctness",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/reviewer-correctness/SKILL.md",
-      "selection_status": "dependency-support",
-      "publishability": "publishable",
-      "rationale": "Adjacent review support for bug-fix verification and correctness checks.",
-      "version": {
-        "status": "resolved",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "skill-research",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/skill-research/SKILL.md",
-      "selection_status": "dependency-support",
-      "publishability": "publishable",
-      "rationale": "Useful for research-heavy tasks that feed planning and catalog decisions.",
-      "version": {
-        "status": "resolved",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "doc-consistency",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/doc-consistency/SKILL.md",
-      "selection_status": "dependency-support",
-      "publishability": "publishable",
-      "rationale": "Keeps docs and examples aligned with the repo's established conventions.",
-      "version": {
-        "status": "resolved",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "verbosity-cleaner",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/verbosity-cleaner/SKILL.md",
-      "selection_status": "dependency-support",
-      "publishability": "publishable",
-      "rationale": "Helpful for keeping generated outputs and handoffs concise.",
-      "version": {
-        "status": "resolved",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "github-actions-ci",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/github-actions-ci/SKILL.md",
-      "selection_status": "dependency-support",
-      "publishability": "publishable",
-      "rationale": "Supports future CI validation for install and sync workflows.",
-      "version": {
-        "status": "resolved",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "worker-validation",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/worker-validation/SKILL.md",
-      "selection_status": "dependency-support",
-      "publishability": "publishable",
-      "rationale": "Useful for verifying that workflow changes actually behave as intended.",
-      "version": {
-        "status": "resolved",
-        "value": "1.0"
-      }
-    },
-    {
       "name": "deep-investigative-research",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/deep-investigative-research/SKILL.md",
       "selection_status": "dependency-support",
@@ -217,24 +84,42 @@
       }
     },
     {
-      "name": "makefile-development-workflow",
+      "name": "doc-consistency",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
       "source_repo": "aigb-skills",
-      "source_path": "skills/makefile-development-workflow/SKILL.md",
+      "source_path": "skills/doc-consistency/SKILL.md",
       "selection_status": "dependency-support",
       "publishability": "publishable",
-      "rationale": "Useful when adding small reproducible command surfaces to the repo.",
+      "rationale": "Keeps docs and examples aligned with the repo's established conventions.",
       "version": {
         "status": "resolved",
         "value": "1.0"
       }
     },
     {
-      "name": "json-processing-with-jq",
+      "name": "dr-lexus",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
       "source_repo": "aigb-skills",
-      "source_path": "skills/json-processing-with-jq/SKILL.md",
+      "source_path": "skills/dr-lexus/SKILL.md",
       "selection_status": "dependency-support",
       "publishability": "publishable",
-      "rationale": "Helpful for working with the lockfile and other machine-readable outputs.",
+      "rationale": "Support workflow for diagnostic review and error triage.",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "github-actions-ci",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/github-actions-ci/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Supports future CI validation for install and sync workflows.",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -242,7 +127,7 @@
     },
     {
       "name": "grilling",
-      "author": "Matt Pocock",
+      "author": "Matt Pocock (https://github.com/mattpocock/skills)",
       "license": "MIT",
       "source_repo": "mattpocock-skills",
       "source_path": "skills/productivity/grilling/SKILL.md",
@@ -261,68 +146,98 @@
       }
     },
     {
+      "name": "install-skills",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/install-skills/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Supports the install/sync workflow that the public catalog is meant to expose.",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "json-processing-with-jq",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/json-processing-with-jq/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Helpful for working with the lockfile and other machine-readable outputs.",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "makefile-development-workflow",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/makefile-development-workflow/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Useful when adding small reproducible command surfaces to the repo.",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
       "name": "performance-benchmarking",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/performance-benchmarking/SKILL.md",
       "selection_status": "dependency-support",
       "publishability": "publishable",
-      "rationale": "Useful for future install/sync performance checks and comparisons.",
+      "rationale": "Useful for performance checks and before/after comparisons.",
       "version": {
         "status": "resolved",
         "value": "1.0"
       }
     },
     {
-      "name": "dr-lexus",
+      "name": "plan-first",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
       "source_repo": "aigb-skills",
-      "source_path": "skills/dr-lexus/SKILL.md",
-      "selection_status": "dependency-support",
+      "source_path": "skills/plan-first/SKILL.md",
+      "provenance": {
+        "type": "web",
+        "url": "https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js",
+        "author": "SoAp9035 (Reddit)",
+        "note": "Adapted and customized from original Reddit workflow by u/SoAp9035"
+      },
+      "selection_status": "direct-history",
       "publishability": "publishable",
-      "rationale": "Support workflow for diagnostic review and error triage.",
+      "rationale": "Highest-frequency planning workflow in the existing history briefing.",
       "version": {
         "status": "resolved",
         "value": "1.0"
       }
     },
     {
-      "name": "rubber-ducking",
+      "name": "plan-wave",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
       "source_repo": "aigb-skills",
-      "source_path": "skills/rubber-ducking/SKILL.md",
-      "selection_status": "dependency-support",
+      "source_path": "skills/plan-wave/SKILL.md",
+      "selection_status": "direct-history",
       "publishability": "publishable",
-      "rationale": "Support workflow for interactive debugging and reasoning.",
+      "rationale": "Frequently paired with planning/wave execution and task decomposition.",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      }
-    },
-    {
-      "name": "web-source-bundler",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/web-source-bundler/SKILL.md",
-      "selection_status": "dependency-support",
-      "publishability": "publishable",
-      "rationale": "Captures web sources into deterministic Markdown reference bundles with checksums.",
-      "version": {
-        "status": "resolved",
-        "value": "1.1.0"
-      }
-    },
-    {
-      "name": "apply-fed-oss-license",
-      "source_repo": "aigb-skills",
-      "source_path": "skills/apply-fed-oss-license/SKILL.md",
-      "selection_status": "dependency-support",
-      "publishability": "publishable",
-      "rationale": "Audit and update repositories to Code.mil federal open-source licensing model with 17 U.S.C. § 105 disclaimers.",
-      "version": {
-        "status": "resolved",
-        "value": "1.0.0"
       }
     },
     {
       "name": "research",
-      "author": "Matt Pocock",
+      "author": "Matt Pocock (https://github.com/mattpocock/skills)",
       "license": "MIT",
       "source_repo": "mattpocock-skills",
       "source_path": "skills/engineering/research/SKILL.md",
@@ -338,6 +253,138 @@
       "version": {
         "status": "missing",
         "value": null
+      }
+    },
+    {
+      "name": "reviewer-architecture",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/reviewer-architecture/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Adjacent review support for code changes and structure-focused feedback.",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "reviewer-correctness",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/reviewer-correctness/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Adjacent review support for bug-fix verification and correctness checks.",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "rubber-ducking",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/rubber-ducking/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Support workflow for interactive debugging and reasoning.",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "skill-research",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/skill-research/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Useful for research-heavy tasks that feed planning and catalog decisions.",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "tdd",
+      "author": "Matt Pocock (https://github.com/mattpocock/skills)",
+      "license": "MIT",
+      "source_repo": "mattpocock-skills",
+      "source_path": "skills/engineering/tdd/SKILL.md",
+      "source_ref": "v1.2.0",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/mattpocock/skills",
+        "ref": "v1.2.0"
+      },
+      "selection_status": "direct-history",
+      "publishability": "publishable",
+      "rationale": "Test-driven development support that the existing history already uses.",
+      "version": {
+        "status": "missing",
+        "value": null
+      }
+    },
+    {
+      "name": "verbosity-cleaner",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/verbosity-cleaner/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Helpful for keeping generated outputs and handoffs concise.",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "wave-orchestration",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/wave-orchestration/SKILL.md",
+      "selection_status": "direct-history",
+      "publishability": "publishable",
+      "rationale": "Core workflow for decomposing and coordinating larger task waves.",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "web-source-bundler",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/web-source-bundler/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Captures web sources into deterministic Markdown reference bundles with checksums.",
+      "version": {
+        "status": "resolved",
+        "value": "1.1.0"
+      }
+    },
+    {
+      "name": "worker-validation",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/worker-validation/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
+      "rationale": "Useful for verifying that workflow changes actually behave as intended.",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
       }
     }
   ]

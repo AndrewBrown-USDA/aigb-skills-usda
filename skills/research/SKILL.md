@@ -4,8 +4,16 @@ description: Investigate a question against high-trust primary sources and captu
 author: Matt Pocock (https://github.com/mattpocock/skills)
 license: MIT
 source: mattpocock-skills
+source_path: skills/engineering/research/SKILL.md
 source_ref: v1.2.0
 upstream: https://github.com/mattpocock/skills
+selection_status: dependency-support
+publishability: publishable
+rationale: Investigate questions against high-trust primary sources and produce structured Markdown findings.
+provenance:
+  type: git
+  repository: https://github.com/mattpocock/skills
+  ref: v1.2.0
 ---
 Spin up a **background agent** to do the research, so you keep working while it reads.
 

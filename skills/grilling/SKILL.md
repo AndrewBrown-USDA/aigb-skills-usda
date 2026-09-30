@@ -4,8 +4,16 @@ description: Grill the user relentlessly about a plan, decision, or idea. Use wh
 author: Matt Pocock (https://github.com/mattpocock/skills)
 license: MIT
 source: mattpocock-skills
+source_path: skills/productivity/grilling/SKILL.md
 source_ref: v1.2.0
 upstream: https://github.com/mattpocock/skills
+selection_status: dependency-support
+publishability: publishable
+rationale: Referenced by plan-wave for decision interviewing.
+provenance:
+  type: git
+  repository: https://github.com/mattpocock/skills
+  ref: v1.2.0
 ---
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
 

@@ -4,6 +4,11 @@ author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 version: 1.1.0
 description: Captures web sources and compiles deterministic Markdown reference bundles with metadata and checksums. Use when asked to capture URLs, research web links, bundle search results, or archive web pages into an LLM-ready reference document.
+source: aigb-skills
+source_path: skills/web-source-bundler/SKILL.md
+selection_status: dependency-support
+publishability: publishable
+rationale: Captures web sources into deterministic Markdown reference bundles with checksums.
 ---
 
 # Web Source Bundler

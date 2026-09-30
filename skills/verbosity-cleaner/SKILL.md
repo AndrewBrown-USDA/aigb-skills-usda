@@ -4,6 +4,11 @@ author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: Enforces lean, surgical output. Suppresses conversational fluff and verbose reasoning traces. Use when agent output feels too chatty or repetitive.
 version: 1.0
+source: aigb-skills
+source_path: skills/verbosity-cleaner/SKILL.md
+selection_status: dependency-support
+publishability: publishable
+rationale: Helpful for keeping generated outputs and handoffs concise.
 ---
 
 # Verbosity Cleaner

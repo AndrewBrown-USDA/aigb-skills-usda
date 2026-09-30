@@ -147,6 +147,16 @@ function main() {
   assert.equal(grilling.provenance.type, 'git');
   assert.equal(grilling.provenance.ref, 'v1.2.0');
 
+  const tdd = lockfile.skills.find(s => s.name === 'tdd');
+  assert.ok(tdd, 'tdd must exist');
+  assert.match(tdd.author, /Matt Pocock/i);
+  assert.equal(tdd.license, 'MIT');
+  assert.equal(tdd.source_repo, 'mattpocock-skills');
+  assert.equal(tdd.source_ref, 'v1.2.0');
+  assert.equal(tdd.provenance.type, 'git');
+  assert.equal(tdd.provenance.ref, 'v1.2.0');
+  assert.match(tdd.provenance.repository, /github\.com\/mattpocock\/skills/);
+
   const applyFedOssLicense = lockfile.skills.find(s => s.name === 'apply-fed-oss-license');
   assert.ok(applyFedOssLicense, 'apply-fed-oss-license must exist');
   assert.equal(applyFedOssLicense.version.status, 'resolved');
