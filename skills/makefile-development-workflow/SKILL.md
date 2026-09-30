@@ -4,6 +4,11 @@ author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: Standardizes Makefile-based build and test workflows with reproducible targets. Use when creating or refining helpful build, test, and clean targets.
 version: 1.0
+source: aigb-skills
+source_path: skills/makefile-development-workflow/SKILL.md
+selection_status: dependency-support
+publishability: publishable
+rationale: Useful when adding small reproducible command surfaces to the repo.
 ---
 
 # Makefile Development Workflow

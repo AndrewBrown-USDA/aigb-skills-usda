@@ -11,7 +11,7 @@
 ## Installing Skills (Users & Agents)
 - **Primary off-ramp**: Pre-materialized skills live in `skills/`.
 - To install skills into your agent directory on any machine, run:
-  - `npx skills install --target ~/.agents/skills` (or `~/.claude/skills`, `~/.cursor/skills`)
+  - `npx skills install --target ~/.agents/skills` (or `~/.claude/skills`, `~/.pi/agent/skills`)
   - Or run `make install-skills`
 - **Do not run `skills sync` or `make sync` to install skills.** `sync` is a maintainer-only command that rebuilds `skills/` from upstream source checkouts.
 

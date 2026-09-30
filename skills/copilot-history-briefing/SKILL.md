@@ -4,6 +4,11 @@ description: Reads Copilot conversation history and extracts executive-ready suc
 version: 1.3
 author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
+source: aigb-skills
+source_path: skills/copilot-history-briefing/SKILL.md
+selection_status: direct-history
+publishability: publishable
+rationale: Supports the history-led research workflow that informed this catalog.
 ---
 
 # Copilot history briefing

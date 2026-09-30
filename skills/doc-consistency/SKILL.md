@@ -4,6 +4,11 @@ author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: Normalizes documentation and examples for consistency in style, format, and accuracy. Ensures code matches existing patterns and documentation. Use when reviewing docs, examples, or writing new code that should follow established patterns.
 version: 1.0
+source: aigb-skills
+source_path: skills/doc-consistency/SKILL.md
+selection_status: dependency-support
+publishability: publishable
+rationale: Keeps docs and examples aligned with the repo's established conventions.
 ---
 
 # Doc Consistency

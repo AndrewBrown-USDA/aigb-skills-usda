@@ -4,6 +4,11 @@ author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: Guides the research, design, and validation of new SKILL.md files for the Pi coding agent ecosystem. Use when tasked with identifying skill gaps or designing new agent capabilities.
 version: 1.0
+source: aigb-skills
+source_path: skills/skill-research/SKILL.md
+selection_status: dependency-support
+publishability: publishable
+rationale: Useful for research-heavy tasks that feed planning and catalog decisions.
 ---
 
 # Skill Research

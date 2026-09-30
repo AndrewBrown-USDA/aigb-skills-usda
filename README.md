@@ -12,7 +12,7 @@
 
 ## Quick Start (Installing Skills)
 
-To install packaged skills into your agent directory (works out of the box on any machine):
+To install packaged skills into your agent directory (works out-of-the-box on any machine):
 
 ```bash
 npm install
@@ -32,7 +32,37 @@ make test
 
 - Copilot CLI / Universal Agents: `npx skills install --target ~/.agents/skills`
 - Claude Code: `npx skills install --target ~/.claude/skills`
-- Cursor: `npx skills install --target ~/.cursor/skills`
+- Pi coding agent: `npx skills install --target ~/.pi/agent/skills`
+
+### Project-Directory & Skill-Specific Installs
+
+You can install skills directly into a local repository/project directory:
+
+```bash
+# Install all skills into a local project's agent or GitHub Copilot folder
+npx skills install --target ./.agents/skills
+# or: npx skills install --target ./.github/skills
+```
+
+To install a specific skill or a subset of skills, use `--skill` or `--skills` with single or comma-separated names:
+
+```bash
+# Install a single skill to Pi coding agent
+npx skills install --target ~/.pi/agent/skills --skill plan-first
+
+# Install multiple selected skills
+npx skills install --target ~/.pi/agent/skills --skills plan-first,dr-lexus,code-review-2axis
+
+# Install selected skills into a project directory
+npx skills install --target ./.agents/skills --skills plan-first,web-source-bundler
+```
+
+You can also use the bash helper in `skills/install-skills/scripts/install.sh`:
+
+```bash
+# Install a single skill via bash script
+bash skills/install-skills/scripts/install.sh --target pi --skill plan-first
+```
 
 ## Install vs. Maintainer Sync
 

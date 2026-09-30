@@ -4,7 +4,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, spawnSync } = require('node:child_process');
 
 const repoRoot = path.resolve(__dirname, '..');
 const scratchRoot = path.join(repoRoot, '.scratch');
@@ -24,6 +24,18 @@ function runNode(args) {
     cwd: repoRoot,
     encoding: 'utf8'
   });
+}
+
+function runNodeResult(args) {
+  const result = spawnSync(process.execPath, args, {
+    cwd: repoRoot,
+    encoding: 'utf8'
+  });
+  return {
+    status: result.status,
+    stdout: result.stdout || '',
+    stderr: result.stderr || ''
+  };
 }
 
 function readJson(filePath) {
@@ -54,6 +66,15 @@ function assertSkillAttribution(targetDir) {
     const content = fs.readFileSync(codeReviewMd, 'utf8');
     assert.match(content, /author:\s*Matt Pocock/i);
     assert.match(content, /license:\s*MIT/i);
+  }
+}
+
+function assertGrillingContent(targetDir, requireAttribution = true) {
+  const grillingMd = path.join(targetDir, 'grilling', 'SKILL.md');
+  const content = fs.readFileSync(grillingMd, 'utf8');
+  assert.match(content, /Each question should be formatted like so:/);
+  if (requireAttribution) {
+    assert.match(content, /author:\s*Matt Pocock/i);
   }
 }
 
@@ -104,12 +125,37 @@ function main() {
     } else {
       assert.equal(entry.version.value, null, `missing version value must be null for ${entry.name}`);
     }
+    if (entry.provenance !== undefined) {
+      assert.ok(entry.provenance && typeof entry.provenance === 'object');
+      assert.ok(
+        entry.provenance.type === 'git' || entry.provenance.type === 'web',
+        `invalid provenance type for ${entry.name}`
+      );
+    }
   }
 
   const planFirst = lockfile.skills.find(s => s.name === 'plan-first');
   assert.ok(planFirst, 'plan-first must exist');
   assert.equal(planFirst.version.status, 'resolved');
   assert.equal(planFirst.version.value, '1.0');
+  assert.equal(planFirst.provenance.type, 'web');
+  assert.match(planFirst.provenance.url, /https:\/\/www\.reddit\.com\/r\/LocalLLaMA\/s\/w0G0mMp1js/);
+
+  const grilling = lockfile.skills.find(s => s.name === 'grilling');
+  assert.ok(grilling, 'grilling must exist');
+  assert.equal(grilling.source_ref, 'v1.2.0');
+  assert.equal(grilling.provenance.type, 'git');
+  assert.equal(grilling.provenance.ref, 'v1.2.0');
+
+  const tdd = lockfile.skills.find(s => s.name === 'tdd');
+  assert.ok(tdd, 'tdd must exist');
+  assert.match(tdd.author, /Matt Pocock/i);
+  assert.equal(tdd.license, 'MIT');
+  assert.equal(tdd.source_repo, 'mattpocock-skills');
+  assert.equal(tdd.source_ref, 'v1.2.0');
+  assert.equal(tdd.provenance.type, 'git');
+  assert.equal(tdd.provenance.ref, 'v1.2.0');
+  assert.match(tdd.provenance.repository, /github\.com\/mattpocock\/skills/);
 
   const applyFedOssLicense = lockfile.skills.find(s => s.name === 'apply-fed-oss-license');
   assert.ok(applyFedOssLicense, 'apply-fed-oss-license must exist');
@@ -136,6 +182,7 @@ function main() {
   );
   assertSkillLayout(syncTarget, lockfile.skills);
   assertSkillAttribution(syncTarget);
+  assertGrillingContent(syncTarget);
 
   // 5. Test scripts/sync-skills.js (copy mode)
   const syncOutput = runNode([
@@ -154,6 +201,7 @@ function main() {
   );
   assertSkillLayout(syncTarget, lockfile.skills);
   assertSkillAttribution(syncTarget);
+  assertGrillingContent(syncTarget);
 
   // 6. Test scripts/install.js (installing packaged skills directly)
   const installOutput = runNode([
@@ -186,8 +234,86 @@ function main() {
     `Installed ${expectedCount} skills to ${installTarget} using copy mode.`
   );
 
+  // 6c. Test single and comma-separated skill filtering
+  const filterSingleTarget = path.join(scratchRoot, 'smoke-filter-single');
+  const cliSingleOutput = runNode([
+    'bin/skills.js',
+    'install',
+    '--target',
+    filterSingleTarget,
+    '--skill',
+    'plan-first'
+  ]).trim();
+  assert.equal(
+    cliSingleOutput,
+    `Installed 1 skills to ${filterSingleTarget} using copy mode.`
+  );
+  assert.ok(fs.existsSync(path.join(filterSingleTarget, 'plan-first', 'SKILL.md')));
+  assert.ok(!fs.existsSync(path.join(filterSingleTarget, 'dr-lexus')));
+
+  const filterMultiTarget = path.join(scratchRoot, 'smoke-filter-multi');
+  const cliMultiOutput = runNode([
+    'bin/skills.js',
+    'install',
+    '--target',
+    filterMultiTarget,
+    '--skills',
+    'plan-first, dr-lexus, grilling'
+  ]).trim();
+  assert.equal(
+    cliMultiOutput,
+    `Installed 3 skills to ${filterMultiTarget} using copy mode.`
+  );
+  assert.ok(fs.existsSync(path.join(filterMultiTarget, 'plan-first', 'SKILL.md')));
+  assert.ok(fs.existsSync(path.join(filterMultiTarget, 'dr-lexus', 'SKILL.md')));
+  assert.ok(fs.existsSync(path.join(filterMultiTarget, 'grilling', 'SKILL.md')));
+  assert.ok(!fs.existsSync(path.join(filterMultiTarget, 'rubber-ducking')));
+
+  // 6d. Test invalid skill name error
+  const invalidResult = runNodeResult([
+    'bin/skills.js',
+    'install',
+    '--target',
+    path.join(scratchRoot, 'smoke-filter-invalid'),
+    '--skill',
+    'non-existent-skill-xyz'
+  ]);
+  assert.equal(invalidResult.status, 1, 'Install must exit with status 1 on invalid skill');
+  assert.match(
+    invalidResult.stderr,
+    /Skill\(s\) not found in/i
+  );
+
+  // 6e. Test empty or missing --skill filter flag error
+  const emptySkillResult = runNodeResult([
+    'bin/skills.js',
+    'install',
+    '--target',
+    path.join(scratchRoot, 'smoke-filter-empty'),
+    '--skill',
+    ''
+  ]);
+  assert.equal(emptySkillResult.status, 1, 'Install must exit with status 1 on empty --skill argument');
+  assert.match(
+    emptySkillResult.stderr,
+    /requires a non-empty skill name/i
+  );
+
+  const missingSkillArgResult = runNodeResult([
+    'bin/skills.js',
+    'install',
+    '--target',
+    path.join(scratchRoot, 'smoke-filter-missing-arg'),
+    '--skill'
+  ]);
+  assert.equal(missingSkillArgResult.status, 1, 'Install must exit with status 1 when --skill is missing argument');
+  assert.match(
+    missingSkillArgResult.stderr,
+    /requires a non-empty skill name/i
+  );
+
   // 7. Test symlink mode for sync
-  const symlinkOutput = runNode([
+  const symlinkResult = runNodeResult([
     'scripts/sync-skills.js',
     '--mode',
     'symlink',
@@ -195,13 +321,22 @@ function main() {
     lockfilePath,
     '--target',
     symlinkTarget
-  ]).trim();
+  ]);
 
   assert.equal(
-    symlinkOutput,
+    symlinkResult.status,
+    0
+  );
+  assert.equal(
+    symlinkResult.stdout.trim(),
     `Synced ${expectedCount} skills to ${symlinkTarget} using symlink mode.`
   );
+  assert.match(
+    symlinkResult.stderr,
+    /symlink mode is unavailable for git-pinned skill "grilling"; falling back to copy mode/i
+  );
   assertSkillLayout(symlinkTarget, lockfile.skills);
+  assertGrillingContent(symlinkTarget, false);
 
   // 8. Test symlink mode for install
   const installSymlinkTarget = path.join(scratchRoot, 'smoke-install-symlink');
@@ -281,4 +416,3 @@ try {
   console.error(`smoke: ${error.message}`);
   process.exitCode = 1;
 }
-
