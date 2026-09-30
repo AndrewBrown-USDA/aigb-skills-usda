@@ -31,5 +31,13 @@ jobs:
       - name: Verify CLI help
         run: node bin/skills.js --help
 
-      - name: Run smoke tests
-        run: npm test
+      - name: Validate packaged skills
+        run: npm run validate:skills -- --report .scratch/skills-report.json
+
+      - name: Upload packaged skill validation report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: packaged-skill-validation-node-${{ matrix.node-version }}
+          path: .scratch/skills-report.json
+          if-no-files-found: warn
