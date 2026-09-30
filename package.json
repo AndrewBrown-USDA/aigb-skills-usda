@@ -16,6 +16,8 @@
     "help": "node bin/skills.js --help",
     "smoke": "node scripts/smoke.js",
     "test": "node scripts/smoke.js",
+    "test:validate": "node scripts/validate-skills-test.js",
+    "validate:skills": "node scripts/validate-skills.js",
     "catalog:mine": "node scripts/mine-history.js --output catalog/skills.lock.json",
     "skills:sync": "node scripts/sync-skills.js",
     "skills:install": "node scripts/install.js"

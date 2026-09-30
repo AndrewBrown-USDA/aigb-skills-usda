@@ -28,6 +28,21 @@ make install-skills
 make test
 ```
 
+### CI Validation vs. Maintainer Sync
+
+CI validates the packaged `skills/` directory with:
+
+```bash
+npm run validate:skills -- --report .scratch/skills-report.json
+```
+
+This check uses only files shipped in this repository. It does not clone or sync
+upstream repositories, access private repositories, or require sibling checkouts.
+
+The existing `npm test` smoke suite also exercises maintainer synchronization
+paths and may require local upstream source checkouts. Run it locally when
+working on `skills sync`; it is not the packaged-only CI contract.
+
 ### Common Agent Install Targets
 
 - Copilot CLI / Universal Agents: `npx skills install --target ~/.agents/skills`
