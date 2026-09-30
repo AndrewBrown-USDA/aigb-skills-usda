@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const childProcess = require('node:child_process');
 
 const curatedSkills = [
   {
@@ -10,7 +11,13 @@ const curatedSkills = [
     source_path: 'skills/plan-first/SKILL.md',
     selection_status: 'direct-history',
     publishability: 'publishable',
-    rationale: 'Highest-frequency planning workflow in the existing history briefing.'
+    rationale: 'Highest-frequency planning workflow in the existing history briefing.',
+    provenance: {
+      type: 'web',
+      url: 'https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js',
+      author: 'SoAp9035 (Reddit)',
+      note: 'Adapted and customized from original Reddit workflow by u/SoAp9035'
+    }
   },
   {
     name: 'agent-onboarding',
@@ -42,6 +49,12 @@ const curatedSkills = [
     license: 'MIT',
     source_repo: 'mattpocock-skills',
     source_path: 'skills/engineering/code-review/SKILL.md',
+    source_ref: 'v1.2.0',
+    provenance: {
+      type: 'git',
+      repository: 'https://github.com/mattpocock/skills',
+      ref: 'v1.2.0'
+    },
     selection_status: 'direct-history',
     publishability: 'publishable',
     rationale: 'High-frequency review workflow derived from Matt Pocock\'s code-review skill.'
@@ -156,6 +169,12 @@ const curatedSkills = [
     license: 'MIT',
     source_repo: 'mattpocock-skills',
     source_path: 'skills/productivity/grilling/SKILL.md',
+    source_ref: 'v1.2.0',
+    provenance: {
+      type: 'git',
+      repository: 'https://github.com/mattpocock/skills',
+      ref: 'v1.2.0'
+    },
     selection_status: 'dependency-support',
     publishability: 'publishable',
     rationale: 'Referenced by plan-wave for decision interviewing.'
@@ -199,6 +218,22 @@ const curatedSkills = [
     selection_status: 'dependency-support',
     publishability: 'publishable',
     rationale: 'Audit and update repositories to Code.mil federal open-source licensing model with 17 U.S.C. § 105 disclaimers.'
+  },
+  {
+    name: 'research',
+    author: 'Matt Pocock',
+    license: 'MIT',
+    source_repo: 'mattpocock-skills',
+    source_path: 'skills/engineering/research/SKILL.md',
+    source_ref: 'v1.2.0',
+    provenance: {
+      type: 'git',
+      repository: 'https://github.com/mattpocock/skills',
+      ref: 'v1.2.0'
+    },
+    selection_status: 'dependency-support',
+    publishability: 'publishable',
+    rationale: 'Investigate questions against high-trust primary sources and produce structured Markdown findings.'
   }
 ];
 
@@ -222,10 +257,11 @@ function resolveSourceRoot(sourceRepo) {
   return siblingCandidate;
 }
 
-function resolveSkillVersion(sourceRepo, sourcePath) {
+function resolveSkillVersion(sourceRepo, sourcePath, sourceRef) {
   try {
     const sourceRoot = resolveSourceRoot(sourceRepo);
     let fullPath = path.resolve(sourceRoot, sourcePath);
+    let content;
 
     // Fallback if source root isn't present: check local skills/ folder in repo
     if (!fs.existsSync(fullPath)) {
@@ -233,14 +269,31 @@ function resolveSkillVersion(sourceRepo, sourcePath) {
       if (fs.existsSync(localSkillCandidate)) {
         fullPath = localSkillCandidate;
       } else {
-        return {
-          status: 'missing',
-          value: null
-        };
+        if (!sourceRef) {
+          return {
+            status: 'missing',
+            value: null
+          };
+        }
+
+        try {
+          content = childProcess.execFileSync(
+            'git',
+            ['show', `${sourceRef}:${sourcePath}`],
+            { cwd: sourceRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+          );
+        } catch (err) {
+          return {
+            status: 'missing',
+            value: null
+          };
+        }
       }
     }
 
-    const content = fs.readFileSync(fullPath, 'utf8');
+    if (!content) {
+      content = fs.readFileSync(fullPath, 'utf8');
+    }
     const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
     if (!frontmatterMatch) {
       return {
@@ -306,7 +359,7 @@ function buildLockfile() {
     },
     skills: curatedSkills.map((skill) => ({
       ...skill,
-      version: resolveSkillVersion(skill.source_repo, skill.source_path)
+      version: resolveSkillVersion(skill.source_repo, skill.source_path, skill.source_ref)
     }))
   };
 }

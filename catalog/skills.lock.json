@@ -17,6 +17,12 @@
       "selection_status": "direct-history",
       "publishability": "publishable",
       "rationale": "Highest-frequency planning workflow in the existing history briefing.",
+      "provenance": {
+        "type": "web",
+        "url": "https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js",
+        "author": "SoAp9035 (Reddit)",
+        "note": "Adapted and customized from original Reddit workflow by u/SoAp9035"
+      },
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -64,6 +70,12 @@
       "license": "MIT",
       "source_repo": "mattpocock-skills",
       "source_path": "skills/engineering/code-review/SKILL.md",
+      "source_ref": "v1.2.0",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/mattpocock/skills",
+        "ref": "v1.2.0"
+      },
       "selection_status": "direct-history",
       "publishability": "publishable",
       "rationale": "High-frequency review workflow derived from Matt Pocock's code-review skill.",
@@ -234,6 +246,12 @@
       "license": "MIT",
       "source_repo": "mattpocock-skills",
       "source_path": "skills/productivity/grilling/SKILL.md",
+      "source_ref": "v1.2.0",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/mattpocock/skills",
+        "ref": "v1.2.0"
+      },
       "selection_status": "dependency-support",
       "publishability": "publishable",
       "rationale": "Referenced by plan-wave for decision interviewing.",
@@ -308,12 +326,18 @@
       "license": "MIT",
       "source_repo": "mattpocock-skills",
       "source_path": "skills/engineering/research/SKILL.md",
+      "source_ref": "v1.2.0",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/mattpocock/skills",
+        "ref": "v1.2.0"
+      },
       "selection_status": "dependency-support",
       "publishability": "publishable",
       "rationale": "Investigate questions against high-trust primary sources and produce structured Markdown findings.",
       "version": {
-        "status": "resolved",
-        "value": "1.1"
+        "status": "missing",
+        "value": null
       }
     }
   ]
