@@ -156,27 +156,34 @@ function runGit(sourceRoot, args) {
 }
 
 function extractGitSkill(sourceRoot, sourceRef, sourceDirRel, destDir) {
-  const normalizedSourceDir = sourceDirRel.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+  let normalizedSourceDir = sourceDirRel.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+  if (normalizedSourceDir === '.') {
+    normalizedSourceDir = '';
+  }
   let treeOutput;
 
   try {
-    treeOutput = runGit(sourceRoot, [
-      'ls-tree',
-      '-r',
-      '--name-only',
-      sourceRef,
-      '--',
-      normalizedSourceDir
-    ]);
+    const lsArgs = ['ls-tree', '-r', '--name-only', sourceRef];
+    if (normalizedSourceDir) {
+      lsArgs.push('--', normalizedSourceDir);
+    }
+    treeOutput = runGit(sourceRoot, lsArgs);
   } catch (error) {
     throw new Error(
-      `Unable to read git-pinned skill ${sourceRef}:${normalizedSourceDir}: ${error.message}`
+      `Unable to read git-pinned skill ${sourceRef}:${normalizedSourceDir || '.'}: ${error.message}`
     );
   }
 
   const files = treeOutput.split(/\r?\n/).filter(Boolean);
   if (files.length === 0) {
-    throw new Error(`Git-pinned skill contains no files: ${sourceRef}:${normalizedSourceDir}`);
+    throw new Error(`Git-pinned skill contains no files: ${sourceRef}:${normalizedSourceDir || '.'}`);
+  }
+
+  const expectedSkillMdRel = normalizedSourceDir ? `${normalizedSourceDir}/SKILL.md` : 'SKILL.md';
+  if (!files.includes(expectedSkillMdRel)) {
+    throw new Error(
+      `Git-pinned skill is missing required SKILL.md: ${sourceRef}:${expectedSkillMdRel}`
+    );
   }
 
   if (fs.existsSync(destDir) || fs.lstatSync(destDir, { throwIfNoEntry: false })) {
@@ -185,7 +192,9 @@ function extractGitSkill(sourceRoot, sourceRef, sourceDirRel, destDir) {
   fs.mkdirSync(destDir, { recursive: true });
 
   for (const repositoryPath of files) {
-    const relativePath = repositoryPath.slice(normalizedSourceDir.length).replace(/^\/+/, '');
+    const relativePath = normalizedSourceDir
+      ? repositoryPath.slice(normalizedSourceDir.length).replace(/^\/+/, '')
+      : repositoryPath;
     if (!relativePath || relativePath.includes('..')) {
       continue;
     }
