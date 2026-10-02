@@ -1,11 +1,12 @@
 ---
 name: makefile-development-workflow
-author: Andrew G. Brown (https://github.com/brownag)
-license: MIT
 description: Standardizes Makefile-based build and test workflows with reproducible targets. Use when creating or refining helpful build, test, and clean targets.
-version: 1.0
-source: aigb-skills
-source_path: skills/makefile-development-workflow/SKILL.md
+license: MIT
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/makefile-development-workflow/SKILL.md
 ---
 # Makefile Development Workflow
 

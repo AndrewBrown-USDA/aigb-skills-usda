@@ -1,11 +1,12 @@
 ---
 name: json-processing-with-jq
-author: Andrew G. Brown (https://github.com/brownag)
-license: MIT
 description: Processes JSON on the command line with jq. Use when parsing, filtering, or validating JSON from files or APIs.
-version: 1.0
-source: aigb-skills
-source_path: skills/json-processing-with-jq/SKILL.md
+license: MIT
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/json-processing-with-jq/SKILL.md
 ---
 # JSON Processing with jq
 

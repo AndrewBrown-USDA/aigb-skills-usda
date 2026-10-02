@@ -1,11 +1,12 @@
 ---
 name: github-actions-ci
-author: Andrew G. Brown (https://github.com/brownag)
-license: MIT
 description: GitHub Actions CI/CD setup for Python, R, and multi-platform testing. Use when creating, debugging, or optimizing CI/CD pipelines.
-version: 1.0
-source: aigb-skills
-source_path: skills/github-actions-ci/SKILL.md
+license: MIT
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/github-actions-ci/SKILL.md
 ---
 # GitHub Actions CI/CD Setup
 

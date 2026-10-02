@@ -1,11 +1,12 @@
 ---
 name: install-skills
-author: Andrew G. Brown (https://github.com/brownag)
-license: MIT
 description: Installs skills from aigb-skills into a coding agent's skill directory. Use when setting up aigb-skills for Claude Code, Cursor, Copilot, or Pi.
-version: 1.0
-source: aigb-skills
-source_path: skills/install-skills/SKILL.md
+license: MIT
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/install-skills/SKILL.md
 ---
 # Install Skills
 
