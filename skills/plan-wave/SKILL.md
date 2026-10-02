@@ -3,7 +3,7 @@ name: plan-wave
 author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: Develops an implementation plan ready for wave-orchestration to execute. Takes the user's goal or rough plan as input, mines the codebase for facts, grills the user one question at a time for the decisions, drafts the planning/ artifacts (task DAG, wave table, worker prompt template, state file), then reviews its own plan on two axes before seeking approval. Use when the user wants to turn a feature idea, master plan, or backlog into a wave-orchestration execution plan.
-version: 1.0
+version: 1.1
 source: aigb-skills
 source_path: skills/plan-wave/SKILL.md
 selection_status: direct-history
@@ -14,11 +14,14 @@ rationale: Frequently paired with planning/wave execution and task decomposition
 # Plan-Wave: author the plan that wave-orchestration executes
 
 Produces the `planning/` artifact set that the **wave-orchestration** skill
-consumes: `EXECUTION_PLAN.md` (task DAG + wave table + per-task specs),
-`PROMPT_TEMPLATE.md` (worker prompt), and `STATE.md` (scaffold). The output
+consumes: `EXECUTION_PLAN_N.md` (task DAG + wave table + per-task specs),
+`PROMPT_TEMPLATE_N.md` (worker prompt), and `STATE_N.md` (scaffold). The output
 contract -- task-spec fields, right-sizing rules, wave rules -- is defined by
 wave-orchestration; read that skill first and treat it as the spec this plan
 must conform to.
+
+Here, `N` is the next available orchestration number. For example, orchestration
+plan 3 uses `EXECUTION_PLAN_3.md`, `PROMPT_TEMPLATE_3.md`, and `STATE_3.md`.
 
 Division of labor with the user, borrowed from **grilling**: *facts* come from
 the codebase -- look them up, never ask. *Decisions* belong to the user -- put
@@ -30,7 +33,7 @@ approved plan.
 The user's input -- a goal sentence, a master-plan document, a TODO backlog,
 scattered notes, links -- is the seed. Read every referenced document in full.
 Then restate it as a structured **Goal & Scope** block that will head
-EXECUTION_PLAN.md:
+EXECUTION_PLAN_N.md:
 
 - Goal (one paragraph, in the user's own terms)
 - In scope: workstreams named in the input
@@ -80,7 +83,7 @@ the tree is walked. Typical decision branches for a wave plan:
    manual/device testing
 7. Anything from Phase 1 that mapped to no task and no deferral
 
-Record each answer as a dated decision line -- these go in EXECUTION_PLAN.md so
+Record each answer as a dated decision line -- these go in EXECUTION_PLAN_N.md so
 workers and future orchestrators inherit the *why*, not just the *what*.
 
 ## Phase 4 -- Draft the artifacts
@@ -88,18 +91,18 @@ workers and future orchestrators inherit the *why*, not just the *what*.
 Write, in the target repo's `planning/` directory, conforming to
 wave-orchestration's contract:
 
-1. **EXECUTION_PLAN.md** -- Goal & Scope block (Phase 1), decision log
+1. **EXECUTION_PLAN_N.md** -- Goal & Scope block (Phase 1), decision log
    (Phase 3), wave/dependency table, hazard notes from recon, and one spec per
    task with the required fields: id, repo, files-in-scope, depends-on, spec
    prose, constraints ("do not touch"), grep anchors, acceptance + targeted
    test command. Apply the right-sizing rules (<=12-step micro-plan, explicit
    scope, anchors not whole-file reads, named reference implementations,
    pairwise-disjoint files within a wave).
-2. **PROMPT_TEMPLATE.md** -- instantiate wave-orchestration's worker skeleton
+2. **PROMPT_TEMPLATE_N.md** -- instantiate wave-orchestration's worker skeleton
    with this repo's conventions files, test commands, and gate messages. Include
    pointer to [[git-workflow-standards]](../../git-workflow-standards/SKILL.md)
    for commit discipline (conventional format, one sentence, no phase/wave numbers).
-3. **STATE.md** -- baseline checklist (from recon), wave board with every task
+3. **STATE_N.md** -- baseline checklist (from recon), wave board with every task
    `pending`, empty task-reports section.
 
 ## Phase 5 -- Review the plan (code-review-2axis, applied to a plan)
