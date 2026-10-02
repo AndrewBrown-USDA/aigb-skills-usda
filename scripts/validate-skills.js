@@ -77,13 +77,34 @@ function parseFrontmatter(content) {
   }
 
   const fields = {};
+  const metadata = {};
+  let inMetadata = false;
+  let currentField = null;
   for (const line of match[1].split(/\r?\n/)) {
+    if (/^\s+/.test(line)) {
+      const nested = line.match(/^\s{2,}([A-Za-z0-9_-]+):\s*(.*)$/);
+      if (inMetadata && nested) {
+        metadata[nested[1]] = nested[2].trim().replace(/^['"]|['"]$/g, '');
+      } else if (!inMetadata && currentField && line.trim()) {
+        fields[currentField] = `${fields[currentField]} ${line.trim()}`.trim();
+      } else if (line.trim()) {
+        return null;
+      }
+      continue;
+    }
     const field = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
     if (field) {
-      fields[field[1]] = field[2].trim().replace(/^['"]|['"]$/g, '');
+      fields[field[1]] = field[2].trim() === '>' || field[2].trim() === '|'
+        ? ''
+        : field[2].trim().replace(/^['"]|['"]$/g, '');
+      inMetadata = field[1] === 'metadata';
+      currentField = field[1];
+      if (inMetadata && field[2].trim()) return null;
+    } else if (line.trim()) {
+      return null;
     }
   }
-  return { fields, body: content.slice(match[0].length) };
+  return { fields, metadata, body: content.slice(match[0].length) };
 }
 
 function findLocalReferences(body, skillDir) {
@@ -144,14 +165,22 @@ function validateSkill(entry, skillsDir, results) {
   if (!frontmatter.fields.description) {
     addResult(results, entry.name, 'structure', 'failed', 'Frontmatter description is missing');
   }
-  if (frontmatter.fields.source !== entry.source_repo) {
-    addResult(results, entry.name, 'metadata', 'failed', 'Frontmatter source does not match catalog entry');
+  const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools', 'argument-hint']);
+  const customTopLevel = Object.keys(frontmatter.fields).filter((key) => !standardFields.has(key));
+  if (customTopLevel.length) {
+    addResult(results, entry.name, 'metadata', 'failed', `Custom top-level metadata keys are not allowed: ${customTopLevel.join(', ')}`);
   }
-  if (entry.source_ref && frontmatter.fields.source_ref !== entry.source_ref) {
-    addResult(results, entry.name, 'metadata', 'failed', 'Frontmatter source_ref does not match catalog entry');
+  const metadataFields = ['author', 'source_repo', 'source_path', 'source_ref', 'upstream'];
+  for (const key of metadataFields) {
+    if (entry[key] !== undefined && frontmatter.metadata[key] !== entry[key]) {
+      addResult(results, entry.name, 'metadata', 'failed', `Frontmatter metadata.${key} does not match catalog entry`);
+    }
   }
-  if (entry.upstream && frontmatter.fields.upstream !== entry.upstream) {
-    addResult(results, entry.name, 'metadata', 'failed', 'Frontmatter upstream does not match catalog entry');
+  if (entry.version && entry.version.value !== null && frontmatter.metadata.version !== String(entry.version.value)) {
+    addResult(results, entry.name, 'metadata', 'failed', 'Frontmatter metadata.version does not match catalog entry');
+  }
+  if (entry.compatibility !== undefined && frontmatter.fields.compatibility !== String(entry.compatibility)) {
+    addResult(results, entry.name, 'metadata', 'failed', 'Frontmatter compatibility does not match catalog entry');
   }
   if (frontmatter.body.trim().length === 0) {
     addResult(results, entry.name, 'structure', 'failed', 'Markdown body is empty');
