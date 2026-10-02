@@ -112,7 +112,7 @@ The catalog includes 27 curated skills:
 
 ## Licensing Model
 
-- **Repository License:** MIT License with 17 U.S.C. § 105 federal public domain notice (see `LICENSE.md` and `INTENT.md`).
+- **Repository License:** MIT License with 17 U.S.C. § 105 federal public domain notice (see `LICENSE` and `INTENT.md`).
 - **Attribution:** All imported third-party skills maintain MIT compatibility with author attribution in `SKILL.md` YAML frontmatter.
 
 ## Troubleshooting

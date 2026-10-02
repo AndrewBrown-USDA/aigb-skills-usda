@@ -6,7 +6,7 @@ This project is authored and maintained by United States Government employees as
 Pursuant to 17 U.S.C. § 105, works of the United States Government are not eligible for copyright protection within the United States. Work authored by U.S. Government personnel in the scope of employment resides in the public domain domestically.
 
 ## 2. International & Permissive Licensing
-To ensure clarity across international jurisdictions where foreign copyright may be recognized under international conventions, and to govern contributions from non-federal entities, this software is made available under the terms of the [MIT License](LICENSE.md).
+To ensure clarity across international jurisdictions where foreign copyright may be recognized under international conventions, and to govern contributions from non-federal entities, this software is made available under the terms of the [MIT License](LICENSE).
 
 ## 3. External Contributions
 Any contributions submitted to this project by non-federal contributors are accepted under the terms of the project's MIT License.
