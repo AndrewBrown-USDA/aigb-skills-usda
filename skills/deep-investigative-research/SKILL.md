@@ -6,11 +6,7 @@ description: Comprehensive investigation of complex multi-domain narratives (tec
 version: 1.0
 source: aigb-skills
 source_path: skills/deep-investigative-research/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Provides thorough, multi-source research support for complex decisions.
 ---
-
 # Deep Investigative Research
 
 Investigates complex narratives spanning multiple domains by systematically verifying claims, resolving contradictions, and mapping institutional lineages.

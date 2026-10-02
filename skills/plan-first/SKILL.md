@@ -6,14 +6,7 @@ description: Structured planning workflow for any coding task. Use at the start 
 version: 1.0
 source: aigb-skills
 source_path: skills/plan-first/SKILL.md
-selection_status: direct-history
-publishability: publishable
-rationale: Highest-frequency planning workflow in the existing history briefing.
-provenance:
-  type: web
-  url: https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js
-  author: SoAp9035 (Reddit)
-  note: Adapted and customized from original Reddit workflow by u/SoAp9035
+upstream: https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js
 ---
 # Plan-First Workflow
 

@@ -1,6 +1,6 @@
 {
   "name": "aigb-skills-usda",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Andrew Brown's curated public USDA skills repository with a thin skills CLI.",
   "license": "MIT",
   "private": false,

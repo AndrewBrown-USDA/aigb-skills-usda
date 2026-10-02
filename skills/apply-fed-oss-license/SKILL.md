@@ -2,19 +2,15 @@
 name: apply-fed-oss-license
 author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
-description: Audit and update an arbitrary codebase to follow the Code.mil federal open-source licensing model (MIT with 17 U.S.C. Section  105 disclaimers and INTENT.md), including CRAN/R package DESCRIPTION setup.
+description: Audit and update an arbitrary codebase to follow the Code.mil federal open-source licensing model (MIT with 17 U.S.C. Section 105 disclaimers and INTENT.md), including CRAN/R package DESCRIPTION setup.
 version: 1.0.0
 source: aigb-skills
 source_path: skills/apply-fed-oss-license/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Audit and update repositories to Code.mil federal open-source licensing model with 17 U.S.C. § 105 disclaimers.
 ---
-
 # Federal Open Source Licensing (Code.mil Model)
 
 ## Context & Objectives
-Under 17 U.S.C. Section  105, copyright protection is unavailable for works created by United States Government officers or employees as part of their official duties. However:
+Under 17 U.S.C. Section 105, copyright protection is unavailable for works created by United States Government officers or employees as part of their official duties. However:
 1. International jurisdictions may recognize government copyright under the Berne Convention.
 2. Third-party/community contributors retain copyright in their own contributions.
 3. Users and government authors need liability disclaimers ("AS IS").
@@ -47,7 +43,7 @@ Create `INTENT.md` in the repository root:
 This project is authored and maintained by United States Government employees as part of their official duties, alongside open-source community contributors.
 
 ## 1. Domestic Status (United States)
-Pursuant to 17 U.S.C. Section  105, works of the United States Government are not eligible for copyright protection within the United States. Work authored by U.S. Government personnel in the scope of employment resides in the public domain domestically.
+Pursuant to 17 U.S.C. Section 105, works of the United States Government are not eligible for copyright protection within the United States. Work authored by U.S. Government personnel in the scope of employment resides in the public domain domestically.
 
 ## 2. International & Permissive Licensing
 To ensure clarity across international jurisdictions where foreign copyright may be recognized under international conventions, and to govern contributions from non-federal entities, this software is made available under the terms of the [MIT License](LICENSE.md).
@@ -90,7 +86,7 @@ SOFTWARE.
 
 ### U.S. Government Notice
 Portions of this software are a work of the United States Government and are in
-the public domain within the United States pursuant to 17 U.S.C. Section  105. For
+the public domain within the United States pursuant to 17 U.S.C. Section 105. For
 jurisdictions where copyright may subsist, and for third-party contributions,
 the terms of the MIT License above apply.
 ```
@@ -116,7 +112,7 @@ R package tooling (`R CMD check`, CRAN automated parsers) expects strict formatt
    ```
 
 3. **Retain Full Text in LICENSE.md or LICENSE.note**:
-   Leave `LICENSE.md` (from Step 2) in the repository root or provide a `LICENSE.note` so developers and package inspectors have access to the complete MIT text and Section  105 rider.
+   Leave `LICENSE.md` (from Step 2) in the repository root or provide a `LICENSE.note` so developers and package inspectors have access to the complete MIT text and Section 105 rider.
 
 4. **Add to .Rbuildignore**:
    Ensure markdown-only artifacts do not trigger build warnings during `R CMD check`:
@@ -127,7 +123,7 @@ R package tooling (`R CMD check`, CRAN automated parsers) expects strict formatt
 
 5. **Document in NEWS.md and cran-comments.md**:
    - In `NEWS.md`:
-     - Relicensed package to MIT (+ file LICENSE) with federal open source disclaimer (17 U.S.C. Section  105) per Code.mil guidance.
+     - Relicensed package to MIT (+ file LICENSE) with federal open source disclaimer (17 U.S.C. Section 105) per Code.mil guidance.
    - In `cran-comments.md` (for CRAN release submissions):
      ```markdown
      ## License Update
@@ -150,6 +146,6 @@ R package tooling (`R CMD check`, CRAN automated parsers) expects strict formatt
 ## Step 4: Verification Checklist
 - [ ] `git status` verifies old copyleft licenses (e.g., `GPL-3`, `COPYING`) have been removed.
 - [ ] `INTENT.md` is present at the repository root.
-- [ ] `LICENSE.md` includes the scoped copyright line and the 17 U.S.C. Section  105 notice.
+- [ ] `LICENSE.md` includes the scoped copyright line and the 17 U.S.C. Section 105 notice.
 - [ ] For R packages: `DESCRIPTION` reads `License: MIT + file LICENSE`, and the `LICENSE` file contains only `YEAR` and `COPYRIGHT HOLDER`.
 - [ ] For R packages: `R CMD check --as-cran` passes with zero warnings or notes regarding licensing.

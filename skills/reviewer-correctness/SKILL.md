@@ -6,11 +6,7 @@ description: Verifies bug fixes are correct and complete by tracing callers, che
 version: 1.0
 source: aigb-skills
 source_path: skills/reviewer-correctness/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Adjacent review support for bug-fix verification and correctness checks.
 ---
-
 # Correctness Reviewer
 
 Verifies that code changes are functionally correct by tracing callers, checking imports/exports, validating path resolution, and confirming no side effects or regressions.

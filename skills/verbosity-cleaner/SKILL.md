@@ -6,11 +6,7 @@ description: Enforces lean, surgical output. Suppresses conversational fluff and
 version: 1.0
 source: aigb-skills
 source_path: skills/verbosity-cleaner/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Helpful for keeping generated outputs and handoffs concise.
 ---
-
 # Verbosity Cleaner
 
 ## Instructions

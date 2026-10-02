@@ -6,11 +6,7 @@ description: GitHub Actions CI/CD setup for Python, R, and multi-platform testin
 version: 1.0
 source: aigb-skills
 source_path: skills/github-actions-ci/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Supports CI/CD for GitHub repositories.
 ---
-
 # GitHub Actions CI/CD Setup
 
 ## Overview

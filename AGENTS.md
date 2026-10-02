@@ -19,7 +19,7 @@
 - `scripts/validate-skills-test.js` -- validator regression tests.
 - `scripts/smoke.js` -- broader maintainer smoke suite.
 - `skills/` -- curated, materialized skill folders; source of truth for users and CI.
-- `catalog/skills.lock.json` -- catalog entries and upstream provenance.
+- `catalog/skills.lock.json` -- generated/indexed catalog data for curated ordering and maintainer synchronization.
 - `.github/workflows/ci.yml` -- Node matrix CI for packaged validation.
 - `planning/` -- execution plans, wave states, task tracking, and prompt templates.
 
@@ -31,7 +31,7 @@
 - **Do not run `skills sync` or `make sync` to install skills.** Sync is maintainer-only and rebuilds `skills/` from upstream source checkouts.
 
 ### Maintainer Sync and Catalog
-- `npx skills sync --mode copy` (or `make sync`) re-materializes `skills/` from repositories listed in `catalog/skills.lock.json`; local source checkouts are required.
+- `npx skills sync --mode copy` (or `make sync`) re-materializes `skills/` from repositories indexed in `catalog/skills.lock.json`; local source checkouts are required.
 - `npm run catalog:mine` (or `make catalog`) regenerates the catalog lockfile.
 
 ### Validation
@@ -56,7 +56,7 @@
 
 ## References
 - `README.md` -- public install, CI, and maintainer-sync guidance.
-- `catalog/skills.lock.json` -- authoritative lockfile for curated skills.
-- `skills/*/SKILL.md` -- individual skill instructions and metadata.
+- `skills/*/SKILL.md` frontmatter -- authoritative source for skill identity, source/provenance, version/ref, and related metadata.
+- `catalog/skills.lock.json` -- generated/indexed data for curated ordering and maintainer synchronization.
 - `planning/` -- orchestration state, task DAGs, execution plans, and prompt templates.
 - Reference repo: `https://github.com/AndrewBrown-USDA/aigb-skills.git` (private maintainer repository).

@@ -6,11 +6,7 @@ description: Guides the research, design, and validation of new SKILL.md files f
 version: 1.0
 source: aigb-skills
 source_path: skills/skill-research/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Useful for research-heavy tasks that feed planning and catalog decisions.
 ---
-
 # Skill Research
 
 ## Instructions

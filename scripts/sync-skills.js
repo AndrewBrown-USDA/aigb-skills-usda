@@ -131,9 +131,6 @@ function validateEntry(entry) {
     throw new Error(`Skill ${entry.name} is missing source_path`);
   }
 
-  if (entry.publishability !== 'publishable') {
-    throw new Error(`Skill ${entry.name} is not publishable`);
-  }
 }
 
 function validateSourceSkill(skillName, sourcePath) {
@@ -153,6 +150,32 @@ function runGit(sourceRoot, args) {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe']
   });
+}
+
+function sanitizeSkillContent(content) {
+  let sanitized = '';
+
+  for (const character of content) {
+    const codePoint = character.codePointAt(0);
+    if (codePoint === 0x2011 || codePoint === 0x2013 || codePoint === 0x2014) {
+      sanitized += '-';
+    } else if (codePoint === 0x2753) {
+      sanitized += 'Question';
+    } else if (codePoint === 0x27a1 || codePoint === 0xfe0f) {
+      sanitized += codePoint === 0x27a1 ? 'Recommended: ' : '';
+    } else if (
+      (codePoint >= 0x2190 && codePoint <= 0x21ff) ||
+      (codePoint >= 0x2300 && codePoint <= 0x23ff) ||
+      (codePoint >= 0x2600 && codePoint <= 0x27bf) ||
+      (codePoint >= 0x1f000 && codePoint <= 0x1faff)
+    ) {
+      sanitized += '->';
+    } else {
+      sanitized += character;
+    }
+  }
+
+  return sanitized;
 }
 
 function extractGitSkill(sourceRoot, sourceRef, sourceDirRel, destDir) {
@@ -210,7 +233,11 @@ function extractGitSkill(sourceRoot, sourceRef, sourceDirRel, destDir) {
         `Unable to extract git-pinned file ${sourceRef}:${repositoryPath}: ${error.message}`
       );
     }
-    fs.writeFileSync(destinationPath, content, 'utf8');
+    fs.writeFileSync(
+      destinationPath,
+      relativePath === 'SKILL.md' ? sanitizeSkillContent(content) : content,
+      'utf8'
+    );
   }
 }
 
@@ -277,14 +304,14 @@ function updateSkillMetadata(destSkillMd, entry) {
     metadata.push(['author', 'Matt Pocock (https://github.com/mattpocock/skills)']);
     metadata.push(['license', entry.license || 'MIT']);
   }
-  if (entry.source_ref || entry.provenance) {
+  if (entry.source_ref || entry.upstream) {
     metadata.push(['source', entry.source_repo]);
   }
   if (entry.source_ref) {
     metadata.push(['source_ref', entry.source_ref]);
   }
-  if (entry.provenance && entry.provenance.repository) {
-    metadata.push(['upstream', entry.provenance.repository]);
+  if (entry.upstream) {
+    metadata.push(['upstream', entry.upstream]);
   }
 
   if (metadata.length === 0) {
@@ -310,7 +337,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   } else {
     content = `---\n${metadata.map(([key, value]) => `${key}: ${value}`).join('\n')}\n---\n\n${content}`;
   }
-  fs.writeFileSync(destSkillMd, content, 'utf8');
+  fs.writeFileSync(destSkillMd, sanitizeSkillContent(content), 'utf8');
 }
 
 function syncSkills(options) {

@@ -6,11 +6,7 @@ description: Performs architectural code reviews focusing on design patterns, du
 version: 1.0
 source: aigb-skills
 source_path: skills/reviewer-architecture/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Adjacent review support for code changes and structure-focused feedback.
 ---
-
 # Architectural Reviewer
 
 Performs deep architectural analysis of code changes, identifying design patterns, duplication, circular dependencies, and refactoring side effects.

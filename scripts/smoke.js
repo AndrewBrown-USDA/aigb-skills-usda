@@ -113,7 +113,10 @@ function main() {
     assert.equal(typeof entry.name, 'string');
     assert.equal(typeof entry.source_repo, 'string');
     assert.equal(typeof entry.source_path, 'string');
-    assert.equal(entry.publishability, 'publishable');
+    assert.equal(entry.publishability, undefined);
+    assert.equal(entry.provenance, undefined);
+    assert.equal(entry.selection_status, undefined);
+    assert.equal(entry.rationale, undefined);
     assert.ok(entry.version && typeof entry.version === 'object', 'entry.version must be an object');
     assert.ok(
       entry.version.status === 'resolved' || entry.version.status === 'missing',
@@ -125,27 +128,19 @@ function main() {
     } else {
       assert.equal(entry.version.value, null, `missing version value must be null for ${entry.name}`);
     }
-    if (entry.provenance !== undefined) {
-      assert.ok(entry.provenance && typeof entry.provenance === 'object');
-      assert.ok(
-        entry.provenance.type === 'git' || entry.provenance.type === 'web',
-        `invalid provenance type for ${entry.name}`
-      );
-    }
+    if (entry.upstream !== undefined) assert.match(entry.upstream, /^https?:\/\//);
   }
 
   const planFirst = lockfile.skills.find(s => s.name === 'plan-first');
   assert.ok(planFirst, 'plan-first must exist');
   assert.equal(planFirst.version.status, 'resolved');
   assert.equal(planFirst.version.value, '1.0');
-  assert.equal(planFirst.provenance.type, 'web');
-  assert.match(planFirst.provenance.url, /https:\/\/www\.reddit\.com\/r\/LocalLLaMA\/s\/w0G0mMp1js/);
+  assert.match(planFirst.upstream, /https:\/\/www\.reddit\.com\/r\/LocalLLaMA\/s\/w0G0mMp1js/);
 
   const grilling = lockfile.skills.find(s => s.name === 'grilling');
   assert.ok(grilling, 'grilling must exist');
   assert.equal(grilling.source_ref, 'v1.2.0');
-  assert.equal(grilling.provenance.type, 'git');
-  assert.equal(grilling.provenance.ref, 'v1.2.0');
+  assert.equal(grilling.upstream, 'https://github.com/mattpocock/skills');
 
   const tdd = lockfile.skills.find(s => s.name === 'tdd');
   assert.ok(tdd, 'tdd must exist');
@@ -153,9 +148,7 @@ function main() {
   assert.equal(tdd.license, 'MIT');
   assert.equal(tdd.source_repo, 'mattpocock-skills');
   assert.equal(tdd.source_ref, 'v1.2.0');
-  assert.equal(tdd.provenance.type, 'git');
-  assert.equal(tdd.provenance.ref, 'v1.2.0');
-  assert.match(tdd.provenance.repository, /github\.com\/mattpocock\/skills/);
+  assert.match(tdd.upstream, /github\.com\/mattpocock\/skills/);
 
   const applyFedOssLicense = lockfile.skills.find(s => s.name === 'apply-fed-oss-license');
   assert.ok(applyFedOssLicense, 'apply-fed-oss-license must exist');
@@ -183,6 +176,11 @@ function main() {
   assertSkillLayout(syncTarget, lockfile.skills);
   assertSkillAttribution(syncTarget);
   assertGrillingContent(syncTarget);
+  for (const skill of lockfile.skills) {
+    const content = fs.readFileSync(path.join(syncTarget, skill.name, 'SKILL.md'), 'utf8');
+    assert.doesNotMatch(content, /[\u2013\u2014\u2011\u2190-\u21ff\u2300-\u23ff\u2600-\u27bf]/u);
+    assert.doesNotMatch(content, /[âðï][\u0080-\u00bf]|Ã.|Â./u);
+  }
 
   // 5. Test scripts/sync-skills.js (copy mode)
   const syncOutput = runNode([
@@ -386,7 +384,6 @@ function main() {
             name: 'fake-skill',
             source_repo: 'non-existent-source-repo-xyz',
             source_path: 'skills/fake-skill/SKILL.md',
-            publishability: 'publishable',
             version: { status: 'resolved', value: '1.0.0' }
           }
         ]

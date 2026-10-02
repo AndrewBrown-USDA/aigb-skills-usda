@@ -7,15 +7,7 @@ source: mattpocock-skills
 source_path: skills/engineering/tdd/SKILL.md
 source_ref: v1.2.0
 upstream: https://github.com/mattpocock/skills
-selection_status: direct-history
-publishability: publishable
-rationale: Test-driven development support that the existing history already uses.
-provenance:
-  type: git
-  repository: https://github.com/mattpocock/skills
-  ref: v1.2.0
 ---
-
 # Test-Driven Development
 
 TDD is the red -> green loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle. Consult it before and during the loop, not after.

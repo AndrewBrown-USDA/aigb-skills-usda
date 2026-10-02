@@ -6,11 +6,7 @@ description: Create and maintain AGENTS.md files for project onboarding and grou
 version: 1.0
 source: aigb-skills
 source_path: skills/agent-onboarding/SKILL.md
-selection_status: direct-history
-publishability: publishable
-rationale: Repeatedly used for repo grounding and local workflow setup.
 ---
-
 # Agent Onboarding
 
 Generate `AGENTS.md` files that ground agents in project structure -- not in volatile state.

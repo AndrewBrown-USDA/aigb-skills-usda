@@ -6,11 +6,7 @@ description: Validates code fixes by running the code, checking compilation, ver
 version: 1.0
 source: aigb-skills
 source_path: skills/worker-validation/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Useful for verifying that workflow changes actually behave as intended.
 ---
-
 # Worker Validator
 
 Validates that code fixes are correct by running the code, checking compilation, verifying runtime behavior, and confirming the reported issue is resolved.
