@@ -1,11 +1,12 @@
 ---
 name: doc-consistency
-author: Andrew G. Brown (https://github.com/brownag)
-license: MIT
 description: Normalizes documentation and examples for consistency in style, format, and accuracy. Ensures code matches existing patterns and documentation. Use when reviewing docs, examples, or writing new code that should follow established patterns.
-version: 1.0
-source: aigb-skills
-source_path: skills/doc-consistency/SKILL.md
+license: MIT
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/doc-consistency/SKILL.md
 ---
 # Doc Consistency
 

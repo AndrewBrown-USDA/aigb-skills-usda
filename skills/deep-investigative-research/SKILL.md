@@ -1,11 +1,12 @@
 ---
 name: deep-investigative-research
-author: Andrew G. Brown (https://github.com/brownag)
-license: MIT
 description: Comprehensive investigation of complex multi-domain narratives (technology, theology, policy, finance). Systematically decouples factual claims from speculation through iterative verification, multi-source comparison, and contradiction resolution. Use for investigations requiring institutional knowledge, historical context, and handling of conflicting incentives.
-version: 1.0
-source: aigb-skills
-source_path: skills/deep-investigative-research/SKILL.md
+license: MIT
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/deep-investigative-research/SKILL.md
 ---
 # Deep Investigative Research
 
