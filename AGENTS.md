@@ -19,7 +19,7 @@
 - `scripts/validate-skills-test.js` -- validator regression tests.
 - `scripts/smoke.js` -- broader maintainer smoke suite.
 - `skills/` -- curated, materialized skill folders; source of truth for users and CI.
-- `catalog/skills.lock.json` -- generated/indexed catalog data for curated ordering and maintainer synchronization.
+- `catalog/skills.lock.json` -- generated compatibility/index data for curated ordering and maintainer synchronization, derived from skill frontmatter.
 - `.github/workflows/ci.yml` -- Node matrix CI for packaged validation.
 - `planning/` -- execution plans, wave states, task tracking, and prompt templates.
 
@@ -31,6 +31,7 @@
 - **Do not run `skills sync` or `make sync` to install skills.** Sync is maintainer-only and rebuilds `skills/` from upstream source checkouts.
 
 ### Maintainer Sync and Catalog
+- `skills/*/SKILL.md` frontmatter is authoritative. It requires top-level `name` and `description`; supported standard optional fields remain top-level. Repository-specific synchronization metadata is nested under `metadata`, using `source_repo`, `source_path`, `source_ref`, `upstream`, and `version`.
 - `npx skills sync --mode copy` (or `make sync`) re-materializes `skills/` from repositories indexed in `catalog/skills.lock.json`; local source checkouts are required.
 - `npm run catalog:mine` (or `make catalog`) regenerates the catalog lockfile.
 
@@ -56,7 +57,7 @@
 
 ## References
 - `README.md` -- public install, CI, and maintainer-sync guidance.
-- `skills/*/SKILL.md` frontmatter -- authoritative source for skill identity, source/provenance, version/ref, and related metadata.
-- `catalog/skills.lock.json` -- generated/indexed data for curated ordering and maintainer synchronization.
+- `skills/*/SKILL.md` frontmatter -- authoritative source for skill identity, standard fields, and nested source/provenance/version metadata.
+- `catalog/skills.lock.json` -- generated compatibility/index data derived from frontmatter for curated ordering and maintainer synchronization.
 - `planning/` -- orchestration state, task DAGs, execution plans, and prompt templates.
 - Reference repo: `https://github.com/AndrewBrown-USDA/aigb-skills.git` (private maintainer repository).

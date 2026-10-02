@@ -1,11 +1,12 @@
 ---
 name: reviewer-correctness
-author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: Verifies bug fixes are correct and complete by tracing callers, checking imports/exports, validating path resolution, and confirming no regressions. Does the code work? Use when reviewing code changes for functional correctness.
-version: 1.0
-source: aigb-skills
-source_path: skills/reviewer-correctness/SKILL.md
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/reviewer-correctness/SKILL.md
 ---
 # Correctness Reviewer
 

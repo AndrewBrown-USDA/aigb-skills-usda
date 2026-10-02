@@ -1,11 +1,12 @@
 ---
 name: worker-validation
-author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: Validates code fixes by running the code, checking compilation, verifying runtime behavior, and confirming fixes resolve the reported issue. Use when verifying that bug fixes actually work at runtime.
-version: 1.0
-source: aigb-skills
-source_path: skills/worker-validation/SKILL.md
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/worker-validation/SKILL.md
 ---
 # Worker Validator
 

@@ -1,11 +1,12 @@
 ---
 name: reviewer-architecture
-author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: Performs architectural code reviews focusing on design patterns, duplication, circular dependencies, and refactoring impact. Is the design consistent with the codebase? Use when reviewing code changes for architectural concerns, code smells, or structural issues.
-version: 1.0
-source: aigb-skills
-source_path: skills/reviewer-architecture/SKILL.md
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/reviewer-architecture/SKILL.md
 ---
 # Architectural Reviewer
 

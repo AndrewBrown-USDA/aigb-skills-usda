@@ -1,11 +1,12 @@
 ---
 name: performance-benchmarking
-author: Andrew G. Brown (https://github.com/brownag)
-license: MIT
 description: Design and run reproducible benchmarks. Use when measuring performance scaling, comparing branches, or analyzing speedup metrics.
-version: 1.0
-source: aigb-skills
-source_path: skills/performance-benchmarking/SKILL.md
+license: MIT
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/performance-benchmarking/SKILL.md
 ---
 # Performance Benchmarking
 

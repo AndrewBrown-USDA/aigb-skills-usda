@@ -1,11 +1,12 @@
 ---
 name: agent-onboarding
-author: Andrew G. Brown (https://github.com/brownag)
-license: MIT
 description: Create and maintain AGENTS.md files for project onboarding and grounding. Use when initialized in a new project, when project structure changes significantly, or when creating subfolder-level AGENTS.md files for complex monorepos.
-version: 1.0
-source: aigb-skills
-source_path: skills/agent-onboarding/SKILL.md
+license: MIT
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/agent-onboarding/SKILL.md
 ---
 # Agent Onboarding
 

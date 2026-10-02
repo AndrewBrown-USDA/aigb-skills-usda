@@ -71,12 +71,13 @@ function scanCuratedSkills() {
     const fm = parseSimpleYamlFrontmatter(content) || {};
 
     const name = fm.name || skillName;
-    const sourceRepo = fm.source || fm.source_repo || 'aigb-skills';
-    const sourcePath = fm.source_path || `skills/${skillName}/SKILL.md`;
-    const sourceRef = fm.source_ref;
-    const author = fm.author;
+    const metadata = fm.metadata || {};
+    const sourceRepo = metadata.source_repo || 'aigb-skills';
+    const sourcePath = metadata.source_path || `skills/${skillName}/SKILL.md`;
+    const sourceRef = metadata.source_ref;
+    const author = metadata.author;
     const license = fm.license;
-    const versionVal = fm.version ? String(fm.version).trim() : null;
+    const versionVal = metadata.version ? String(metadata.version).trim() : null;
     const version = {
       status: versionVal ? 'resolved' : 'missing',
       value: versionVal
@@ -89,7 +90,7 @@ function scanCuratedSkills() {
       source_repo: sourceRepo,
       source_path: sourcePath,
       ...(sourceRef ? { source_ref: sourceRef } : {}),
-      ...(fm.upstream ? { upstream: fm.upstream } : {}),
+      ...(metadata.upstream ? { upstream: metadata.upstream } : {}),
       version
     };
 

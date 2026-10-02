@@ -19,12 +19,21 @@ try {
   fs.mkdirSync(skillDir, { recursive: true });
   fs.writeFileSync(
     path.join(skillDir, 'SKILL.md'),
-    '---\nname: example\ndescription: Example skill\n---\n\n# Example\n',
+    '---\nname: example\ndescription: Example skill\nmetadata:\n  source_repo: example-repo\n  source_path: skills/example/SKILL.md\n  source_ref: v1.0.0\n  upstream: https://example.test/skills\n  version: 1.0\n---\n\n# Example\n',
     'utf8'
   );
   fs.writeFileSync(
     lockfile,
-    JSON.stringify({ skills: [{ name: 'example' }] }),
+    JSON.stringify({
+      skills: [{
+        name: 'example',
+        source_repo: 'example-repo',
+        source_path: 'skills/example/SKILL.md',
+        source_ref: 'v1.0.0',
+        upstream: 'https://example.test/skills',
+        version: { status: 'resolved', value: '1.0' }
+      }]
+    }),
     'utf8'
   );
 
@@ -40,6 +49,28 @@ try {
   assert.equal(passing.status, 0, passing.stderr);
   const passingReport = JSON.parse(fs.readFileSync(report, 'utf8'));
   assert.ok(passingReport.checks.some((check) => check.status === 'passed'));
+
+  fs.writeFileSync(
+    path.join(skillDir, 'SKILL.md'),
+    '---\nname: example\ndescription: Example skill\nsource_repo: example-repo\nmetadata:\n  source_repo: example-repo\n---\n\n# Example\n',
+    'utf8'
+  );
+  const topLevelCustom = spawnSync(process.execPath, [
+    validator, '--lockfile', lockfile, '--skills-dir', skillsDir
+  ], { encoding: 'utf8' });
+  assert.equal(topLevelCustom.status, 1);
+  assert.match(topLevelCustom.stdout + topLevelCustom.stderr, /Custom top-level metadata keys/i);
+
+  fs.writeFileSync(
+    path.join(skillDir, 'SKILL.md'),
+    '---\nname: example\ndescription: Example skill\nmetadata:\n  source_repo: wrong-repo\n---\n\n# Example\n',
+    'utf8'
+  );
+  const mismatchedMetadata = spawnSync(process.execPath, [
+    validator, '--lockfile', lockfile, '--skills-dir', skillsDir
+  ], { encoding: 'utf8' });
+  assert.equal(mismatchedMetadata.status, 1);
+  assert.match(mismatchedMetadata.stdout + mismatchedMetadata.stderr, /does not match catalog entry/i);
 
   fs.writeFileSync(path.join(skillDir, 'SKILL.md'), '# malformed\n', 'utf8');
   const failing = spawnSync(process.execPath, [

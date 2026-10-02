@@ -123,14 +123,31 @@ function validateEntry(entry) {
     throw new Error('Each lockfile entry must include a non-empty name');
   }
 
-  if (typeof entry.source_repo !== 'string' || entry.source_repo.length === 0) {
+  const metadata = entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {};
+  const sourceRepo = metadata.source_repo || entry.source_repo;
+  const sourcePath = metadata.source_path || entry.source_path;
+
+  if (typeof sourceRepo !== 'string' || sourceRepo.length === 0) {
     throw new Error(`Skill ${entry.name} is missing source_repo`);
   }
 
-  if (typeof entry.source_path !== 'string' || entry.source_path.length === 0) {
+  if (typeof sourcePath !== 'string' || sourcePath.length === 0) {
     throw new Error(`Skill ${entry.name} is missing source_path`);
   }
+}
 
+function normalizedEntry(entry) {
+  const metadata = entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {};
+  const version = metadata.version || entry.version;
+  return {
+    ...entry,
+    ...metadata,
+    source_repo: metadata.source_repo || entry.source_repo,
+    source_path: metadata.source_path || entry.source_path,
+    source_ref: metadata.source_ref || entry.source_ref,
+    upstream: metadata.upstream || entry.upstream,
+    version: version && typeof version === 'object' ? version.value : version
+  };
 }
 
 function validateSourceSkill(skillName, sourcePath) {
@@ -299,19 +316,13 @@ function updateSkillMetadata(destSkillMd, entry) {
   }
 
   let content = fs.readFileSync(destSkillMd, 'utf8');
+  const normalized = normalizedEntry(entry);
   const metadata = [];
-  if (entry.author && entry.author.toLowerCase().includes('matt pocock')) {
+  if (normalized.author && normalized.author.toLowerCase().includes('matt pocock')) {
     metadata.push(['author', 'Matt Pocock (https://github.com/mattpocock/skills)']);
-    metadata.push(['license', entry.license || 'MIT']);
   }
-  if (entry.source_ref || entry.upstream) {
-    metadata.push(['source', entry.source_repo]);
-  }
-  if (entry.source_ref) {
-    metadata.push(['source_ref', entry.source_ref]);
-  }
-  if (entry.upstream) {
-    metadata.push(['upstream', entry.upstream]);
+  for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream', 'version']) {
+    if (normalized[key]) metadata.push([key, normalized[key]]);
   }
 
   if (metadata.length === 0) {
@@ -319,11 +330,18 @@ function updateSkillMetadata(destSkillMd, entry) {
   }
 
   const addMissingMetadata = (block) => {
-    let updatedBlock = block.trimEnd();
+    const lines = block.split(/\r?\n/).filter((line) => !/^(author|source|source_repo|source_path|source_ref|upstream|version):/.test(line));
+    let updatedBlock = lines.join('\n').trimEnd();
+    const metadataIndex = lines.findIndex((line) => line === 'metadata:' || line.startsWith('metadata:'));
+    if (metadataIndex < 0) {
+      updatedBlock += `\nmetadata:`;
+      for (const [key, value] of metadata) updatedBlock += `\n  ${key}: ${value}`;
+      return updatedBlock;
+    }
     for (const [key, value] of metadata) {
-      const keyPattern = new RegExp(`^${key}:`, 'm');
+      const keyPattern = new RegExp(`^\\s{2}${key}:`, 'm');
       if (!keyPattern.test(updatedBlock)) {
-        updatedBlock += `\n${key}: ${value}`;
+        updatedBlock += `\n  ${key}: ${value}`;
       }
     }
     return updatedBlock;
@@ -335,7 +353,7 @@ function updateSkillMetadata(destSkillMd, entry) {
       (match, block) => `---\n${addMissingMetadata(block)}\n---\n`
     );
   } else {
-    content = `---\n${metadata.map(([key, value]) => `${key}: ${value}`).join('\n')}\n---\n\n${content}`;
+    content = `---\nmetadata:\n${metadata.map(([key, value]) => `  ${key}: ${value}`).join('\n')}\n---\n\n${content}`;
   }
   fs.writeFileSync(destSkillMd, sanitizeSkillContent(content), 'utf8');
 }
@@ -362,29 +380,30 @@ function syncSkills(options) {
 
   for (const entry of lockfile.skills) {
     validateEntry(entry);
+    const normalized = normalizedEntry(entry);
 
-    if (seenNames.has(entry.name)) {
-      throw new Error(`Duplicate skill name in lockfile: ${entry.name}`);
+    if (seenNames.has(normalized.name)) {
+      throw new Error(`Duplicate skill name in lockfile: ${normalized.name}`);
     }
-    seenNames.add(entry.name);
+    seenNames.add(normalized.name);
 
-    const sourceRoot = sourceRoots.get(entry.source_repo) || resolveSourceRoot(entry.source_repo);
-    sourceRoots.set(entry.source_repo, sourceRoot);
+    const sourceRoot = sourceRoots.get(normalized.source_repo) || resolveSourceRoot(normalized.source_repo);
+    sourceRoots.set(normalized.source_repo, sourceRoot);
 
-    const sourcePath = path.resolve(sourceRoot, entry.source_path);
+    const sourcePath = path.resolve(sourceRoot, normalized.source_path);
     const sourceDir = path.dirname(sourcePath);
-    const sourceDirRel = path.posix.dirname(entry.source_path.replace(/\\/g, '/'));
+    const sourceDirRel = path.posix.dirname(normalized.source_path.replace(/\\/g, '/'));
 
-    if (!entry.source_ref) {
-      validateSourceSkill(entry.name, sourcePath);
+    if (!normalized.source_ref) {
+      validateSourceSkill(normalized.name, sourcePath);
     }
 
     resolvedSkills.push({
-      name: entry.name,
+      name: normalized.name,
       sourceDir,
       sourceRoot,
       sourceDirRel,
-      sourceRef: entry.source_ref || null
+      sourceRef: normalized.source_ref || null
     });
   }
 
