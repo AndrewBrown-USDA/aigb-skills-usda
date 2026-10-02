@@ -1,11 +1,12 @@
 ---
 name: plan-wave
-author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: Develops an implementation plan ready for wave-orchestration to execute. Takes the user's goal or rough plan as input, mines the codebase for facts, grills the user one question at a time for the decisions, drafts the planning/ artifacts (task DAG, wave table, worker prompt template, state file), then reviews its own plan on two axes before seeking approval. Use when the user wants to turn a feature idea, master plan, or backlog into a wave-orchestration execution plan.
-version: 1.1
-source: aigb-skills
-source_path: skills/plan-wave/SKILL.md
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.1
+  source_repo: aigb-skills
+  source_path: skills/plan-wave/SKILL.md
 ---
 # Plan-Wave: author the plan that wave-orchestration executes
 

@@ -1,11 +1,12 @@
 ---
 name: wave-orchestration
-author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 description: Decomposes a large implementation plan into small-model-sized tasks executed by supervised worker agents (e.g. Haiku) in dependency-ordered parallel waves, with a plan-first approval gate inside every task, file-based state for context compaction, and a hard escalation ladder. Use when a master plan or multi-workstream feature is too large for one session and should be executed cheaply by many small agents under frontier-model supervision.
-version: 1.0
-source: aigb-skills
-source_path: skills/wave-orchestration/SKILL.md
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/wave-orchestration/SKILL.md
 ---
 # Wave Orchestration (plan-gated, small-model workers)
 

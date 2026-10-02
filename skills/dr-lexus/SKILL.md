@@ -1,11 +1,12 @@
 ---
 name: dr-lexus
-author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
-version: 1.0
 description: Plain language directive. Cuts verbosity, corporate jargon, and overused AI vocabulary. Use when you want clear, direct, short writing. No fluff, no hedging, no unnecessary complexity.
-source: aigb-skills
-source_path: skills/dr-lexus/SKILL.md
+metadata:
+  author: Andrew G. Brown (https://github.com/brownag)
+  version: 1.0
+  source_repo: aigb-skills
+  source_path: skills/dr-lexus/SKILL.md
 ---
 # Dr. Lexus
 
