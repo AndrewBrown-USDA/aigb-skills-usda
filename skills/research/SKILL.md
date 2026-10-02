@@ -1,12 +1,13 @@
 ---
 name: research
 description: Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo. Use when the user wants a topic researched, docs or API facts gathered, or reading legwork delegated to a background agent.
-author: Matt Pocock (https://github.com/mattpocock/skills)
 license: MIT
-source: mattpocock-skills
-source_path: skills/engineering/research/SKILL.md
-source_ref: v1.2.0
-upstream: https://github.com/mattpocock/skills
+metadata:
+  author: Matt Pocock (https://github.com/mattpocock/skills)
+  source_repo: mattpocock-skills
+  source_path: skills/engineering/research/SKILL.md
+  source_ref: v1.2.0
+  upstream: https://github.com/mattpocock/skills
 ---
 Spin up a **background agent** to do the research, so you keep working while it reads.
 

@@ -15,11 +15,12 @@ description: >
   summaries, recipes).
 argument-hint: "[lite|full|ultra]"
 license: MIT
-author: Dietrich Gebert (https://github.com/DietrichGebert/ponytail)
-source: DietrichGebert-ponytail
-source_path: skills/ponytail/SKILL.md
-source_ref: v4.10.0
-upstream: https://github.com/DietrichGebert/ponytail
+metadata:
+  author: Dietrich Gebert (https://github.com/DietrichGebert/ponytail)
+  source_repo: DietrichGebert-ponytail
+  source_path: skills/ponytail/SKILL.md
+  source_ref: v4.10.0
+  upstream: https://github.com/DietrichGebert/ponytail
 ---
 # Ponytail
 
