@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync, spawnSync } = require('node:child_process');
+const { parseFrontmatter } = require('./validate-skills');
 
 const repoRoot = path.resolve(__dirname, '..');
 const scratchRoot = path.join(repoRoot, '.scratch');
@@ -58,14 +59,12 @@ function assertSkillAttribution(targetDir) {
 
   if (fs.existsSync(grillingMd)) {
     const content = fs.readFileSync(grillingMd, 'utf8');
-    assert.match(content, /author:\s*Matt Pocock/i);
-    assert.match(content, /license:\s*MIT/i);
+    assert.match(parseFrontmatter(content).metadata.author, /Matt Pocock/i);
   }
 
   if (fs.existsSync(codeReviewMd)) {
     const content = fs.readFileSync(codeReviewMd, 'utf8');
-    assert.match(content, /author:\s*Matt Pocock/i);
-    assert.match(content, /license:\s*MIT/i);
+    assert.match(parseFrontmatter(content).metadata.author, /Matt Pocock/i);
   }
 }
 
@@ -74,7 +73,8 @@ function assertGrillingContent(targetDir, requireAttribution = true) {
   const content = fs.readFileSync(grillingMd, 'utf8');
   assert.match(content, /Each question should be formatted like so:/);
   if (requireAttribution) {
-    assert.match(content, /author:\s*Matt Pocock/i);
+    assert.equal(parseFrontmatter(content).metadata.source_ref, 'v1.2.0');
+    assert.match(parseFrontmatter(content).metadata.author, /Matt Pocock/i);
   }
 }
 
@@ -156,6 +156,26 @@ function main() {
   assert.equal(applyFedOssLicense.version.value, '1.0.0');
 
   const expectedCount = lockfile.skills.length;
+  assert.equal(expectedCount, 27, 'lockfile must contain all 27 packaged skills');
+  const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools', 'argument-hint']);
+  for (const skill of lockfile.skills) {
+    const skillFile = path.join(repoRoot, 'skills', skill.name, 'SKILL.md');
+    const parsed = parseFrontmatter(fs.readFileSync(skillFile, 'utf8'));
+    assert.equal(parsed.fields.name, skill.name);
+    assert.equal(typeof parsed.fields.description, 'string');
+    assert.ok(parsed.metadata && typeof parsed.metadata === 'object');
+    for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream']) {
+      if (skill[key] !== undefined) assert.equal(parsed.metadata[key], skill[key], `${skill.name} metadata.${key}`);
+    }
+    if (skill.version && skill.version.value !== null) {
+      assert.equal(parsed.metadata.version, String(skill.version.value), `${skill.name} metadata.version`);
+    }
+    assert.deepEqual(
+      Object.keys(parsed.fields).filter(key => !standardFields.has(key)),
+      [],
+      `${skill.name} has prohibited top-level custom metadata`
+    );
+  }
 
   // 4. Test CLI sync (copy mode)
   const cliSyncOutput = runNode([
