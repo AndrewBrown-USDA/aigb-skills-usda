@@ -6,11 +6,7 @@ author: Andrew G. Brown (https://github.com/brownag)
 license: MIT
 source: aigb-skills
 source_path: skills/copilot-history-briefing/SKILL.md
-selection_status: direct-history
-publishability: publishable
-rationale: Supports the history-led research workflow that informed this catalog.
 ---
-
 # Copilot history briefing
 
 Use this skill to turn Copilot conversation history into evidence-backed briefing material.

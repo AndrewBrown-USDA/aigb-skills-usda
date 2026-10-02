@@ -76,19 +76,6 @@ function scanCuratedSkills() {
     const sourceRef = fm.source_ref;
     const author = fm.author;
     const license = fm.license;
-    const selectionStatus = fm.selection_status || 'dependency-support';
-    const publishability = fm.publishability || 'publishable';
-    const rationale = fm.rationale;
-
-    let provenance = fm.provenance;
-    if (!provenance && fm.upstream) {
-      provenance = {
-        type: 'git',
-        repository: fm.upstream,
-        ref: sourceRef || 'v1.2.0'
-      };
-    }
-
     const versionVal = fm.version ? String(fm.version).trim() : null;
     const version = {
       status: versionVal ? 'resolved' : 'missing',
@@ -102,10 +89,7 @@ function scanCuratedSkills() {
       source_repo: sourceRepo,
       source_path: sourcePath,
       ...(sourceRef ? { source_ref: sourceRef } : {}),
-      ...(provenance ? { provenance } : {}),
-      selection_status: selectionStatus,
-      publishability,
-      ...(rationale ? { rationale } : {}),
+      ...(fm.upstream ? { upstream: fm.upstream } : {}),
       version
     };
 

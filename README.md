@@ -105,7 +105,7 @@ npx skills sync --mode copy
 
 The catalog includes 27 curated skills:
 
-- **External Skills:** `grilling`, `code-review-2axis`, `research`, and `tdd` are authored by Matt Pocock (https://github.com/mattpocock/skills). `caveman` is authored by Julius Brussee (https://github.com/JuliusBrussee/caveman). `ponytail` is authored by Dietrich Gebert (https://github.com/DietrichGebert/ponytail). All have pinned release references and upstream provenance in the catalog and `SKILL.md` frontmatter and are included under the terms of the MIT license.
+- **External Skills:** `grilling`, `code-review-2axis`, `research`, and `tdd` are authored by Matt Pocock (https://github.com/mattpocock/skills). `caveman` is authored by Julius Brussee (https://github.com/JuliusBrussee/caveman). `ponytail` is authored by Dietrich Gebert (https://github.com/DietrichGebert/ponytail). Each skill's `SKILL.md` frontmatter carries its source, exact pinned ref, attribution, and upstream URL; the catalog is generated from that metadata.
 - **Diagnostics & Debugging:** `dr-lexus` (plain language directive) and `rubber-ducking` (interactive user-driven explanation and debugging).
 - **Web Research & Documentation:** `web-source-bundler` (captures web sources, search results, and file lists into deterministic Markdown reference bundles with SHA-256 provenance) and `research` (structured primary source investigations).
 - **Core Engineering & Standards:** `agent-onboarding`, `apply-fed-oss-license`, `copilot-history-briefing`, `deep-investigative-research`, `doc-consistency`, `github-actions-ci`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `plan-first`, `plan-wave`, `reviewer-architecture`, `reviewer-correctness`, `skill-research`, `tdd`, `verbosity-cleaner`, `wave-orchestration`, and `worker-validation`.
@@ -113,7 +113,7 @@ The catalog includes 27 curated skills:
 ## Licensing Model
 
 - **Repository License:** MIT License with 17 U.S.C. § 105 federal public domain notice (see `LICENSE.md` and `INTENT.md`).
-- **Attribution:** All imported third-party skills maintain MIT compatibility with full author attribution in both `catalog/skills.lock.json` and `SKILL.md` YAML frontmatter.
+- **Attribution:** All imported third-party skills maintain MIT compatibility with author attribution in `SKILL.md` YAML frontmatter.
 
 ## Troubleshooting
 

@@ -6,11 +6,7 @@ description: Normalizes documentation and examples for consistency in style, for
 version: 1.0
 source: aigb-skills
 source_path: skills/doc-consistency/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Keeps docs and examples aligned with the repo's established conventions.
 ---
-
 # Doc Consistency
 
 ## Instructions

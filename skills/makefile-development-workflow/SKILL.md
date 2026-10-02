@@ -6,11 +6,7 @@ description: Standardizes Makefile-based build and test workflows with reproduci
 version: 1.0
 source: aigb-skills
 source_path: skills/makefile-development-workflow/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Useful when adding small reproducible command surfaces to the repo.
 ---
-
 # Makefile Development Workflow
 
 A minimal, well-structured Makefile for any project:

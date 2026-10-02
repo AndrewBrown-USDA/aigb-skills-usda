@@ -127,6 +127,12 @@ function validateSkill(entry, skillsDir, results) {
   }
 
   const content = fs.readFileSync(skillPath, 'utf8');
+  if (/[\u2013\u2014\u2011\u2190-\u21ff\u2300-\u23ff\u2600-\u27bf]/u.test(content)) {
+    addResult(results, entry.name, 'metadata', 'failed', 'Skill contains prohibited Unicode punctuation or emoji');
+  }
+  if (/[âðï][\u0080-\u00bf]|Ã.|Â./u.test(content)) {
+    addResult(results, entry.name, 'metadata', 'failed', 'Skill contains mojibake');
+  }
   const frontmatter = parseFrontmatter(content);
   if (!frontmatter) {
     addResult(results, entry.name, 'structure', 'failed', 'Missing or malformed YAML frontmatter');
@@ -137,6 +143,15 @@ function validateSkill(entry, skillsDir, results) {
   }
   if (!frontmatter.fields.description) {
     addResult(results, entry.name, 'structure', 'failed', 'Frontmatter description is missing');
+  }
+  if (frontmatter.fields.source !== entry.source_repo) {
+    addResult(results, entry.name, 'metadata', 'failed', 'Frontmatter source does not match catalog entry');
+  }
+  if (entry.source_ref && frontmatter.fields.source_ref !== entry.source_ref) {
+    addResult(results, entry.name, 'metadata', 'failed', 'Frontmatter source_ref does not match catalog entry');
+  }
+  if (entry.upstream && frontmatter.fields.upstream !== entry.upstream) {
+    addResult(results, entry.name, 'metadata', 'failed', 'Frontmatter upstream does not match catalog entry');
   }
   if (frontmatter.body.trim().length === 0) {
     addResult(results, entry.name, 'structure', 'failed', 'Markdown body is empty');

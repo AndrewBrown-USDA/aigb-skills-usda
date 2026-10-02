@@ -6,11 +6,7 @@ version: 1.0
 description: Interactive guided walkthrough of code, line by line, where the agent reflects back your explanations without analysis. Use when debugging, reviewing, or understanding code by forced articulation.
 source: aigb-skills
 source_path: skills/rubber-ducking/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Support workflow for interactive debugging and reasoning.
 ---
-
 # Rubber Ducking
 
 Explain your code out loud. Your brain fills in gaps when reading silently. Speaking makes you confront every line. That's where bugs surface.

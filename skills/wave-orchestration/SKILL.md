@@ -6,11 +6,7 @@ description: Decomposes a large implementation plan into small-model-sized tasks
 version: 1.0
 source: aigb-skills
 source_path: skills/wave-orchestration/SKILL.md
-selection_status: direct-history
-publishability: publishable
-rationale: Core workflow for decomposing and coordinating larger task waves.
 ---
-
 # Wave Orchestration (plan-gated, small-model workers)
 
 An architecture for executing a large, multi-workstream plan as a pipeline of

@@ -6,11 +6,7 @@ description: Audit and update an arbitrary codebase to follow the Code.mil feder
 version: 1.0.0
 source: aigb-skills
 source_path: skills/apply-fed-oss-license/SKILL.md
-selection_status: dependency-support
-publishability: publishable
-rationale: Audit and update repositories to Code.mil federal open-source licensing model with 17 U.S.C. § 105 disclaimers.
 ---
-
 # Federal Open Source Licensing (Code.mil Model)
 
 ## Context & Objectives

@@ -6,11 +6,7 @@ description: Develops an implementation plan ready for wave-orchestration to exe
 version: 1.1
 source: aigb-skills
 source_path: skills/plan-wave/SKILL.md
-selection_status: direct-history
-publishability: publishable
-rationale: Frequently paired with planning/wave execution and task decomposition.
 ---
-
 # Plan-Wave: author the plan that wave-orchestration executes
 
 Produces the `planning/` artifact set that the **wave-orchestration** skill
