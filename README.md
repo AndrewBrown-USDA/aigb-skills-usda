@@ -105,6 +105,15 @@ npx skills sync --mode copy
 
 The catalog includes 27 curated skills:
 
+- **Skill metadata contract:** Each `skills/*/SKILL.md` frontmatter must provide
+  the standard top-level `name` and `description` fields. Supported standard
+  optional fields remain top-level when used. Repository-specific synchronization
+  fields belong under a `metadata` mapping: `source_repo`, `source_path`,
+  `source_ref`, `upstream`, and `version`.
+- **Authority and catalog:** `skills/*/SKILL.md` frontmatter is authoritative.
+  `catalog/skills.lock.json` is generated compatibility and index data derived
+  from that frontmatter; edit the skill metadata rather than hand-editing the
+  catalog.
 - **External Skills:** `grilling`, `code-review-2axis`, `research`, and `tdd` are authored by Matt Pocock (https://github.com/mattpocock/skills). `caveman` is authored by Julius Brussee (https://github.com/JuliusBrussee/caveman). `ponytail` is authored by Dietrich Gebert (https://github.com/DietrichGebert/ponytail). Each skill's `SKILL.md` frontmatter carries its source, exact pinned ref, attribution, and upstream URL; the catalog is generated from that metadata.
 - **Diagnostics & Debugging:** `dr-lexus` (plain language directive) and `rubber-ducking` (interactive user-driven explanation and debugging).
 - **Web Research & Documentation:** `web-source-bundler` (captures web sources, search results, and file lists into deterministic Markdown reference bundles with SHA-256 provenance) and `research` (structured primary source investigations).
