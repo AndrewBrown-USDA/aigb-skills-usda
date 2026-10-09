@@ -144,6 +144,7 @@ function normalizedEntry(entry) {
     ...metadata,
     source_repo: metadata.source_repo || entry.source_repo,
     source_path: metadata.source_path || entry.source_path,
+    upstream_name: metadata.upstream_name || entry.upstream_name,
     source_ref: metadata.source_ref || entry.source_ref,
     upstream: metadata.upstream || entry.upstream,
     version: version && typeof version === 'object' ? version.value : version
@@ -318,10 +319,11 @@ function updateSkillMetadata(destSkillMd, entry) {
   let content = fs.readFileSync(destSkillMd, 'utf8');
   const normalized = normalizedEntry(entry);
   const metadata = [];
+  const license = normalized.license;
   if (normalized.author && normalized.author.toLowerCase().includes('matt pocock')) {
     metadata.push(['author', 'Matt Pocock (https://github.com/mattpocock/skills)']);
   }
-  for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream', 'version']) {
+  for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream', 'upstream_name', 'version']) {
     if (normalized[key]) metadata.push([key, normalized[key]]);
   }
 
@@ -330,8 +332,25 @@ function updateSkillMetadata(destSkillMd, entry) {
   }
 
   const addMissingMetadata = (block) => {
-    const lines = block.split(/\r?\n/).filter((line) => !/^(author|source|source_repo|source_path|source_ref|upstream|version):/.test(line));
+    const lines = block.split(/\r?\n/).filter((line) => !/^(author|license|source|source_repo|source_path|source_ref|upstream|upstream_name|version):/.test(line));
     let updatedBlock = lines.join('\n').trimEnd();
+    const packagedNamePattern = /^name:\s*.*$/m;
+    if (packagedNamePattern.test(updatedBlock)) {
+      updatedBlock = updatedBlock.replace(packagedNamePattern, `name: ${entry.name}`);
+    } else {
+      updatedBlock = `name: ${entry.name}\n${updatedBlock}`;
+    }
+    if (license) {
+      const blockLines = updatedBlock.split('\n').filter((line) => !/^license:\s*/.test(line));
+      const metadataLineIndex = blockLines.findIndex((line) => /^metadata:\s*$/.test(line));
+      const licenseLine = `license: ${license}`;
+      if (metadataLineIndex < 0) {
+        blockLines.push(licenseLine);
+      } else {
+        blockLines.splice(metadataLineIndex, 0, licenseLine);
+      }
+      updatedBlock = blockLines.join('\n');
+    }
     const metadataIndex = lines.findIndex((line) => line === 'metadata:' || line.startsWith('metadata:'));
     if (metadataIndex < 0) {
       updatedBlock += `\nmetadata:`;
@@ -403,7 +422,8 @@ function syncSkills(options) {
       sourceDir,
       sourceRoot,
       sourceDirRel,
-      sourceRef: normalized.source_ref || null
+      sourceRef: normalized.source_ref || null,
+      upstreamName: normalized.upstream_name || null
     });
   }
 
@@ -419,6 +439,11 @@ function syncSkills(options) {
         );
       }
       extractGitSkill(skill.sourceRoot, skill.sourceRef, skill.sourceDirRel, destDir);
+    } else if (mode === 'symlink' && skill.upstreamName) {
+      process.stderr.write(
+        `Warning: symlink mode is unavailable for aliased skill "${skill.name}"; falling back to copy mode.\n`
+      );
+      copySkill(skill.sourceDir, destDir);
     } else if (mode === 'symlink') {
       linkSkill(skill.sourceDir, destDir);
     } else {

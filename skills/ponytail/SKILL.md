@@ -16,7 +16,6 @@ description: >
 argument-hint: "[lite|full|ultra]"
 license: MIT
 metadata:
-  author: Dietrich Gebert (https://github.com/DietrichGebert/ponytail)
   source_repo: DietrichGebert-ponytail
   source_path: skills/ponytail/SKILL.md
   source_ref: v4.10.0

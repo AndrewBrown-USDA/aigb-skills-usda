@@ -109,12 +109,20 @@ The catalog includes 27 curated skills:
   the standard top-level `name` and `description` fields. Supported standard
   optional fields remain top-level when used. Repository-specific synchronization
   fields belong under a `metadata` mapping: `source_repo`, `source_path`,
-  `source_ref`, `upstream`, and `version`.
+  `source_ref`, `upstream`, `upstream_name`, and `version`.
 - **Authority and catalog:** `skills/*/SKILL.md` frontmatter is authoritative.
   `catalog/skills.lock.json` is generated compatibility and index data derived
   from that frontmatter; edit the skill metadata rather than hand-editing the
   catalog.
 - **External Skills:** `grilling`, `code-review-2axis`, `research`, and `tdd` are authored by Matt Pocock (https://github.com/mattpocock/skills). `caveman` is authored by Julius Brussee (https://github.com/JuliusBrussee/caveman). `ponytail` is authored by Dietrich Gebert (https://github.com/DietrichGebert/ponytail). Each skill's `SKILL.md` frontmatter carries its source, exact pinned ref, attribution, and upstream URL; the catalog is generated from that metadata.
+
+### Curated aliases
+
+The top-level frontmatter `name` is the public packaged identity used for
+installation, synchronization, validation, and CLI selection. When a curated
+skill intentionally uses a different name than its upstream source, record the
+upstream name relative to `metadata.source_repo` as `metadata.upstream_name`.
+For example, `code-review-2axis` uses `upstream_name: code-review`.
 - **Diagnostics & Debugging:** `dr-lexus` (plain language directive) and `rubber-ducking` (interactive user-driven explanation and debugging).
 - **Web Research & Documentation:** `web-source-bundler` (captures web sources, search results, and file lists into deterministic Markdown reference bundles with SHA-256 provenance) and `research` (structured primary source investigations).
 - **Core Engineering & Standards:** `agent-onboarding`, `apply-fed-oss-license`, `copilot-history-briefing`, `deep-investigative-research`, `doc-consistency`, `github-actions-ci`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `plan-first`, `plan-wave`, `reviewer-architecture`, `reviewer-correctness`, `skill-research`, `tdd`, `verbosity-cleaner`, `wave-orchestration`, and `worker-validation`.

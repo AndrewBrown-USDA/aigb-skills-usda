@@ -1,7 +1,7 @@
 ---
 name: web-source-bundler
-license: MIT
 description: Captures web sources and compiles deterministic Markdown reference bundles with metadata and checksums. Use when asked to capture URLs, research web links, bundle search results, or archive web pages into an LLM-ready reference document.
+license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.1.0

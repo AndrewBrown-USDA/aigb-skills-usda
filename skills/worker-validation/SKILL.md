@@ -1,7 +1,7 @@
 ---
 name: worker-validation
-license: MIT
 description: Validates code fixes by running the code, checking compilation, verifying runtime behavior, and confirming fixes resolve the reported issue. Use when verifying that bug fixes actually work at runtime.
+license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0

@@ -15,22 +15,23 @@ try {
   const lockfile = path.join(tempRoot, 'skills.lock.json');
   const skillsDir = path.join(tempRoot, 'skills');
   const report = path.join(tempRoot, 'report.json');
-  const skillDir = path.join(skillsDir, 'example');
+  const skillDir = path.join(skillsDir, 'example-alias');
   fs.mkdirSync(skillDir, { recursive: true });
   fs.writeFileSync(
     path.join(skillDir, 'SKILL.md'),
-    '---\nname: example\ndescription: Example skill\nmetadata:\n  source_repo: example-repo\n  source_path: skills/example/SKILL.md\n  source_ref: v1.0.0\n  upstream: https://example.test/skills\n  version: 1.0\n---\n\n# Example\n',
+    '---\nname: example-alias\ndescription: Example skill\nmetadata:\n  source_repo: example-repo\n  source_path: skills/example/SKILL.md\n  source_ref: v1.0.0\n  upstream: https://example.test/skills\n  upstream_name: example\n  version: 1.0\n---\n\n# Example\n',
     'utf8'
   );
   fs.writeFileSync(
     lockfile,
     JSON.stringify({
       skills: [{
-        name: 'example',
+        name: 'example-alias',
         source_repo: 'example-repo',
         source_path: 'skills/example/SKILL.md',
         source_ref: 'v1.0.0',
         upstream: 'https://example.test/skills',
+        upstream_name: 'example',
         version: { status: 'resolved', value: '1.0' }
       }]
     }),
@@ -52,7 +53,7 @@ try {
 
   fs.writeFileSync(
     path.join(skillDir, 'SKILL.md'),
-    '---\nname: example\ndescription: Example skill\nsource_repo: example-repo\nmetadata:\n  source_repo: example-repo\n---\n\n# Example\n',
+    '---\nname: example-alias\ndescription: Example skill\nsource_repo: example-repo\nmetadata:\n  source_repo: example-repo\n---\n\n# Example\n',
     'utf8'
   );
   const topLevelCustom = spawnSync(process.execPath, [
@@ -63,7 +64,7 @@ try {
 
   fs.writeFileSync(
     path.join(skillDir, 'SKILL.md'),
-    '---\nname: example\ndescription: Example skill\nmetadata:\n  source_repo: wrong-repo\n---\n\n# Example\n',
+    '---\nname: example-alias\ndescription: Example skill\nmetadata:\n  source_repo: wrong-repo\n---\n\n# Example\n',
     'utf8'
   );
   const mismatchedMetadata = spawnSync(process.execPath, [

@@ -1,7 +1,7 @@
 ---
 name: reviewer-architecture
-license: MIT
 description: Performs architectural code reviews focusing on design patterns, duplication, circular dependencies, and refactoring impact. Is the design consistent with the codebase? Use when reviewing code changes for architectural concerns, code smells, or structural issues.
+license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0

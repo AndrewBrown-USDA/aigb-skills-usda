@@ -34,8 +34,6 @@
     },
     {
       "name": "caveman",
-      "author": "Julius Brussee (https://github.com/JuliusBrussee/caveman)",
-      "license": "MIT",
       "source_repo": "JuliusBrussee-caveman",
       "source_path": "skills/caveman/SKILL.md",
       "source_ref": "v2.7.0",
@@ -48,10 +46,10 @@
     {
       "name": "code-review-2axis",
       "author": "Matt Pocock (https://github.com/mattpocock/skills)",
-      "license": "MIT",
       "source_repo": "mattpocock-skills",
       "source_path": "skills/engineering/code-review/SKILL.md",
       "source_ref": "v1.2.0",
+      "upstream_name": "code-review",
       "upstream": "https://github.com/mattpocock/skills",
       "version": {
         "status": "missing",
@@ -116,7 +114,6 @@
     {
       "name": "grilling",
       "author": "Matt Pocock (https://github.com/mattpocock/skills)",
-      "license": "MIT",
       "source_repo": "mattpocock-skills",
       "source_path": "skills/productivity/grilling/SKILL.md",
       "source_ref": "v1.2.0",
@@ -195,7 +192,6 @@
     },
     {
       "name": "ponytail",
-      "author": "Dietrich Gebert (https://github.com/DietrichGebert/ponytail)",
       "license": "MIT",
       "source_repo": "DietrichGebert-ponytail",
       "source_path": "skills/ponytail/SKILL.md",
@@ -209,7 +205,6 @@
     {
       "name": "research",
       "author": "Matt Pocock (https://github.com/mattpocock/skills)",
-      "license": "MIT",
       "source_repo": "mattpocock-skills",
       "source_path": "skills/engineering/research/SKILL.md",
       "source_ref": "v1.2.0",
@@ -260,7 +255,7 @@
       "source_path": "skills/skill-research/SKILL.md",
       "version": {
         "status": "resolved",
-        "value": "1.0"
+        "value": "1.1"
       }
     },
     {
