@@ -359,6 +359,19 @@ function main() {
   );
   assertSkillLayout(symlinkTarget, lockfile.skills);
   assertGrillingContent(symlinkTarget, false);
+  const aliasedSkill = lockfile.skills.find(skill => skill.upstream_name);
+  if (aliasedSkill && !aliasedSkill.source_ref) {
+    const aliasedSkillFile = path.join(symlinkTarget, aliasedSkill.name, 'SKILL.md');
+    assert.equal(fs.lstatSync(path.dirname(aliasedSkillFile)).isSymbolicLink(), false);
+    assert.match(
+      fs.readFileSync(aliasedSkillFile, 'utf8'),
+      new RegExp(`^name:\\s*${aliasedSkill.name}$`, 'm')
+    );
+    assert.match(
+      symlinkResult.stderr,
+      new RegExp(`symlink mode is unavailable for aliased skill "${aliasedSkill.name}"`)
+    );
+  }
 
   // 8. Test symlink mode for install
   const installSymlinkTarget = path.join(scratchRoot, 'smoke-install-symlink');

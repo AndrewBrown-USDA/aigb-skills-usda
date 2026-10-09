@@ -422,7 +422,8 @@ function syncSkills(options) {
       sourceDir,
       sourceRoot,
       sourceDirRel,
-      sourceRef: normalized.source_ref || null
+      sourceRef: normalized.source_ref || null,
+      upstreamName: normalized.upstream_name || null
     });
   }
 
@@ -438,6 +439,11 @@ function syncSkills(options) {
         );
       }
       extractGitSkill(skill.sourceRoot, skill.sourceRef, skill.sourceDirRel, destDir);
+    } else if (mode === 'symlink' && skill.upstreamName) {
+      process.stderr.write(
+        `Warning: symlink mode is unavailable for aliased skill "${skill.name}"; falling back to copy mode.\n`
+      );
+      copySkill(skill.sourceDir, destDir);
     } else if (mode === 'symlink') {
       linkSkill(skill.sourceDir, destDir);
     } else {
