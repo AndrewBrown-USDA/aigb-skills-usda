@@ -1,7 +1,7 @@
 ---
 name: dr-lexus
-license: MIT
 description: Plain language directive. Cuts verbosity, corporate jargon, and overused AI vocabulary. Use when you want clear, direct, short writing. No fluff, no hedging, no unnecessary complexity.
+license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0

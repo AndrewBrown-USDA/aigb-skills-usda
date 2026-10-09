@@ -319,6 +319,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   let content = fs.readFileSync(destSkillMd, 'utf8');
   const normalized = normalizedEntry(entry);
   const metadata = [];
+  const license = normalized.license;
   if (normalized.author && normalized.author.toLowerCase().includes('matt pocock')) {
     metadata.push(['author', 'Matt Pocock (https://github.com/mattpocock/skills)']);
   }
@@ -331,8 +332,25 @@ function updateSkillMetadata(destSkillMd, entry) {
   }
 
   const addMissingMetadata = (block) => {
-    const lines = block.split(/\r?\n/).filter((line) => !/^(author|source|source_repo|source_path|source_ref|upstream|upstream_name|version):/.test(line));
+    const lines = block.split(/\r?\n/).filter((line) => !/^(author|license|source|source_repo|source_path|source_ref|upstream|upstream_name|version):/.test(line));
     let updatedBlock = lines.join('\n').trimEnd();
+    const packagedNamePattern = /^name:\s*.*$/m;
+    if (packagedNamePattern.test(updatedBlock)) {
+      updatedBlock = updatedBlock.replace(packagedNamePattern, `name: ${entry.name}`);
+    } else {
+      updatedBlock = `name: ${entry.name}\n${updatedBlock}`;
+    }
+    if (license) {
+      const blockLines = updatedBlock.split('\n').filter((line) => !/^license:\s*/.test(line));
+      const metadataLineIndex = blockLines.findIndex((line) => /^metadata:\s*$/.test(line));
+      const licenseLine = `license: ${license}`;
+      if (metadataLineIndex < 0) {
+        blockLines.push(licenseLine);
+      } else {
+        blockLines.splice(metadataLineIndex, 0, licenseLine);
+      }
+      updatedBlock = blockLines.join('\n');
+    }
     const metadataIndex = lines.findIndex((line) => line === 'metadata:' || line.startsWith('metadata:'));
     if (metadataIndex < 0) {
       updatedBlock += `\nmetadata:`;

@@ -198,6 +198,10 @@ function main() {
   assertGrillingContent(syncTarget);
   for (const skill of lockfile.skills) {
     const content = fs.readFileSync(path.join(syncTarget, skill.name, 'SKILL.md'), 'utf8');
+    assert.match(content, new RegExp(`^name:\\s*${skill.name}$`, 'm'));
+    if (skill.license !== undefined) {
+      assert.match(content, new RegExp(`^license:\\s*${skill.license}$`, 'm'));
+    }
     assert.doesNotMatch(content, /[\u2013\u2014\u2011\u2190-\u21ff\u2300-\u23ff\u2600-\u27bf]/u);
     assert.doesNotMatch(content, /[âðï][\u0080-\u00bf]|Ã.|Â./u);
   }

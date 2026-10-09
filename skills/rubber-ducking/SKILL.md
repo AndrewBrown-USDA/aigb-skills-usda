@@ -1,7 +1,7 @@
 ---
 name: rubber-ducking
-license: MIT
 description: Interactive guided walkthrough of code, line by line, where the agent reflects back your explanations without analysis. Use when debugging, reviewing, or understanding code by forced articulation.
+license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0

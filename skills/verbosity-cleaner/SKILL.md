@@ -1,7 +1,7 @@
 ---
 name: verbosity-cleaner
-license: MIT
 description: Enforces lean, surgical output. Suppresses conversational fluff and verbose reasoning traces. Use when agent output feels too chatty or repetitive.
+license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0

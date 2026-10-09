@@ -1,7 +1,7 @@
 ---
 name: skill-research
-license: MIT
 description: Guides the discovery, design, validation, and delivery of Agent Skills. Use when identifying skill gaps, creating or revising a SKILL.md, improving skill descriptions, or checking a skill against the Agent Skills specification.
+license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.1
