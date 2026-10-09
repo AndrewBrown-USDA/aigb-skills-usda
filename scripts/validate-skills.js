@@ -170,7 +170,7 @@ function validateSkill(entry, skillsDir, results) {
   if (customTopLevel.length) {
     addResult(results, entry.name, 'metadata', 'failed', `Custom top-level metadata keys are not allowed: ${customTopLevel.join(', ')}`);
   }
-  const metadataFields = ['author', 'source_repo', 'source_path', 'source_ref', 'upstream'];
+  const metadataFields = ['author', 'source_repo', 'source_path', 'source_ref', 'upstream', 'upstream_name'];
   for (const key of metadataFields) {
     if (entry[key] !== undefined && frontmatter.metadata[key] !== entry[key]) {
       addResult(results, entry.name, 'metadata', 'failed', `Frontmatter metadata.${key} does not match catalog entry`);

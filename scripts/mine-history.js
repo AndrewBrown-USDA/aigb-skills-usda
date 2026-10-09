@@ -75,6 +75,7 @@ function scanCuratedSkills() {
     const sourceRepo = metadata.source_repo || 'aigb-skills';
     const sourcePath = metadata.source_path || `skills/${skillName}/SKILL.md`;
     const sourceRef = metadata.source_ref;
+    const upstreamName = metadata.upstream_name;
     const author = metadata.author;
     const license = fm.license;
     const versionVal = metadata.version ? String(metadata.version).trim() : null;
@@ -90,6 +91,7 @@ function scanCuratedSkills() {
       source_repo: sourceRepo,
       source_path: sourcePath,
       ...(sourceRef ? { source_ref: sourceRef } : {}),
+      ...(upstreamName ? { upstream_name: upstreamName } : {}),
       ...(metadata.upstream ? { upstream: metadata.upstream } : {}),
       version
     };

@@ -144,6 +144,7 @@ function normalizedEntry(entry) {
     ...metadata,
     source_repo: metadata.source_repo || entry.source_repo,
     source_path: metadata.source_path || entry.source_path,
+    upstream_name: metadata.upstream_name || entry.upstream_name,
     source_ref: metadata.source_ref || entry.source_ref,
     upstream: metadata.upstream || entry.upstream,
     version: version && typeof version === 'object' ? version.value : version
@@ -321,7 +322,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   if (normalized.author && normalized.author.toLowerCase().includes('matt pocock')) {
     metadata.push(['author', 'Matt Pocock (https://github.com/mattpocock/skills)']);
   }
-  for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream', 'version']) {
+  for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream', 'upstream_name', 'version']) {
     if (normalized[key]) metadata.push([key, normalized[key]]);
   }
 
@@ -330,7 +331,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   }
 
   const addMissingMetadata = (block) => {
-    const lines = block.split(/\r?\n/).filter((line) => !/^(author|source|source_repo|source_path|source_ref|upstream|version):/.test(line));
+    const lines = block.split(/\r?\n/).filter((line) => !/^(author|source|source_repo|source_path|source_ref|upstream|upstream_name|version):/.test(line));
     let updatedBlock = lines.join('\n').trimEnd();
     const metadataIndex = lines.findIndex((line) => line === 'metadata:' || line.startsWith('metadata:'));
     if (metadataIndex < 0) {
