@@ -1,13 +1,13 @@
 ---
 name: code-review-2axis
 description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes - Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
-license: MIT
 metadata:
   author: Matt Pocock (https://github.com/mattpocock/skills)
   source_repo: mattpocock-skills
   source_path: skills/engineering/code-review/SKILL.md
   source_ref: v1.2.0
   upstream: https://github.com/mattpocock/skills
+  upstream_name: code-review
 ---
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
