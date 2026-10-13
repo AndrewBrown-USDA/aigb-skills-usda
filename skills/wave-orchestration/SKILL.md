@@ -1,10 +1,10 @@
 ---
 name: wave-orchestration
-description: Decomposes a large implementation plan into small-model-sized tasks executed by supervised worker agents (e.g. Haiku) in dependency-ordered parallel waves, with a plan-first approval gate inside every task, file-based state for context compaction, and a hard escalation ladder. Use when a master plan or multi-workstream feature is too large for one session and should be executed cheaply by many small agents under frontier-model supervision.
+description: Decomposes a large implementation plan into small-model-sized tasks executed by supervised worker agents in dependency-ordered parallel waves, with a plan-first approval gate inside every task, file-based state for context compaction, and a hard escalation ladder. Use when a master plan or multi-workstream feature is too large for one session and should be executed cheaply by many small agents under frontier-model supervision.
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.0
+  version: 1.1
   source_repo: aigb-skills
   source_path: skills/wave-orchestration/SKILL.md
 ---
@@ -42,7 +42,7 @@ ideas do all the work:
 
 Each orchestration (planning-file set) is numbered. Use the next available number:
 
-- **`EXECUTION_PLAN_N.md`** -- the task DAG: wave table + one spec per task (N = orchestration number).
+- **`EXECUTION_PLAN_N.md`** -- the task directed acyclic graph (DAG): wave table + one spec per task (N = orchestration number).
 - **`PROMPT_TEMPLATE_N.md`** -- the fill-in-the-slots worker prompt (below).
 - **`STATE_N.md`** -- baseline record, wave board, and appended worker reports.
 - **`tasks/N.W.id.todo.md`** -- each worker's approved micro-TODO; N = orchestration number, W = wave number within that orchestration, id = task ID (e.g., `tasks/5.2.3.todo.md` for Orchestration 5, Wave 2, Task 3).
@@ -148,7 +148,10 @@ Read the current orchestration's STATE_N.md. Repeat until the wave board is all 
 7. **Commit** -- pass: merge worktree, one commit per task (conventional format,
    no orchestration/wave in message), distill report into STATE_N.md (<=15 lines),
    mark done. Fail: escalation ladder.
-8. **Wave done** -- update wave board in STATE_N.md, then `/compact` or `/clear` orchestrator.
+8. **Distill Decisions (optional / milestone)** -- run **adr-distillation** to extract enduring
+   architectural decisions from `EXECUTION_PLAN_N.md` and `STATE_N.md` into `docs/decisions/`
+   before compacting or archiving planning state.
+9. **Wave done** -- update wave board in STATE_N.md, then `/compact` or `/clear` orchestrator.
 
 ## Escalation ladder (hard limits -- small models must not loop)
 

@@ -4,14 +4,14 @@ description: Develops an implementation plan ready for wave-orchestration to exe
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.1
+  version: 1.2
   source_repo: aigb-skills
   source_path: skills/plan-wave/SKILL.md
 ---
 # Plan-Wave: author the plan that wave-orchestration executes
 
 Produces the `planning/` artifact set that the **wave-orchestration** skill
-consumes: `EXECUTION_PLAN_N.md` (task DAG + wave table + per-task specs),
+consumes: `EXECUTION_PLAN_N.md` (task directed acyclic graph + wave table + per-task specs),
 `PROMPT_TEMPLATE_N.md` (worker prompt), and `STATE_N.md` (scaffold). The output
 contract -- task-spec fields, right-sizing rules, wave rules -- is defined by
 wave-orchestration; read that skill first and treat it as the spec this plan
@@ -53,6 +53,8 @@ Before asking the user anything, establish from the repo(s):
   resources decide whether suites can ever run concurrently)
 - Conventions files (AGENTS.md, CONTRIBUTING, existing plan docs) and any prior
   TODO/state files recording what already shipped
+- Architecture Decision Records: scan `docs/decisions/README.md` and active ADRs
+  (`status: Accepted`) to discover enduring architectural constraints and conventions
 - The current green baseline per suite (run them if cheap; otherwise note as a
   pre-wave-1 step)
 - Existing code that new work should pattern-match (candidate "reference
@@ -73,15 +75,20 @@ the tree is walked. Typical decision branches for a wave plan:
 1. Priority and ordering between workstreams when the DAG allows either
 2. Scope calls the input left open (which panels/endpoints/platforms count?)
 3. Technology choices with no codebase precedent (storage format, new deps)
-4. Parallelism appetite: max concurrent workers, worktree tolerance, whether
+4. Architectural alignment or superseding: if any scope item contradicts an active
+   ADR in `docs/decisions/`, explicitly resolve whether the plan supersedes that ADR
+   or complies with it
+5. Parallelism appetite: max concurrent workers, worktree tolerance, whether
    cross-repo work may interleave
-5. Worker/escalation models and budget (which small model, escalate to what)
-6. Acceptance bar: which suites must be green per wave, what's deferred to
+6. Worker/escalation models and budget (which small model, escalate to what)
+7. Acceptance bar: which suites must be green per wave, what's deferred to
    manual/device testing
-7. Anything from Phase 1 that mapped to no task and no deferral
+8. Anything from Phase 1 that mapped to no task and no deferral
 
 Record each answer as a dated decision line -- these go in EXECUTION_PLAN_N.md so
-workers and future orchestrators inherit the *why*, not just the *what*.
+workers and future orchestrators inherit the *why*, not just the *what*. If an
+accepted ADR is to be superseded upon implementation, record the target ADR ID
+explicitly.
 
 ## Phase 4 -- Draft the artifacts
 
