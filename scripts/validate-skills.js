@@ -210,7 +210,8 @@ function runBehavioralChecks(skillsDir, results, repositoryRoot = REPO_ROOT) {
       addResult(results, skill, 'behavior', 'failed', `Missing bundled check: ${relativeScript}`);
       continue;
     }
-    const result = spawnSync('python', [scriptPath], { cwd: REPO_ROOT, encoding: 'utf8' });
+    const pythonBin = process.env.PYTHON || (spawnSync('which', ['python']).status === 0 ? 'python' : 'python3');
+    const result = spawnSync(pythonBin, [scriptPath], { cwd: REPO_ROOT, encoding: 'utf8' });
     if (result.error || result.status !== 0) {
       addResult(
         results,
