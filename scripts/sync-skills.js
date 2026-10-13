@@ -316,7 +316,19 @@ function createRelativeLinkTarget(sourceDir, destDir) {
   return relativeTarget.length > 0 ? relativeTarget : sourceDir;
 }
 
+function sameFilesystemEntry(firstPath, secondPath) {
+  try {
+    return fs.realpathSync(firstPath) === fs.realpathSync(secondPath);
+  } catch (error) {
+    return path.resolve(firstPath) === path.resolve(secondPath);
+  }
+}
+
 function linkSkill(sourceDir, destDir) {
+  if (fs.existsSync(sourceDir) && fs.existsSync(destDir) && sameFilesystemEntry(sourceDir, destDir)) {
+    return;
+  }
+
   // If target skill already exists, clean only this skill target to allow safe update/amend
   if (fs.existsSync(destDir) || fs.lstatSync(destDir, { throwIfNoEntry: false })) {
     fs.rmSync(destDir, { recursive: true, force: true });
@@ -344,6 +356,10 @@ function linkSkill(sourceDir, destDir) {
 }
 
 function copySkill(sourceDir, destDir) {
+  if (fs.existsSync(sourceDir) && fs.existsSync(destDir) && sameFilesystemEntry(sourceDir, destDir)) {
+    return;
+  }
+
   // If target skill already exists, clean only this skill target to allow safe update/amend
   if (fs.existsSync(destDir) || fs.lstatSync(destDir, { throwIfNoEntry: false })) {
     fs.rmSync(destDir, { recursive: true, force: true });
@@ -364,6 +380,15 @@ function updateSkillMetadata(destSkillMd, entry) {
 
   let content = fs.readFileSync(destSkillMd, 'utf8');
   const normalized = normalizedEntry(entry);
+  if (
+    normalized.source_repo === 'aigb-skills' &&
+    !normalized.source_ref &&
+    !normalized.upstream &&
+    !normalized.upstream_name
+  ) {
+    return;
+  }
+
   const metadata = [];
   const license = normalized.license;
   if (normalized.author && normalized.author.toLowerCase().includes('matt pocock')) {

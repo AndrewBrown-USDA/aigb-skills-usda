@@ -5,8 +5,10 @@ description: >
   technical accuracy. Levels: lite, full, ultra and the wenyan variants. Use for
   /caveman, "caveman mode", "talk like caveman", "be brief" or "less tokens".
 metadata:
-  source_repo: JuliusBrussee-caveman
+  source_repo: aigb-skills
   source_path: skills/caveman/SKILL.md
+  original_source_repo: JuliusBrussee-caveman
+  upstream_path: skills/caveman/SKILL.md
   source_ref: v2.7.0
   upstream: https://github.com/JuliusBrussee/caveman
 ---

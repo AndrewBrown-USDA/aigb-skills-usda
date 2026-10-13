@@ -4,10 +4,10 @@
   "generated_from": {
     "repo": "aigb-skills-usda",
     "evidence": [
-      "planning/EXECUTION_PLAN_1.md",
-      "planning/STATE_1.md"
+      "skills/*/SKILL.md",
+      "catalog/skills.lock.json"
     ],
-    "note": "Uses the history evidence already established in the orchestration context; does not re-mine the full history store."
+    "note": "Generated from packaged skill frontmatter; USDA-authoritative customizations are copied into aigb-skills and tracked with provenance."
   },
   "skills": [
     {
@@ -16,6 +16,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/adr-distillation/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0.0"
@@ -27,6 +29,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/agent-onboarding/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -38,6 +42,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/apply-fed-oss-license/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0.0"
@@ -45,10 +51,17 @@
     },
     {
       "name": "caveman",
-      "source_repo": "JuliusBrussee-caveman",
+      "source_repo": "aigb-skills",
       "source_path": "skills/caveman/SKILL.md",
-      "source_ref": "v2.7.0",
-      "upstream": "https://github.com/JuliusBrussee/caveman",
+      "provenance": {
+        "type": "copied-customized",
+        "source_repo": "JuliusBrussee-caveman",
+        "repository": "https://github.com/JuliusBrussee/caveman",
+        "ref": "v2.7.0",
+        "source_path": "skills/caveman/SKILL.md"
+      },
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "missing",
         "value": null
@@ -57,11 +70,18 @@
     {
       "name": "code-review-2axis",
       "author": "Matt Pocock (https://github.com/mattpocock/skills)",
-      "source_repo": "mattpocock-skills",
-      "source_path": "skills/engineering/code-review/SKILL.md",
-      "source_ref": "v1.2.0",
-      "upstream_name": "code-review",
-      "upstream": "https://github.com/mattpocock/skills",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/code-review-2axis/SKILL.md",
+      "provenance": {
+        "type": "copied-customized",
+        "source_repo": "mattpocock-skills",
+        "repository": "https://github.com/mattpocock/skills",
+        "ref": "v1.2.0",
+        "source_path": "skills/engineering/code-review/SKILL.md",
+        "upstream_name": "code-review"
+      },
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "missing",
         "value": null
@@ -73,6 +93,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/copilot-history-briefing/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.3"
@@ -84,6 +106,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/deep-investigative-research/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -95,6 +119,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/doc-consistency/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -106,6 +132,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/dr-lexus/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -117,6 +145,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/git-history-interval-study/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -128,6 +158,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/github-actions-ci/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -136,10 +168,17 @@
     {
       "name": "grilling",
       "author": "Matt Pocock (https://github.com/mattpocock/skills)",
-      "source_repo": "mattpocock-skills",
-      "source_path": "skills/productivity/grilling/SKILL.md",
-      "source_ref": "v1.2.0",
-      "upstream": "https://github.com/mattpocock/skills",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/grilling/SKILL.md",
+      "provenance": {
+        "type": "copied-customized",
+        "source_repo": "mattpocock-skills",
+        "repository": "https://github.com/mattpocock/skills",
+        "ref": "v1.2.0",
+        "source_path": "skills/productivity/grilling/SKILL.md"
+      },
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "missing",
         "value": null
@@ -151,6 +190,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/install-skills/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -162,6 +203,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/json-processing-with-jq/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -173,6 +216,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/makefile-development-workflow/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -184,6 +229,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/performance-benchmarking/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -195,7 +242,14 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/plan-first/SKILL.md",
-      "upstream": "https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js",
+      "provenance": {
+        "type": "copied-customized",
+        "source_repo": "aigb-skills",
+        "repository": "https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js",
+        "source_path": "skills/plan-first/SKILL.md"
+      },
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -207,6 +261,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/plan-wave/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.1"
@@ -215,10 +271,17 @@
     {
       "name": "ponytail",
       "license": "MIT",
-      "source_repo": "DietrichGebert-ponytail",
+      "source_repo": "aigb-skills",
       "source_path": "skills/ponytail/SKILL.md",
-      "source_ref": "v4.10.0",
-      "upstream": "https://github.com/DietrichGebert/ponytail",
+      "provenance": {
+        "type": "copied-customized",
+        "source_repo": "DietrichGebert-ponytail",
+        "repository": "https://github.com/DietrichGebert/ponytail",
+        "ref": "v4.10.0",
+        "source_path": "skills/ponytail/SKILL.md"
+      },
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "missing",
         "value": null
@@ -227,10 +290,17 @@
     {
       "name": "research",
       "author": "Matt Pocock (https://github.com/mattpocock/skills)",
-      "source_repo": "mattpocock-skills",
-      "source_path": "skills/engineering/research/SKILL.md",
-      "source_ref": "v1.2.0",
-      "upstream": "https://github.com/mattpocock/skills",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/research/SKILL.md",
+      "provenance": {
+        "type": "copied-customized",
+        "source_repo": "mattpocock-skills",
+        "repository": "https://github.com/mattpocock/skills",
+        "ref": "v1.2.0",
+        "source_path": "skills/engineering/research/SKILL.md"
+      },
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "missing",
         "value": null
@@ -242,6 +312,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/reviewer-architecture/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -253,6 +325,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/reviewer-correctness/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -264,6 +338,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/rubber-ducking/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -275,6 +351,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/skill-research/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.1"
@@ -284,10 +362,17 @@
       "name": "tdd",
       "author": "Matt Pocock (https://github.com/mattpocock/skills)",
       "license": "MIT",
-      "source_repo": "mattpocock-skills",
-      "source_path": "skills/engineering/tdd/SKILL.md",
-      "source_ref": "v1.2.0",
-      "upstream": "https://github.com/mattpocock/skills",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/tdd/SKILL.md",
+      "provenance": {
+        "type": "copied-customized",
+        "source_repo": "mattpocock-skills",
+        "repository": "https://github.com/mattpocock/skills",
+        "ref": "v1.2.0",
+        "source_path": "skills/engineering/tdd/SKILL.md"
+      },
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "missing",
         "value": null
@@ -299,6 +384,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/verbosity-cleaner/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -310,6 +397,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/wave-orchestration/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -321,6 +410,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/web-source-bundler/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.1.0"
@@ -332,6 +423,8 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/worker-validation/SKILL.md",
+      "selection_status": "dependency-support",
+      "publishability": "publishable",
       "version": {
         "status": "resolved",
         "value": "1.0"

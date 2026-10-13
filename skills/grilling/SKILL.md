@@ -3,8 +3,10 @@ name: grilling
 description: Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.
 metadata:
   author: Matt Pocock (https://github.com/mattpocock/skills)
-  source_repo: mattpocock-skills
-  source_path: skills/productivity/grilling/SKILL.md
+  source_repo: aigb-skills
+  source_path: skills/grilling/SKILL.md
+  original_source_repo: mattpocock-skills
+  upstream_path: skills/productivity/grilling/SKILL.md
   source_ref: v1.2.0
   upstream: https://github.com/mattpocock/skills
 ---

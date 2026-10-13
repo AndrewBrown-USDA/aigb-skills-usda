@@ -16,8 +16,10 @@ description: >
 argument-hint: "[lite|full|ultra]"
 license: MIT
 metadata:
-  source_repo: DietrichGebert-ponytail
+  source_repo: aigb-skills
   source_path: skills/ponytail/SKILL.md
+  original_source_repo: DietrichGebert-ponytail
+  upstream_path: skills/ponytail/SKILL.md
   source_ref: v4.10.0
   upstream: https://github.com/DietrichGebert/ponytail
 ---

@@ -3,8 +3,10 @@ name: research
 description: Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo. Use when the user wants a topic researched, docs or API facts gathered, or reading legwork delegated to a background agent.
 metadata:
   author: Matt Pocock (https://github.com/mattpocock/skills)
-  source_repo: mattpocock-skills
-  source_path: skills/engineering/research/SKILL.md
+  source_repo: aigb-skills
+  source_path: skills/research/SKILL.md
+  original_source_repo: mattpocock-skills
+  upstream_path: skills/engineering/research/SKILL.md
   source_ref: v1.2.0
   upstream: https://github.com/mattpocock/skills
 ---
