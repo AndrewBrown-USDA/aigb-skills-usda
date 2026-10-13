@@ -115,7 +115,7 @@
       "name": "git-history-interval-study",
       "author": "Andrew G. Brown (https://github.com/brownag)",
       "license": "MIT",
-      "source_repo": "aigb-skills-usda",
+      "source_repo": "aigb-skills",
       "source_path": "skills/git-history-interval-study/SKILL.md",
       "version": {
         "status": "resolved",

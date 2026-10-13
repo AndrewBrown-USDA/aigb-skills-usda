@@ -5,13 +5,13 @@ license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0
-  source_repo: aigb-skills-usda
+  source_repo: aigb-skills
   source_path: skills/git-history-interval-study/SKILL.md
 ---
 
 # Git History Interval Study
 
-Provides a structured mechanism for studying repository history between marked intervals of interest—such as when new orchestration plans (`planning/EXECUTION_PLAN_N.md`), tags, or architectural milestones are created.
+Provides a structured mechanism for studying repository history between marked intervals of interest - such as when new orchestration plans (`planning/EXECUTION_PLAN_N.md`), tags, or architectural milestones are created.
 
 By systematically inspecting sequential diffs, commit classifications, and component churn between intervals, this skill identifies features as they develop and are refined over time, gauges architectural convergence, and provides evidence matrices for downstream skills like `adr-distillation`.
 
