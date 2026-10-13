@@ -11,6 +11,17 @@
   },
   "skills": [
     {
+      "name": "adr-distillation",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/adr-distillation/SKILL.md",
+      "version": {
+        "status": "resolved",
+        "value": "1.0.0"
+      }
+    },
+    {
       "name": "agent-onboarding",
       "author": "Andrew G. Brown (https://github.com/brownag)",
       "license": "MIT",
