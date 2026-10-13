@@ -31,6 +31,7 @@ function printHelp() {
     '  --target <path>         Target directory (default: ./skills)',
     '  --lockfile <path>       Path to catalog/skills.lock.json',
     '  --mode <copy|symlink>   Materialization mode (default: copy)',
+    '  --no-clone              Do not auto-clone missing upstream source repositories',
     ''
   ].join('\n') + '\n');
 }

@@ -156,7 +156,7 @@ function main() {
   assert.equal(applyFedOssLicense.version.value, '1.0.0');
 
   const expectedCount = lockfile.skills.length;
-  assert.equal(expectedCount, 27, 'lockfile must contain all 27 packaged skills');
+  assert.equal(expectedCount, 29, 'lockfile must contain all 29 packaged skills');
   const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools', 'argument-hint']);
   for (const skill of lockfile.skills) {
     const skillFile = path.join(repoRoot, 'skills', skill.name, 'SKILL.md');
@@ -421,6 +421,7 @@ function main() {
             name: 'fake-skill',
             source_repo: 'non-existent-source-repo-xyz',
             source_path: 'skills/fake-skill/SKILL.md',
+            upstream: 'https://example.invalid/non-existent-source-repo-xyz.git',
             version: { status: 'resolved', value: '1.0.0' }
           }
         ]
@@ -428,6 +429,7 @@ function main() {
     );
     runNode([
       'scripts/sync-skills.js',
+      '--no-clone',
       '--lockfile',
       invalidLockfilePath,
       '--target',
@@ -436,6 +438,7 @@ function main() {
   } catch (err) {
     syncErrorCaught = true;
     assert.match(err.stderr || err.message, /Maintainer sync error/i);
+    assert.match(err.stderr || err.message, /Automatic cloning is disabled by --no-clone/i);
   }
   assert.ok(syncErrorCaught, 'Sync must fail with clear maintainer error on missing source repos');
 

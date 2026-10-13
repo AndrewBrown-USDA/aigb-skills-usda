@@ -17,6 +17,7 @@ function printHelp() {
     '  --mode <copy|symlink>   Materialization mode (default: copy)',
     '  --lockfile <path>       Path to catalog/skills.lock.json',
     '  --target <path>         Destination directory (default: ./skills)',
+    '  --no-clone              Do not auto-clone missing upstream source repositories',
     '  --help, -h              Show this help message',
     ''
   ].join('\n'));
@@ -35,6 +36,7 @@ function parseArgs(argv) {
     mode: 'copy',
     lockfile: DEFAULT_LOCKFILE,
     target: DEFAULT_TARGET_DIR,
+    clone: true,
     help: false
   };
 
@@ -53,6 +55,9 @@ function parseArgs(argv) {
       case '--target':
         options.target = path.resolve(process.cwd(), expandHomeDir(argv[i + 1]));
         i += 1;
+        break;
+      case '--no-clone':
+        options.clone = false;
         break;
       case '--help':
       case '-h':
@@ -85,7 +90,23 @@ function loadLockfile(lockfilePath) {
   return data;
 }
 
-function resolveSourceRoot(sourceRepo) {
+function runGit(sourceRoot, args) {
+  return execFileSync('git', ['-C', sourceRoot, ...args], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+}
+
+function cloneSourceRepo(upstream, targetPath) {
+  fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+  execFileSync('git', ['clone', upstream, targetPath], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+}
+
+function resolveSourceRoot(entry, options) {
+  const sourceRepo = entry.source_repo;
   if (path.isAbsolute(sourceRepo)) {
     if (fs.existsSync(sourceRepo)) {
       return sourceRepo;
@@ -107,8 +128,23 @@ function resolveSourceRoot(sourceRepo) {
     return localCandidate;
   }
 
+  if (options.clone && entry.upstream) {
+    try {
+      cloneSourceRepo(entry.upstream, siblingCandidate);
+      return siblingCandidate;
+    } catch (error) {
+      throw new Error(
+        `Maintainer sync error: Failed to clone upstream source repository "${sourceRepo}" from "${entry.upstream}" to "${siblingCandidate}": ${error.message}`
+      );
+    }
+  }
+
+  const cloneHint = options.clone
+    ? 'No upstream URL is available in the lockfile, so it cannot be cloned automatically. '
+    : 'Automatic cloning is disabled by --no-clone. ';
   throw new Error(
     `Maintainer sync error: Upstream source repository "${sourceRepo}" was not found (checked "${siblingCandidate}" and "${localCandidate}"). ` +
+    cloneHint +
     `The "sync" command is intended for repository maintainers with local checkout of source repos. ` +
     `For users and agents installing packaged skills, run "npx skills install --target <dir>" (or "make install-skills") instead.`
   );
@@ -163,11 +199,21 @@ function validateSourceSkill(skillName, sourcePath) {
   }
 }
 
-function runGit(sourceRoot, args) {
-  return execFileSync('git', ['-C', sourceRoot, ...args], {
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe']
-  });
+function fetchSourceRef(sourceRoot, sourceRef) {
+  if (!sourceRef) return;
+
+  try {
+    runGit(sourceRoot, ['fetch', '--tags', 'origin']);
+  } catch (error) {
+    throw new Error(`Unable to fetch tags for ${sourceRoot}: ${error.message}`);
+  }
+
+  try {
+    runGit(sourceRoot, ['fetch', 'origin', sourceRef]);
+  } catch (error) {
+    // Tags are often already fetched by the previous command. The later git show
+    // call will fail with a precise message if the ref still cannot be resolved.
+  }
 }
 
 function sanitizeSkillContent(content) {
@@ -406,8 +452,12 @@ function syncSkills(options) {
     }
     seenNames.add(normalized.name);
 
-    const sourceRoot = sourceRoots.get(normalized.source_repo) || resolveSourceRoot(normalized.source_repo);
+    const sourceRoot = sourceRoots.get(normalized.source_repo) || resolveSourceRoot(normalized, options);
     sourceRoots.set(normalized.source_repo, sourceRoot);
+
+    if (normalized.source_ref) {
+      fetchSourceRef(sourceRoot, normalized.source_ref);
+    }
 
     const sourcePath = path.resolve(sourceRoot, normalized.source_path);
     const sourceDir = path.dirname(sourcePath);
