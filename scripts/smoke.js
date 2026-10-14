@@ -134,6 +134,7 @@ function main() {
       assert.equal(entry.version.value, null, `missing version value must be null for ${entry.name}`);
     }
     if (entry.upstream_repo !== undefined) assert.match(entry.upstream_repo, /^https?:\/\//);
+    if (entry.upstream_path !== undefined) assert.equal(typeof entry.upstream_path, 'string');
   }
 
   const planFirst = lockfile.skills.find(s => s.name === 'plan-first');

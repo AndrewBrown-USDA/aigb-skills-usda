@@ -27,13 +27,17 @@ try {
     source_ref: 'legacy-ref',
     upstream: 'legacy-repo',
     upstream_ref: 'preferred-ref',
-    upstream_repo: 'preferred-repo'
+    upstream_repo: 'preferred-repo',
+    upstream_path: 'skills/example/SKILL.md',
+    author: 'Example Author'
   }), {
     source_repo: 'aigb-skills',
     source_path: 'skills/example/SKILL.md',
     source_url: 'https://github.com/AndrewBrown-USDA/aigb-skills.git',
     upstream_repo: 'preferred-repo',
-    upstream_ref: 'preferred-ref'
+    upstream_ref: 'preferred-ref',
+    upstream_path: 'skills/example/SKILL.md',
+    author: 'Example Author'
   });
   assert.deepEqual(normalizeMetadata({
     source_repo: 'unknown-repo',
@@ -233,6 +237,7 @@ try {
   const minedLegacy = mined.find((entry) => entry.name === 'legacy-keys');
   assert.equal(minedNew.upstream_ref, 'new-ref');
   assert.equal(minedNew.upstream_repo, 'new-repo');
+  assert.equal(minedNew.upstream_path, undefined);
   assert.equal(minedNew.source_url, 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
   assert.equal(minedLegacy.upstream_ref, 'legacy-ref');
   assert.equal(minedLegacy.upstream_repo, 'legacy-repo');

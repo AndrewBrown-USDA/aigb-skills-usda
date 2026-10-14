@@ -96,6 +96,7 @@ function scanCuratedSkills(skillsDir = SKILLS_DIR) {
       ...(normalized.upstream_name ? { upstream_name: normalized.upstream_name } : {}),
       ...(normalized.upstream_ref ? { upstream_ref: normalized.upstream_ref } : {}),
       ...(normalized.upstream_repo ? { upstream_repo: normalized.upstream_repo } : {}),
+      ...(normalized.upstream_path ? { upstream_path: normalized.upstream_path } : {}),
       version
     };
 

@@ -16,6 +16,7 @@ function normalizeMetadata(input = {}) {
   const sourceUrl = canonicalUrl || metadata.source_url || null;
   const upstreamRepo = metadata.upstream_repo || metadata.upstream || null;
   const upstreamRef = metadata.upstream_ref || metadata.source_ref || null;
+  const upstreamPath = metadata.upstream_path || null;
 
   return {
     source_repo: sourceRepo || null,
@@ -23,7 +24,10 @@ function normalizeMetadata(input = {}) {
     source_url: sourceUrl,
     upstream_repo: upstreamRepo,
     upstream_ref: upstreamRef,
+    ...(upstreamPath ? { upstream_path: upstreamPath } : {}),
     ...(metadata.upstream_name ? { upstream_name: metadata.upstream_name } : {}),
+    ...(metadata.author ? { author: metadata.author } : {}),
+    ...(metadata.authors ? { authors: metadata.authors } : {}),
     ...(metadata.version !== undefined ? { version: metadata.version } : {})
   };
 }

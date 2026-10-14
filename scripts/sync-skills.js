@@ -212,7 +212,8 @@ function normalizedEntry(entry) {
     source_path: metadata.source_path || entry.source_path,
     source_url: metadata.source_url || entry.source_url,
     upstream_repo: metadata.upstream_repo || entry.upstream_repo || entry.upstream,
-    upstream_ref: metadata.upstream_ref || entry.upstream_ref || entry.source_ref
+    upstream_ref: metadata.upstream_ref || entry.upstream_ref || entry.source_ref,
+    upstream_path: metadata.upstream_path || entry.upstream_path
   });
   return {
     ...entry,
@@ -238,18 +239,18 @@ function validateSourceSkill(skillName, sourcePath) {
 
 function fetchSourceRef(sourceRoot, sourceRef) {
   if (!sourceRef) return;
-
+  try {
+    runGit(sourceRoot, ['rev-parse', '--verify', `${sourceRef}^{commit}`]);
+    return;
+  } catch (error) {
+    // Resolve locally before contacting the network.
+  }
   try {
     runGit(sourceRoot, ['fetch', '--tags', 'origin']);
-  } catch (error) {
-    throw new Error(`Unable to fetch tags for ${sourceRoot}: ${error.message}`);
-  }
-
-  try {
     runGit(sourceRoot, ['fetch', 'origin', sourceRef]);
+    runGit(sourceRoot, ['rev-parse', '--verify', `${sourceRef}^{commit}`]);
   } catch (error) {
-    // Tags are often already fetched by the previous command. The later git show
-    // call will fail with a precise message if the ref still cannot be resolved.
+    throw new Error(`Unable to resolve git ref "${sourceRef}" in ${sourceRoot}: ${error.message}`);
   }
 }
 
@@ -279,7 +280,7 @@ function sanitizeSkillContent(content) {
   return sanitized;
 }
 
-function extractGitSkill(sourceRoot, sourceRef, sourceDirRel, destDir) {
+function extractGitSkill(sourceRoot, sourceRef, sourceDirRel, destDir, packagedName = null) {
   let normalizedSourceDir = sourceDirRel.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
   if (normalizedSourceDir === '.') {
     normalizedSourceDir = '';
@@ -334,11 +335,11 @@ function extractGitSkill(sourceRoot, sourceRef, sourceDirRel, destDir) {
         `Unable to extract git-pinned file ${sourceRef}:${repositoryPath}: ${error.message}`
       );
     }
-    fs.writeFileSync(
-      destinationPath,
-      relativePath === 'SKILL.md' ? sanitizeSkillContent(content) : content,
-      'utf8'
-    );
+    if (relativePath === 'SKILL.md') {
+      content = sanitizeSkillContent(content);
+      if (packagedName) content = content.replace(/^name:\s*.*$/m, `name: ${packagedName}`);
+    }
+    fs.writeFileSync(destinationPath, content, 'utf8');
   }
 }
 
@@ -417,21 +418,29 @@ function updateSkillMetadata(destSkillMd, entry) {
 
   let content = fs.readFileSync(destSkillMd, 'utf8');
   const normalized = normalizedEntry(entry);
+  content = content.replace(/(^---[\r\n]+)([\s\S]*?)(^---[\r\n]+)/m, (match, start, block, end) => {
+    const renamed = block.replace(/^name:\s*.*$/m, `name: ${entry.name}`);
+    return `${start}${renamed}${end}`;
+  });
   if (
     normalized.source_repo === 'aigb-skills' &&
     !normalized.source_ref &&
     !normalized.source_url &&
     !normalized.upstream_name
   ) {
+    content = content.replace(/^name:\s*.*$/m, `name: ${entry.name}`);
+    content = content.replace(/^name:\s*.*$/m, `name: ${entry.name}`);
+    fs.writeFileSync(destSkillMd, sanitizeSkillContent(content), 'utf8');
     return;
   }
 
   const metadata = [];
   const license = normalized.license;
-  if (normalized.author && normalized.author.toLowerCase().includes('matt pocock')) {
-    metadata.push(['author', 'Matt Pocock (https://github.com/mattpocock/skills)']);
+  if (normalized.author) {
+    metadata.push(['author', normalized.author]);
   }
-  for (const key of ['source_repo', 'source_path', 'source_url', 'source_ref', 'upstream_repo', 'upstream_ref', 'upstream_name', 'version']) {
+  if (normalized.authors) metadata.push(['authors', normalized.authors]);
+  for (const key of ['source_repo', 'source_path', 'source_url', 'source_ref', 'upstream_repo', 'upstream_ref', 'upstream_path', 'upstream_name', 'version']) {
     if (normalized[key]) metadata.push([key, normalized[key]]);
   }
 
@@ -440,7 +449,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   }
 
   const addMissingMetadata = (block) => {
-    const lines = block.split(/\r?\n/).filter((line) => !/^\s*(author|license|source|source_repo|source_path|source_url|source_ref|upstream|upstream_repo|upstream_ref|upstream_name|version):/.test(line));
+    const lines = block.split(/\r?\n/).filter((line) => !/^\s*(author|license|source|source_repo|source_path|source_url|source_ref|upstream|upstream_repo|upstream_ref|upstream_path|upstream_name|version):/.test(line));
     let updatedBlock = lines.join('\n').trimEnd();
     const packagedNamePattern = /^name:\s*.*$/m;
     if (packagedNamePattern.test(updatedBlock)) {
@@ -535,7 +544,7 @@ function syncSkills(options) {
     if (extractionRef) {
       fetchSourceRef(extractionRoot, extractionRef);
       try {
-        const pinnedPath = normalized.source_path.replace(/\\/g, '/');
+        const pinnedPath = (normalized.upstream_path || normalized.source_path).replace(/\\/g, '/');
         if (!runGit(extractionRoot, ['ls-tree', '-r', '--name-only', extractionRef, '--', pinnedPath]).trim()) {
           extractionRoot = sourceRoot;
           extractionRef = null;
@@ -546,9 +555,12 @@ function syncSkills(options) {
       }
     }
 
-    const sourcePath = path.resolve(extractionRoot, normalized.source_path);
+    const extractionPath = extractionRef
+      ? (normalized.upstream_path || normalized.source_path)
+      : normalized.source_path;
+    const sourcePath = path.resolve(extractionRoot, extractionPath);
     const sourceDir = path.dirname(sourcePath);
-    const sourceDirRel = path.posix.dirname(normalized.source_path.replace(/\\/g, '/'));
+    const sourceDirRel = path.posix.dirname(extractionPath.replace(/\\/g, '/'));
 
     if (!extractionRef) {
       validateSourceSkill(normalized.name, sourcePath);
@@ -571,11 +583,10 @@ function syncSkills(options) {
 
     if (skill.sourceRef) {
       if (mode === 'symlink') {
-        process.stderr.write(
-          `Warning: symlink mode is unavailable for git-pinned skill "${skill.name}"; falling back to copy mode.\n`
-        );
+        const kind = skill.upstreamName ? 'aliased' : 'git-pinned';
+        process.stderr.write(`Warning: symlink mode is unavailable for ${kind} skill "${skill.name}"; falling back to copy mode.\n`);
       }
-      extractGitSkill(skill.sourceRoot, skill.sourceRef, skill.sourceDirRel, destDir);
+      extractGitSkill(skill.sourceRoot, skill.sourceRef, skill.sourceDirRel, destDir, skill.name);
     } else if (mode === 'symlink' && skill.upstreamName) {
       process.stderr.write(
         `Warning: symlink mode is unavailable for aliased skill "${skill.name}"; falling back to copy mode.\n`
