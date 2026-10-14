@@ -3,7 +3,7 @@ const assert = require('assert');
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { normalizeMainlineBoundaries, parseNameStatus, parseArgs } = require('./interval_ledger');
+const { normalizeMainlineBoundaries, parseNameStatus, parseNumstat, parseArgs } = require('./interval_ledger');
 
 function withArgs(argv, callback) {
   const original = process.argv;
@@ -22,6 +22,10 @@ assert.deepStrictEqual(statuses, [
   { status: 'R100', path: 'new/name.js', oldPath: 'old/name.js' },
   { status: 'C100', path: 'new/copy.js', oldPath: 'old/source.js' },
   { status: 'M', path: 'src/index.js' },
+]);
+assert.deepStrictEqual(parseNumstat('1\t2\tsrc/index.js\n0\t0\told/name.js\tnew/name.js\n'), [
+  { additions: 1, deletions: 2, path: 'src/index.js' },
+  { additions: 0, deletions: 0, path: 'new/name.js', oldPath: 'old/name.js' },
 ]);
 
 const root = { sha: 'root', trigger: 'root' };
@@ -74,7 +78,10 @@ function createGitFixture(rootDir) {
   gitFixture(repoDir, ['config', 'user.name', 'Interval Test']);
 
   fs.writeFileSync(path.join(repoDir, 'tracked.txt'), 'initial\n');
-  gitFixture(repoDir, ['add', 'tracked.txt']);
+  fs.mkdirSync(path.join(repoDir, 'src'));
+  fs.writeFileSync(path.join(repoDir, 'src', 'small.js'), 'one\n');
+  fs.writeFileSync(path.join(repoDir, 'src', 'large.js'), 'one\n');
+  gitFixture(repoDir, ['add', '.']);
   gitFixture(repoDir, ['commit', '-qm', 'feat: add tracked file']);
 
   fs.renameSync(path.join(repoDir, 'tracked.txt'), path.join(repoDir, 'renamed.txt'));
@@ -84,6 +91,10 @@ function createGitFixture(rootDir) {
   fs.copyFileSync(path.join(repoDir, 'renamed.txt'), path.join(repoDir, 'copy.txt'));
   gitFixture(repoDir, ['add', 'copy.txt']);
   gitFixture(repoDir, ['commit', '-qm', 'chore: copy tracked file']);
+  fs.writeFileSync(path.join(repoDir, 'src', 'small.js'), 'one\ntwo\n');
+  fs.writeFileSync(path.join(repoDir, 'src', 'large.js'), `${Array.from({ length: 10 }, (_, i) => `line-${i}`).join('\n')}\n`);
+  gitFixture(repoDir, ['add', '.']);
+  gitFixture(repoDir, ['commit', '-qm', 'fix: measure line churn']);
   return repoDir;
 }
 
@@ -99,13 +110,13 @@ function assertNoLedgerArtifacts(outDir) {
   assert.ok(!fs.existsSync(path.join(outDir, 'evolution-digest.md')));
 }
 
-const fixtureRoot = path.resolve(__dirname, '..', '..', '..', '.scratch', 'interval-ledger-cli-fixtures');
+const fixtureRoot = path.resolve(__dirname, '..', '..', '..', '.scratch', '11.1.2');
 fs.rmSync(fixtureRoot, { recursive: true, force: true });
 fs.mkdirSync(fixtureRoot, { recursive: true });
 try {
   const repoDir = createGitFixture(fixtureRoot);
   const validOut = path.join(fixtureRoot, 'valid-output');
-  const validRun = runLedger(repoDir, validOut, ['--range', 'HEAD~2..HEAD']);
+  const validRun = runLedger(repoDir, validOut, ['--range', 'HEAD~3..HEAD']);
   assert.strictEqual(validRun.status, 0, validRun.stderr);
   const ledger = JSON.parse(fs.readFileSync(path.join(validOut, 'interval-ledger.json'), 'utf8'));
   for (const field of ['strategy', 'boundaries', 'summary', 'subsystem', 'convergence', 'intervals']) {
@@ -132,6 +143,8 @@ try {
     assert.ok(item.path);
     assert.ok(item.oldPath);
   }
+  assert.strictEqual(ledger.intervals.at(-1).subsystemFileModifications.src, 12);
+  assert.strictEqual(ledger.intervals.at(-1).fileStatuses.length, 4);
 
   const invalidOut = path.join(fixtureRoot, 'invalid-output');
   const invalidRun = runLedger(repoDir, invalidOut, ['--range', 'missing-revision..HEAD']);
@@ -140,7 +153,7 @@ try {
   assertNoLedgerArtifacts(invalidOut);
 
   const logFailOut = path.join(fixtureRoot, 'log-failure-output');
-  const logFail = runLedger(repoDir, logFailOut, ['--range', 'HEAD~2..HEAD'], {
+  const logFail = runLedger(repoDir, logFailOut, ['--range', 'HEAD~3..HEAD'], {
     ...process.env,
     INTERVAL_GIT_FAIL: 'log',
   });
@@ -149,7 +162,7 @@ try {
   assertNoLedgerArtifacts(logFailOut);
 
   const diffFailOut = path.join(fixtureRoot, 'diff-failure-output');
-  const diffFail = runLedger(repoDir, diffFailOut, ['--range', 'HEAD~2..HEAD'], {
+  const diffFail = runLedger(repoDir, diffFailOut, ['--range', 'HEAD~3..HEAD'], {
     ...process.env,
     INTERVAL_GIT_FAIL: 'diff',
   });

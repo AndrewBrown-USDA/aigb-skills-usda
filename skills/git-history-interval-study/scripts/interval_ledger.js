@@ -37,6 +37,23 @@ function parseNameStatus(raw) {
     : [];
 }
 
+function parseNumstat(raw) {
+  return raw
+    ? raw.split('\n').filter(Boolean).map(line => {
+        const parts = line.split('\t');
+        const additions = /^\d+$/.test(parts[0]) ? parseInt(parts[0], 10) : 0;
+        const deletions = /^\d+$/.test(parts[1]) ? parseInt(parts[1], 10) : 0;
+        const renamed = parts.length >= 4;
+        return {
+          additions,
+          deletions,
+          path: renamed ? parts[3] : parts[2],
+          ...(renamed ? { oldPath: parts[2] } : {}),
+        };
+      })
+    : [];
+}
+
 function parseArgs() {
   const args = process.argv.slice(2);
   const options = {
@@ -210,12 +227,13 @@ function analyzeInterval(prev, curr, index) {
   // Name-status with rename detection
   const nameStatusRaw = git(['diff', '--name-status', '-M', '-C', prev.sha, curr.sha]);
   const fileStatuses = parseNameStatus(nameStatusRaw);
+  const numstats = parseNumstat(git(['diff', '--numstat', '-M', '-C', prev.sha, curr.sha]));
 
   // Subsystem churn aggregation
   const subsystemChurn = {};
-  for (const item of fileStatuses) {
+  for (const item of numstats) {
     const prefix = item.path.split('/')[0] || 'root';
-    subsystemChurn[prefix] = (subsystemChurn[prefix] || 0) + 1;
+    subsystemChurn[prefix] = (subsystemChurn[prefix] || 0) + item.additions + item.deletions;
   }
 
   // Conventional commit distribution
@@ -363,4 +381,5 @@ module.exports = {
   normalizeMainlineBoundaries,
   analyzeInterval,
   parseNameStatus,
+  parseNumstat,
 };
