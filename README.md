@@ -110,7 +110,7 @@ when intentionally permitting maintainer network recovery.
 
 ## Curated Skills & Attribution
 
-The catalog includes 27 curated skills:
+The catalog includes 29 curated skills:
 
 - **Skill metadata contract:** Each `skills/*/SKILL.md` frontmatter must provide
   the standard top-level `name` and `description` fields. Supported standard
