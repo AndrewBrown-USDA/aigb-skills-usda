@@ -118,10 +118,27 @@ function getBoundaryCommits(options) {
     }
   }
 
-  // If auto or no boundaries found, fallback to first commit and HEAD
-  if (options.strategy !== 'mainline' && boundaries.length < 2) {
-    const firstCommit = git(['rev-list', '--max-parents=0', 'HEAD']).split('\n')[0];
-    const headCommit = git(['rev-parse', 'HEAD']);
+  const firstCommit = git(['rev-list', '--max-parents=0', 'HEAD']).split('\n')[0];
+  const headCommit = git(['rev-parse', 'HEAD']);
+  if (options.strategy === 'mainline') {
+    const rootBoundary = {
+      sha: firstCommit,
+      date: git(['log', '-1', '--format=%as', firstCommit]),
+      subject: 'Initial Commit',
+      trigger: 'root',
+    };
+    const headBoundary = {
+      sha: headCommit,
+      date: git(['log', '-1', '--format=%as', headCommit]),
+      subject: 'HEAD',
+      trigger: 'HEAD',
+    };
+    const order = options.strategy === 'mainline'
+      ? git(['rev-list', '--first-parent', '--reverse', 'HEAD'], { ignoreError: true }).split('\n').filter(Boolean)
+      : [];
+    return normalizeMainlineBoundaries(boundaries, rootBoundary, headBoundary, order);
+  }
+  if (boundaries.length < 2) {
     if (!boundaries.some(b => b.sha === firstCommit)) {
       boundaries.unshift({
         sha: firstCommit,
@@ -141,6 +158,16 @@ function getBoundaryCommits(options) {
   }
 
   return boundaries;
+}
+
+function normalizeMainlineBoundaries(boundaries, rootBoundary, headBoundary, order = []) {
+  const result = [...boundaries];
+  if (!result.some(boundary => boundary.sha === rootBoundary.sha)) result.push(rootBoundary);
+  if (!result.some(boundary => boundary.sha === headBoundary.sha)) result.push(headBoundary);
+  if (order.length === 0) return result;
+  const positions = new Map(order.map((sha, index) => [sha, index]));
+  return result.sort((a, b) => (positions.get(a.sha) ?? Number.MAX_SAFE_INTEGER)
+    - (positions.get(b.sha) ?? Number.MAX_SAFE_INTEGER));
 }
 
 function analyzeInterval(prev, curr, index) {
@@ -263,7 +290,7 @@ function main() {
   const boundaries = getBoundaryCommits(options);
 
   if (boundaries.length < 2) {
-    console.error('Need at least 2 boundary commits to study history intervals; mainline requires at least 2 merge commits.');
+    console.error('Need at least 2 boundary commits to study history intervals.');
     process.exit(1);
   }
 
@@ -292,4 +319,10 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { parseArgs, getBoundaryCommits, analyzeInterval, parseNameStatus };
+module.exports = {
+  parseArgs,
+  getBoundaryCommits,
+  normalizeMainlineBoundaries,
+  analyzeInterval,
+  parseNameStatus,
+};
