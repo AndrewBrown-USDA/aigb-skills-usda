@@ -73,7 +73,8 @@ function assertGrillingContent(targetDir, requireAttribution = true) {
   const content = fs.readFileSync(grillingMd, 'utf8');
   assert.match(content, /Each question should be formatted like so:/);
   if (requireAttribution) {
-    assert.equal(parseFrontmatter(content).metadata.source_ref, 'v1.2.0');
+    const metadata = parseFrontmatter(content).metadata;
+    assert.equal(metadata.upstream_ref || metadata.source_ref, 'v1.2.0');
     assert.match(parseFrontmatter(content).metadata.author, /Matt Pocock/i);
   }
 }
