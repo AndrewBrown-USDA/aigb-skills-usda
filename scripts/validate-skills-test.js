@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { runBehavioralChecks } = require('./validate-skills');
+const { runBehavioralChecks, selectPython } = require('./validate-skills');
 
 const validator = path.join(__dirname, 'validate-skills.js');
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'aigb-skills-validator-'));
@@ -97,6 +97,25 @@ try {
   runBehavioralChecks(skillsDir, behaviorResults, behaviorRoot);
   assert.equal(behaviorResults.length, 2);
   assert.ok(behaviorResults.every((check) => check.status === 'failed'));
+
+  const probes = [];
+  const fakeRunner = (command) => {
+    probes.push(command);
+    return { status: command === 'python' ? 0 : 1 };
+  };
+  assert.equal(selectPython({ env: {}, platform: 'win32', runner: fakeRunner }), 'python');
+  assert.deepEqual(probes, ['python']);
+  assert.equal(selectPython({ env: { PYTHON: 'custom-python' }, platform: 'win32', runner: fakeRunner }), 'custom-python');
+  assert.equal(selectPython({
+    env: {},
+    platform: 'win32',
+    runner: (command) => ({ status: command === 'python3' ? 0 : 1 })
+  }), 'python3');
+  assert.equal(selectPython({
+    env: {},
+    platform: 'win32',
+    runner: () => ({ status: 1, error: new Error('not found') })
+  }), 'python');
   console.log('Validator tests passed.');
 } finally {
   fs.rmSync(tempRoot, { recursive: true, force: true });

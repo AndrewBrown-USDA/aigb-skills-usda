@@ -210,7 +210,7 @@ function runBehavioralChecks(skillsDir, results, repositoryRoot = REPO_ROOT) {
       addResult(results, skill, 'behavior', 'failed', `Missing bundled check: ${relativeScript}`);
       continue;
     }
-    const pythonBin = process.env.PYTHON || (spawnSync('which', ['python']).status === 0 ? 'python' : 'python3');
+    const pythonBin = selectPython();
     const result = spawnSync(pythonBin, [scriptPath], { cwd: REPO_ROOT, encoding: 'utf8' });
     if (result.error || result.status !== 0) {
       addResult(
@@ -224,6 +224,28 @@ function runBehavioralChecks(skillsDir, results, repositoryRoot = REPO_ROOT) {
       addResult(results, skill, 'behavior', 'passed', relativeScript);
     }
   }
+}
+
+function selectPython({
+  env = process.env,
+  platform = process.platform,
+  runner = spawnSync
+} = {}) {
+  if (env.PYTHON) {
+    return env.PYTHON;
+  }
+
+  for (const candidate of ['python', 'python3']) {
+    const probe = runner(candidate, ['--version'], {
+      stdio: 'ignore',
+      windowsHide: platform === 'win32'
+    });
+    if (!probe.error && probe.status === 0) {
+      return candidate;
+    }
+  }
+
+  return 'python';
 }
 
 function writeReport(reportPath, report) {
@@ -272,4 +294,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { main, parseArgs, parseFrontmatter, findLocalReferences, runBehavioralChecks };
+module.exports = { main, parseArgs, parseFrontmatter, findLocalReferences, runBehavioralChecks, selectPython };
