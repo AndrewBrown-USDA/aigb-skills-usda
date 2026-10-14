@@ -108,6 +108,9 @@ function cloneSourceRepo(sourceUrl, targetPath) {
 
 function resolveSourceRoot(entry, options) {
   const sourceRepo = entry.source_repo;
+  const sourcePath = /^https?:\/\//.test(sourceRepo)
+    ? new URL(sourceRepo).pathname.split('/').filter(Boolean).slice(-2).join('-').replace(/\.git$/, '')
+    : sourceRepo;
   if (path.isAbsolute(sourceRepo)) {
     if (fs.existsSync(sourceRepo)) {
       return sourceRepo;
@@ -119,12 +122,12 @@ function resolveSourceRoot(entry, options) {
     );
   }
 
-  const siblingCandidate = path.resolve(REPO_ROOT, '..', sourceRepo);
+  const siblingCandidate = path.resolve(REPO_ROOT, '..', sourcePath);
   if (fs.existsSync(siblingCandidate)) {
     return siblingCandidate;
   }
 
-  const localCandidate = path.resolve(REPO_ROOT, sourceRepo);
+  const localCandidate = path.resolve(REPO_ROOT, sourcePath);
   if (fs.existsSync(localCandidate)) {
     return localCandidate;
   }
@@ -149,6 +152,20 @@ function resolveSourceRoot(entry, options) {
     `The "sync" command is intended for repository maintainers with local checkout of source repos. ` +
     `For users and agents installing packaged skills, run "npx skills install --target <dir>" (or "make install-skills") instead.`
   );
+}
+
+function isCloneableRepositoryUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && (
+      url.hostname === 'github.com' ||
+      url.hostname === 'gitlab.com' ||
+      url.hostname === 'bitbucket.org' ||
+      url.pathname.endsWith('.git')
+    );
+  } catch (error) {
+    return false;
+  }
 }
 
 function validateEntry(entry) {
@@ -502,18 +519,38 @@ function syncSkills(options) {
 
     const pinnedRef = normalized.upstream_ref;
     const pinnedRepo = normalized.upstream_repo;
-    const extractionRoot = pinnedRepo && pinnedRepo !== normalized.source_repo
-      ? resolveSourceRoot({ ...normalized, source_repo: pinnedRepo, source_url: pinnedRepo }, options)
-      : sourceRoot;
-    if (pinnedRef) {
-      fetchSourceRef(extractionRoot, pinnedRef);
+    let extractionRoot = sourceRoot;
+    let extractionRef = null;
+    if (pinnedRepo && pinnedRepo !== normalized.source_repo) {
+      try {
+        extractionRoot = resolveSourceRoot(
+          { ...normalized, source_repo: pinnedRepo, source_url: pinnedRepo },
+          { ...options, clone: options.clone && isCloneableRepositoryUrl(pinnedRepo) }
+        );
+        extractionRef = pinnedRef;
+      } catch (error) {
+        if (isCloneableRepositoryUrl(pinnedRepo)) throw error;
+      }
+    }
+    if (extractionRef) {
+      fetchSourceRef(extractionRoot, extractionRef);
+      try {
+        const pinnedPath = normalized.source_path.replace(/\\/g, '/');
+        if (!runGit(extractionRoot, ['ls-tree', '-r', '--name-only', extractionRef, '--', pinnedPath]).trim()) {
+          extractionRoot = sourceRoot;
+          extractionRef = null;
+        }
+      } catch (error) {
+        extractionRoot = sourceRoot;
+        extractionRef = null;
+      }
     }
 
     const sourcePath = path.resolve(extractionRoot, normalized.source_path);
     const sourceDir = path.dirname(sourcePath);
     const sourceDirRel = path.posix.dirname(normalized.source_path.replace(/\\/g, '/'));
 
-    if (!pinnedRef) {
+    if (!extractionRef) {
       validateSourceSkill(normalized.name, sourcePath);
     }
 
@@ -522,7 +559,7 @@ function syncSkills(options) {
       sourceDir,
       sourceRoot: extractionRoot,
       sourceDirRel,
-      sourceRef: pinnedRef || null,
+      sourceRef: extractionRef,
       upstreamName: normalized.upstream_name || null
     });
   }

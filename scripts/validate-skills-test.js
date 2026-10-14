@@ -7,7 +7,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { runBehavioralChecks, selectPython } = require('./validate-skills');
-const { updateSkillMetadata } = require('./sync-skills');
+const { resolveSourceRoot, updateSkillMetadata } = require('./sync-skills');
 const { scanCuratedSkills } = require('./mine-history');
 const {
   deriveSourceUrl,
@@ -57,6 +57,13 @@ try {
     source_repo: 'repo',
     source_path: 'skills/example/SKILL.md'
   }).valid, true);
+  assert.throws(
+    () => resolveSourceRoot({
+      source_repo: 'https://github.com/example/pinned-source.git',
+      source_url: 'https://github.com/example/pinned-source.git'
+    }, { clone: false }),
+    (error) => error.message.includes('pinned-source') && !error.message.includes('https:\\github')
+  );
 
   const lockfile = path.join(tempRoot, 'skills.lock.json');
   const skillsDir = path.join(tempRoot, 'skills');
