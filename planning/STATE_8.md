@@ -8,12 +8,12 @@
 - [x] Baseline `npm test` passed; smoke checks passed for 29 skills (expected missing-source diagnostic)
 - [x] Baseline direct interval regression passed
 - [x] Baseline `npm run catalog:mine` passed with no catalog diff
-- [ ] Final `npm run test:validate`
-- [ ] Final `npm run validate:skills`
-- [ ] Final `npm test`
-- [ ] Final direct interval regression
-- [ ] Final catalog reproducibility
-- [ ] Final diff check and clean worktree
+- [x] Final `npm run test:validate`
+- [x] Final `npm run validate:skills`
+- [x] Final `npm test`
+- [x] Final direct interval regression
+- [x] Final catalog reproducibility
+- [x] Final diff check and clean worktree
 
 ## Wave board
 
@@ -22,7 +22,7 @@
 | 8.1 Metadata and upstream sync correctness | 1 | done | — |
 | 8.2 Interval-ledger contract and failure semantics | 2 | done | 8.1 |
 | 8.3 Validator portability and skill-format corrections | 3 | done | 8.1, 8.2 |
-| 8.4 Regression wiring and final integration gates | 4 | pending | 8.3 |
+| 8.4 Regression wiring and final integration gates | 4 | done | 8.3 |
 
 ## Task reports
 
@@ -56,3 +56,11 @@
 - Tests: dedicated format test, `npm run test:validate`, and `npm run validate:skills` passed; packaged validation reported 29 skills and 31 checks.
 - Verification: `git diff --check` passed; Markdown indentation was confirmed unchanged after review.
 - Deviations: initial format test created a missing `.scratch` directory; fixture setup was corrected before the passing rerun.
+
+## 8.4
+- Status: complete; no package, CI, production, or dependency changes were needed.
+- Maintained coverage: `npm test` invokes the interval-ledger regression.
+- Final gates: validator tests, packaged validation (29 skills/31 checks), smoke, direct interval regression, two catalog generations, and `git diff --check` all passed.
+- Catalog hashes matched: `c760a8477a0123df3a5fa2254281091acb000c76`.
+- Expected diagnostics: missing-source maintainer warning and Git LF/CRLF notice; neither affected pass status.
+- Final status: clean worktree on `v030a...andrew/v030a [ahead 32, behind 12]`.
