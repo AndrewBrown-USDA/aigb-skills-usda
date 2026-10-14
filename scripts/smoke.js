@@ -113,6 +113,7 @@ function main() {
     assert.equal(typeof entry.name, 'string');
     assert.equal(typeof entry.source_repo, 'string');
     assert.equal(typeof entry.source_path, 'string');
+    assert.equal(entry.source_url, 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
     assert.equal(entry.publishability, undefined);
     assert.equal(entry.provenance, undefined);
     assert.equal(entry.selection_status, undefined);
@@ -128,27 +129,28 @@ function main() {
     } else {
       assert.equal(entry.version.value, null, `missing version value must be null for ${entry.name}`);
     }
-    if (entry.upstream !== undefined) assert.match(entry.upstream, /^https?:\/\//);
+    if (entry.upstream_repo !== undefined) assert.match(entry.upstream_repo, /^https?:\/\//);
   }
 
   const planFirst = lockfile.skills.find(s => s.name === 'plan-first');
   assert.ok(planFirst, 'plan-first must exist');
   assert.equal(planFirst.version.status, 'resolved');
   assert.equal(planFirst.version.value, '1.0');
-  assert.match(planFirst.upstream, /https:\/\/www\.reddit\.com\/r\/LocalLLaMA\/s\/w0G0mMp1js/);
+  assert.match(planFirst.upstream_repo, /https:\/\/www\.reddit\.com\/r\/LocalLLaMA\/s\/w0G0mMp1js/);
 
   const grilling = lockfile.skills.find(s => s.name === 'grilling');
   assert.ok(grilling, 'grilling must exist');
-  assert.equal(grilling.source_ref, 'v1.2.0');
-  assert.equal(grilling.upstream, 'https://github.com/mattpocock/skills');
+  assert.equal(grilling.upstream_ref, 'v1.2.0');
+  assert.equal(grilling.upstream_repo, 'https://github.com/mattpocock/skills');
 
   const tdd = lockfile.skills.find(s => s.name === 'tdd');
   assert.ok(tdd, 'tdd must exist');
   assert.match(tdd.author, /Matt Pocock/i);
   assert.equal(tdd.license, 'MIT');
-  assert.equal(tdd.source_repo, 'mattpocock-skills');
-  assert.equal(tdd.source_ref, 'v1.2.0');
-  assert.match(tdd.upstream, /github\.com\/mattpocock\/skills/);
+  assert.equal(tdd.source_repo, 'aigb-skills');
+  assert.equal(tdd.source_url, 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
+  assert.equal(tdd.upstream_ref, 'v1.2.0');
+  assert.match(tdd.upstream_repo, /github\.com\/mattpocock\/skills/);
 
   const applyFedOssLicense = lockfile.skills.find(s => s.name === 'apply-fed-oss-license');
   assert.ok(applyFedOssLicense, 'apply-fed-oss-license must exist');
@@ -164,8 +166,15 @@ function main() {
     assert.equal(parsed.fields.name, skill.name);
     assert.equal(typeof parsed.fields.description, 'string');
     assert.ok(parsed.metadata && typeof parsed.metadata === 'object');
-    for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream']) {
-      if (skill[key] !== undefined) assert.equal(parsed.metadata[key], skill[key], `${skill.name} metadata.${key}`);
+    for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream_repo', 'upstream_ref']) {
+      if (skill[key] !== undefined) {
+        const actual = key === 'upstream_repo'
+          ? (parsed.metadata.upstream_repo || parsed.metadata.upstream)
+          : key === 'upstream_ref'
+            ? (parsed.metadata.upstream_ref || parsed.metadata.source_ref)
+          : parsed.metadata[key];
+        assert.equal(actual, skill[key], `${skill.name} metadata.${key}`);
+      }
     }
     if (skill.version && skill.version.value !== null) {
       assert.equal(parsed.metadata.version, String(skill.version.value), `${skill.name} metadata.version`);
@@ -355,7 +364,7 @@ function main() {
   );
   assert.match(
     symlinkResult.stderr,
-    /symlink mode is unavailable for git-pinned skill "grilling"; falling back to copy mode/i
+    /symlink mode is unavailable for (?:git-pinned|aliased) skill ".+"; falling back to copy mode/i
   );
   assertSkillLayout(symlinkTarget, lockfile.skills);
   assertGrillingContent(symlinkTarget, false);
@@ -421,7 +430,8 @@ function main() {
             name: 'fake-skill',
             source_repo: 'non-existent-source-repo-xyz',
             source_path: 'skills/fake-skill/SKILL.md',
-            upstream: 'https://example.invalid/non-existent-source-repo-xyz.git',
+            source_url: 'https://github.com/AndrewBrown-USDA/aigb-skills.git',
+            upstream_repo: 'https://example.invalid/non-existent-source-repo-xyz.git',
             version: { status: 'resolved', value: '1.0.0' }
           }
         ]

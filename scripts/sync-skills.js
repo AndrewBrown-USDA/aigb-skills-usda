@@ -97,9 +97,9 @@ function runGit(sourceRoot, args) {
   });
 }
 
-function cloneSourceRepo(upstream, targetPath) {
+function cloneSourceRepo(sourceUrl, targetPath) {
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-  execFileSync('git', ['clone', upstream, targetPath], {
+  execFileSync('git', ['clone', sourceUrl, targetPath], {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe']
   });
@@ -128,19 +128,19 @@ function resolveSourceRoot(entry, options) {
     return localCandidate;
   }
 
-  if (options.clone && entry.upstream) {
+  if (options.clone && entry.source_url) {
     try {
-      cloneSourceRepo(entry.upstream, siblingCandidate);
+      cloneSourceRepo(entry.source_url, siblingCandidate);
       return siblingCandidate;
     } catch (error) {
       throw new Error(
-        `Maintainer sync error: Failed to clone upstream source repository "${sourceRepo}" from "${entry.upstream}" to "${siblingCandidate}": ${error.message}`
+        `Maintainer sync error: Failed to clone canonical source repository "${sourceRepo}" from "${entry.source_url}" to "${siblingCandidate}": ${error.message}`
       );
     }
   }
 
   const cloneHint = options.clone
-    ? 'No upstream URL is available in the lockfile, so it cannot be cloned automatically. '
+    ? 'No canonical source_url is available in the lockfile, so it cannot be cloned automatically. '
     : 'Automatic cloning is disabled by --no-clone. ';
   throw new Error(
     `Maintainer sync error: Upstream source repository "${sourceRepo}" was not found (checked "${siblingCandidate}" and "${localCandidate}"). ` +
@@ -162,6 +162,7 @@ function validateEntry(entry) {
   const metadata = entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {};
   const sourceRepo = metadata.source_repo || entry.source_repo;
   const sourcePath = metadata.source_path || entry.source_path;
+  const sourceUrl = metadata.source_url || entry.source_url;
 
   if (typeof sourceRepo !== 'string' || sourceRepo.length === 0) {
     throw new Error(`Skill ${entry.name} is missing source_repo`);
@@ -169,6 +170,10 @@ function validateEntry(entry) {
 
   if (typeof sourcePath !== 'string' || sourcePath.length === 0) {
     throw new Error(`Skill ${entry.name} is missing source_path`);
+  }
+
+  if (typeof sourceUrl !== 'string' || !/^https?:\/\//.test(sourceUrl)) {
+    throw new Error(`Skill ${entry.name} is missing a valid canonical source_url`);
   }
 }
 
@@ -180,9 +185,11 @@ function normalizedEntry(entry) {
     ...metadata,
     source_repo: metadata.source_repo || entry.source_repo,
     source_path: metadata.source_path || entry.source_path,
+    source_url: metadata.source_url || entry.source_url,
     upstream_name: metadata.upstream_name || entry.upstream_name,
     source_ref: metadata.source_ref || entry.source_ref,
-    upstream: metadata.upstream || entry.upstream,
+    upstream_repo: metadata.upstream_repo || entry.upstream_repo || entry.upstream,
+    upstream_ref: metadata.upstream_ref || entry.upstream_ref,
     version: version && typeof version === 'object' ? version.value : version
   };
 }
@@ -383,7 +390,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   if (
     normalized.source_repo === 'aigb-skills' &&
     !normalized.source_ref &&
-    !normalized.upstream &&
+    !normalized.source_url &&
     !normalized.upstream_name
   ) {
     return;
@@ -394,7 +401,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   if (normalized.author && normalized.author.toLowerCase().includes('matt pocock')) {
     metadata.push(['author', 'Matt Pocock (https://github.com/mattpocock/skills)']);
   }
-  for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream', 'upstream_name', 'version']) {
+  for (const key of ['source_repo', 'source_path', 'source_url', 'source_ref', 'upstream_repo', 'upstream_ref', 'upstream_name', 'version']) {
     if (normalized[key]) metadata.push([key, normalized[key]]);
   }
 
@@ -403,7 +410,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   }
 
   const addMissingMetadata = (block) => {
-    const lines = block.split(/\r?\n/).filter((line) => !/^(author|license|source|source_repo|source_path|source_ref|upstream|upstream_name|version):/.test(line));
+    const lines = block.split(/\r?\n/).filter((line) => !/^(author|license|source|source_repo|source_path|source_url|source_ref|upstream|upstream_repo|upstream_ref|upstream_name|version):/.test(line));
     let updatedBlock = lines.join('\n').trimEnd();
     const packagedNamePattern = /^name:\s*.*$/m;
     if (packagedNamePattern.test(updatedBlock)) {
