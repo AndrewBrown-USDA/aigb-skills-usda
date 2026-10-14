@@ -16,11 +16,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/adr-distillation/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "agent-onboarding",
@@ -28,11 +28,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/agent-onboarding/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "apply-fed-oss-license",
@@ -40,37 +40,37 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/apply-fed-oss-license/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "caveman",
       "source_repo": "aigb-skills",
       "source_path": "skills/caveman/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "upstream_ref": "v2.7.0",
+      "upstream_repo": "https://github.com/JuliusBrussee/caveman",
       "version": {
         "status": "missing",
         "value": null
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_repo": "https://github.com/JuliusBrussee/caveman",
-      "upstream_ref": "v2.7.0"
+      }
     },
     {
       "name": "code-review-2axis",
       "author": "Matt Pocock (https://github.com/mattpocock/skills)",
       "source_repo": "aigb-skills",
       "source_path": "skills/code-review-2axis/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "upstream_name": "code-review",
+      "upstream_ref": "v1.2.0",
+      "upstream_repo": "https://github.com/mattpocock/skills",
       "version": {
         "status": "missing",
         "value": null
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_repo": "https://github.com/mattpocock/skills",
-      "upstream_ref": "v1.2.0"
+      }
     },
     {
       "name": "copilot-history-briefing",
@@ -78,11 +78,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/copilot-history-briefing/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.3"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "deep-investigative-research",
@@ -90,11 +90,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/deep-investigative-research/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "doc-consistency",
@@ -102,11 +102,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/doc-consistency/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "dr-lexus",
@@ -114,11 +114,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/dr-lexus/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "git-history-interval-study",
@@ -126,11 +126,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/git-history-interval-study/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "github-actions-ci",
@@ -138,24 +138,24 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/github-actions-ci/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "grilling",
       "author": "Matt Pocock (https://github.com/mattpocock/skills)",
       "source_repo": "aigb-skills",
       "source_path": "skills/grilling/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "upstream_ref": "v1.2.0",
+      "upstream_repo": "https://github.com/mattpocock/skills",
       "version": {
         "status": "missing",
         "value": null
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_repo": "https://github.com/mattpocock/skills",
-      "upstream_ref": "v1.2.0"
+      }
     },
     {
       "name": "install-skills",
@@ -163,11 +163,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/install-skills/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "json-processing-with-jq",
@@ -175,11 +175,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/json-processing-with-jq/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "makefile-development-workflow",
@@ -187,11 +187,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/makefile-development-workflow/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "performance-benchmarking",
@@ -199,11 +199,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/performance-benchmarking/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "plan-first",
@@ -211,12 +211,12 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/plan-first/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "upstream_repo": "https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_repo": "https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js"
+      }
     },
     {
       "name": "plan-wave",
@@ -224,37 +224,37 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/plan-wave/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.2"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "ponytail",
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/ponytail/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "upstream_ref": "v4.10.0",
+      "upstream_repo": "https://github.com/DietrichGebert/ponytail",
       "version": {
         "status": "missing",
         "value": null
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_repo": "https://github.com/DietrichGebert/ponytail",
-      "upstream_ref": "v4.10.0"
+      }
     },
     {
       "name": "research",
       "author": "Matt Pocock (https://github.com/mattpocock/skills)",
       "source_repo": "aigb-skills",
       "source_path": "skills/research/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "upstream_ref": "v1.2.0",
+      "upstream_repo": "https://github.com/mattpocock/skills",
       "version": {
         "status": "missing",
         "value": null
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_repo": "https://github.com/mattpocock/skills",
-      "upstream_ref": "v1.2.0"
+      }
     },
     {
       "name": "reviewer-architecture",
@@ -262,11 +262,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/reviewer-architecture/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "reviewer-correctness",
@@ -274,11 +274,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/reviewer-correctness/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "rubber-ducking",
@@ -286,11 +286,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/rubber-ducking/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "skill-research",
@@ -298,11 +298,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/skill-research/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.1"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "tdd",
@@ -310,13 +310,13 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/tdd/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "upstream_ref": "v1.2.0",
+      "upstream_repo": "https://github.com/mattpocock/skills",
       "version": {
         "status": "missing",
         "value": null
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_repo": "https://github.com/mattpocock/skills",
-      "upstream_ref": "v1.2.0"
+      }
     },
     {
       "name": "verbosity-cleaner",
@@ -324,11 +324,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/verbosity-cleaner/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "wave-orchestration",
@@ -336,11 +336,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/wave-orchestration/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.1"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "web-source-bundler",
@@ -348,11 +348,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/web-source-bundler/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     },
     {
       "name": "worker-validation",
@@ -360,11 +360,11 @@
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/worker-validation/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "version": {
         "status": "resolved",
         "value": "1.0"
-      },
-      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git"
+      }
     }
   ]
 }

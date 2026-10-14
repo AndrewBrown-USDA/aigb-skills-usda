@@ -76,6 +76,7 @@ function scanCuratedSkills() {
     const sourcePath = metadata.source_path || `skills/${skillName}/SKILL.md`;
     const sourceRef = metadata.source_ref;
     const upstreamName = metadata.upstream_name;
+    const upstreamRepo = metadata.upstream;
     const author = metadata.author;
     const license = fm.license;
     const versionVal = metadata.version ? String(metadata.version).trim() : null;
@@ -90,13 +91,21 @@ function scanCuratedSkills() {
       ...(license ? { license } : {}),
       source_repo: sourceRepo,
       source_path: sourcePath,
-      ...(sourceRef ? { source_ref: sourceRef } : {}),
+      source_url: canonicalSourceUrl(sourceRepo),
       ...(upstreamName ? { upstream_name: upstreamName } : {}),
-      ...(metadata.upstream ? { upstream: metadata.upstream } : {}),
+      ...(sourceRepo === 'aigb-skills' && sourceRef ? { upstream_ref: sourceRef } : {}),
+      ...(sourceRepo === 'aigb-skills' && upstreamRepo ? { upstream_repo: upstreamRepo } : {}),
       version
     };
 
     skills.push(entryObj);
+  }
+
+  function canonicalSourceUrl(sourceRepo) {
+    const sourceUrls = {
+      'aigb-skills': 'https://github.com/AndrewBrown-USDA/aigb-skills.git'
+    };
+    return sourceUrls[sourceRepo] || `https://github.com/${sourceRepo}.git`;
   }
 
   // Consistent ordering by skill name
