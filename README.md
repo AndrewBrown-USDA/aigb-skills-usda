@@ -108,8 +108,13 @@ The catalog includes 27 curated skills:
 - **Skill metadata contract:** Each `skills/*/SKILL.md` frontmatter must provide
   the standard top-level `name` and `description` fields. Supported standard
   optional fields remain top-level when used. Repository-specific synchronization
-  fields belong under a `metadata` mapping: `source_repo`, `source_path`,
-  `source_ref`, `upstream`, `upstream_name`, and `version`.
+  fields belong under a `metadata` mapping: `source_repo`, `source_path`, and
+  `source_url` identify the canonical bundled source; `upstream_repo`,
+  `upstream_ref`, optional `upstream_name`, and `version` preserve upstream
+  provenance. Legacy `source_ref` and `upstream` are read-only fallbacks for
+  `upstream_ref` and `upstream_repo`. Known canonical repositories derive a
+  GitHub URL; unknown repositories leave `source_url` unset rather than
+  fabricating one.
 - **Authority and catalog:** `skills/*/SKILL.md` frontmatter is authoritative.
   `catalog/skills.lock.json` is generated compatibility and index data derived
   from that frontmatter; edit the skill metadata rather than hand-editing the

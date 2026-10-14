@@ -9,11 +9,55 @@ const { spawnSync } = require('node:child_process');
 const { runBehavioralChecks, selectPython } = require('./validate-skills');
 const { updateSkillMetadata } = require('./sync-skills');
 const { scanCuratedSkills } = require('./mine-history');
+const {
+  deriveSourceUrl,
+  normalizeMetadata,
+  validateMetadata
+} = require('./skill-metadata');
 
 const validator = path.join(__dirname, 'validate-skills.js');
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'aigb-skills-validator-'));
 
 try {
+  assert.equal(deriveSourceUrl('aigb-skills'), 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
+  assert.equal(deriveSourceUrl('unknown-repo'), null);
+  assert.deepEqual(normalizeMetadata({
+    source_repo: 'aigb-skills',
+    source_path: 'skills/example/SKILL.md',
+    source_ref: 'legacy-ref',
+    upstream: 'legacy-repo',
+    upstream_ref: 'preferred-ref',
+    upstream_repo: 'preferred-repo'
+  }), {
+    source_repo: 'aigb-skills',
+    source_path: 'skills/example/SKILL.md',
+    source_url: 'https://github.com/AndrewBrown-USDA/aigb-skills.git',
+    upstream_repo: 'preferred-repo',
+    upstream_ref: 'preferred-ref'
+  });
+  assert.deepEqual(normalizeMetadata({
+    source_repo: 'unknown-repo',
+    source_path: 'skills/example/SKILL.md',
+    source_ref: 'legacy-ref',
+    upstream: 'legacy-repo'
+  }), {
+    source_repo: 'unknown-repo',
+    source_path: 'skills/example/SKILL.md',
+    source_url: null,
+    upstream_repo: 'legacy-repo',
+    upstream_ref: 'legacy-ref'
+  });
+  assert.equal(validateMetadata({ source_repo: 'repo' }).valid, false);
+  assert.equal(validateMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    source_url: 'not-a-url'
+  }).valid, false);
+  assert.equal(validateMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md'
+  }).valid, true);
+
   const lockfile = path.join(tempRoot, 'skills.lock.json');
   const skillsDir = path.join(tempRoot, 'skills');
   const report = path.join(tempRoot, 'report.json');
