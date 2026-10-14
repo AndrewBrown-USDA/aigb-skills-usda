@@ -96,6 +96,9 @@ function main() {
   assert.match(helpOutput, /Commands:/);
   assert.match(helpOutput, /skills/);
 
+  // 2a. Verify interval-ledger regression coverage
+  runNode(['skills/git-history-interval-study/scripts/interval_ledger-test.js']);
+
   // 3. Verify lockfile schema and curated skills
   const lockfile = readJson(lockfilePath);
   assert.equal(lockfile.schema_version, 1);
