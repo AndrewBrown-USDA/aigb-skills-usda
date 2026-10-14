@@ -3,11 +3,11 @@
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { execFileSync } = require('node:child_process');
 const { runBehavioralChecks, selectPython } = require('./validate-skills');
-const { parseArgs, resolveSourceRoot, updateSkillMetadata } = require('./sync-skills');
+const { parseArgs, resolveSourceRoot, syncSkills, updateSkillMetadata } = require('./sync-skills');
 const { scanCuratedSkills } = require('./mine-history');
 const {
   deriveSourceUrl,
@@ -16,12 +16,34 @@ const {
 } = require('./skill-metadata');
 
 const validator = path.join(__dirname, 'validate-skills.js');
-const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'aigb-skills-validator-'));
+const tempRoot = path.join(__dirname, '..', '.scratch', '10.2.1');
+fs.rmSync(tempRoot, { recursive: true, force: true });
+fs.mkdirSync(tempRoot, { recursive: true });
+
+const run = (cwd, args) => execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' });
+const writeSkill = (root, name, metadata = {}) => {
+  const file = path.join(root, metadata.source_path || `skills/${name}/SKILL.md`);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, frontmatter(name, metadata), 'utf8');
+};
+const commit = (root, message) => {
+  run(root, ['add', '.']);
+  run(root, ['-c', 'user.name=Test', '-c', 'user.email=test@example.test', 'commit', '-m', message]);
+};
+const frontmatter = (name, metadata) => [
+  '---', `name: ${name}`, 'description: Example skill', 'metadata:',
+  ...Object.entries(metadata).map(([key, value]) => `  ${key}: ${typeof value === 'string' ? value : JSON.stringify(value)}`),
+  '---', '# Example'
+].join('\n');
 
 try {
   assert.equal(parseArgs([]).allowNetwork, false);
   assert.equal(parseArgs(['--no-clone']).allowNetwork, false);
   assert.equal(parseArgs(['--allow-network']).allowNetwork, true);
+  const help = spawnSync(process.execPath, [path.join(__dirname, '..', 'src', 'cli.js'), '--help'], { encoding: 'utf8' });
+  assert.equal(help.status, 0);
+  assert.match(help.stdout, /--allow-network\s+Allow clone\/fetch recovery/);
+  assert.match(help.stdout, /--no-clone\s+Compatibility alias for the local-only default/);
   assert.equal(deriveSourceUrl('aigb-skills'), 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
   assert.equal(deriveSourceUrl('unknown-repo'), null);
   assert.deepEqual(normalizeMetadata({
@@ -71,6 +93,80 @@ try {
     }, { clone: false }),
     (error) => error.message.includes('pinned-source') && !error.message.includes('https:\\github')
   );
+
+  const sourceRepo = path.join(tempRoot, 'source-repo');
+  fs.mkdirSync(sourceRepo, { recursive: true });
+  run(sourceRepo, ['init', '-q']);
+  writeSkill(sourceRepo, 'pinned', { source_path: 'skills/pinned/SKILL.md' });
+  commit(sourceRepo, 'initial');
+  run(sourceRepo, ['tag', 'pinned-v1']);
+  writeSkill(sourceRepo, 'pinned', { source_path: 'skills/pinned/SKILL.md', description: 'second' });
+  commit(sourceRepo, 'second');
+  const pinnedLock = path.join(tempRoot, 'pinned.lock.json');
+  fs.writeFileSync(pinnedLock, JSON.stringify({
+    schema_version: 1,
+    skills: [{ name: 'pinned', source_repo: sourceRepo, source_path: 'skills/pinned/SKILL.md',
+      source_url: 'https://example.test/pinned.git', source_ref: 'pinned-v1' }]
+  }), 'utf8');
+  const pinnedTarget = path.join(tempRoot, 'pinned-target');
+  syncSkills({ lockfile: pinnedLock, target: pinnedTarget, mode: 'copy', clone: false, allowNetwork: false });
+  assert.ok(fs.existsSync(path.join(pinnedTarget, 'pinned', 'SKILL.md')));
+
+  const missingUpstreamRepo = path.join(tempRoot, 'missing-upstream-repo');
+  fs.mkdirSync(missingUpstreamRepo, { recursive: true });
+  run(missingUpstreamRepo, ['init', '-q']);
+  writeSkill(missingUpstreamRepo, 'pinned', { source_path: 'skills/pinned/SKILL.md' });
+  commit(missingUpstreamRepo, 'upstream');
+  const missingLock = path.join(tempRoot, 'missing.lock.json');
+  fs.writeFileSync(missingLock, JSON.stringify({
+    schema_version: 1,
+    skills: [{ name: 'pinned', source_repo: sourceRepo, source_path: 'skills/pinned/SKILL.md',
+      source_url: 'https://example.test/pinned.git', upstream_repo: missingUpstreamRepo,
+      upstream_path: 'skills/pinned/SKILL.md', upstream_ref: 'definitely-missing-ref-10-2-1' }]
+  }), 'utf8');
+  assert.throws(
+    () => syncSkills({ lockfile: missingLock, target: path.join(tempRoot, 'missing-target'), mode: 'copy', clone: false, allowNetwork: false }),
+    /Automatic fetching is disabled by default/
+  );
+
+  const fetchRemoteRepo = path.join(tempRoot, 'fetch-remote-repo');
+  fs.mkdirSync(fetchRemoteRepo, { recursive: true });
+  run(fetchRemoteRepo, ['init', '-q']);
+  writeSkill(fetchRemoteRepo, 'pinned', { source_path: 'skills/pinned/SKILL.md' });
+  commit(fetchRemoteRepo, 'remote');
+  run(fetchRemoteRepo, ['tag', 'definitely-missing-ref-10-2-1']);
+  run(missingUpstreamRepo, ['remote', 'add', 'origin', fetchRemoteRepo]);
+  try {
+    const fetchTarget = path.join(tempRoot, 'fetch-target');
+    syncSkills({ lockfile: missingLock, target: fetchTarget, mode: 'copy', clone: true, allowNetwork: true });
+    assert.ok(fs.existsSync(path.join(fetchTarget, 'pinned', 'SKILL.md')));
+  } finally {
+    run(missingUpstreamRepo, ['remote', 'remove', 'origin']);
+  }
+
+  const upstreamRepo = path.join(tempRoot, 'upstream-repo');
+  fs.mkdirSync(upstreamRepo, { recursive: true });
+  run(upstreamRepo, ['init', '-q']);
+  writeSkill(upstreamRepo, 'selected', { source_path: 'skills/selected/SKILL.md' });
+  commit(upstreamRepo, 'upstream');
+  run(upstreamRepo, ['tag', 'upstream-v1']);
+  const distinctLock = path.join(tempRoot, 'distinct.lock.json');
+  fs.writeFileSync(distinctLock, JSON.stringify({
+    schema_version: 1,
+    skills: [{ name: 'selected', source_repo: sourceRepo, source_path: 'skills/selected/SKILL.md',
+      source_url: 'https://example.test/source.git', upstream_repo: upstreamRepo,
+      upstream_path: 'skills/selected/SKILL.md', upstream_ref: 'upstream-v1' }]
+  }), 'utf8');
+  syncSkills({ lockfile: distinctLock, target: path.join(tempRoot, 'distinct-target'), mode: 'copy', clone: false, allowNetwork: false });
+  assert.ok(fs.existsSync(path.join(tempRoot, 'distinct-target', 'selected', 'SKILL.md')));
+
+  const legacyLock = path.join(tempRoot, 'legacy.lock.json');
+  fs.writeFileSync(legacyLock, JSON.stringify({
+    schema_version: 1,
+    skills: [{ name: 'pinned', source_repo: sourceRepo, source_path: 'skills/pinned/SKILL.md',
+      source_url: 'https://example.test/source.git', source_ref: 'pinned-v1', upstream: sourceRepo }]
+  }), 'utf8');
+  syncSkills({ lockfile: legacyLock, target: path.join(tempRoot, 'legacy-target'), mode: 'copy', clone: false, allowNetwork: false });
 
   const lockfile = path.join(tempRoot, 'skills.lock.json');
   const skillsDir = path.join(tempRoot, 'skills');
@@ -208,6 +304,15 @@ try {
   assert.match(normalizedContent, /upstream_ref: normalized-upstream-ref/);
   assert.match(normalizedContent, /upstream_repo: normalized-upstream-repo/);
   assert.doesNotMatch(normalizedContent, /stale-(ref|repo|version)/);
+
+  const authorsSkill = path.join(metadataRoot, 'authors', 'SKILL.md');
+  fs.mkdirSync(path.dirname(authorsSkill), { recursive: true });
+  fs.writeFileSync(authorsSkill, '---\nname: authors\n---\n# Example\n', 'utf8');
+  updateSkillMetadata(authorsSkill, { name: 'authors', source_repo: 'repo', source_path: 'skills/authors/SKILL.md',
+    author: 'Scalar Author', authors: ['First Author', 'Second Author'] });
+  const authorsContent = fs.readFileSync(authorsSkill, 'utf8');
+  assert.match(authorsContent, /author: Scalar Author/);
+  assert.match(authorsContent, /authors: \["First Author","Second Author"\]/);
 
   const curatedRoot = path.join(tempRoot, 'curated-round-trip');
   const curatedSkill = path.join(curatedRoot, 'new-keys', 'SKILL.md');
