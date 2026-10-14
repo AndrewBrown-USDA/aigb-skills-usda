@@ -86,6 +86,9 @@ Select a boundary strategy based on the repository structure:
    This guarantees deterministic intervals without requiring two merges.
 4. **Strategy D (Explicit Revisions)**: Accepts user-specified commit SHAs or branch ranges (e.g. `v0.1.0..v0.2.0`).
 
+All value-taking options (`--pattern`, `--range`, and `--out`) require a value;
+unknown options fail explicitly. Boundary strategies are mutually exclusive.
+
 ### Phase 2: Quantitative Interval Extraction
 
 For each adjacent pair $[C_{k-1}, C_k]$:
@@ -119,7 +122,11 @@ For each adjacent pair $[C_{k-1}, C_k]$:
 
 Emit two structured outputs:
 
-1. **`interval-ledger.json`**: Machine-readable JSON summary capturing boundaries, commit SHAs, file lists, churn numbers, and convergence classifications.
+1. **`interval-ledger.json`**: Machine-readable JSON with top-level `strategy`,
+   ordered `boundaries`, aggregate `summary`, `subsystem`, and `convergence`
+   fields, plus the detailed `intervals` array. Each interval retains boundary
+   triggers, commits, metrics, file statuses (including rename/copy `path` and
+   `oldPath`), subsystem changes, and convergence classification.
 2. **`evolution-digest.md`**: Markdown narrative document summarizing:
    - Interval Overview & Timeline
    - Subsystem Evolution Matrix

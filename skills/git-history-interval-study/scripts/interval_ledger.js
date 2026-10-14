@@ -48,11 +48,13 @@ function parseArgs() {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === '--pattern' && args[i + 1]) {
+    if (arg === '--pattern') {
+      if (!args[i + 1] || args[i + 1].startsWith('--')) throw new Error('--pattern requires a value');
       options.pattern = args[++i];
       options.strategy = 'pattern';
       selectedStrategies.push('pattern');
-    } else if (arg === '--range' && args[i + 1]) {
+    } else if (arg === '--range') {
+      if (!args[i + 1] || args[i + 1].startsWith('--')) throw new Error('--range requires a value');
       options.range = args[++i];
       options.strategy = 'range';
       selectedStrategies.push('range');
@@ -64,8 +66,11 @@ function parseArgs() {
       options.tags = true;
       options.strategy = 'tags';
       selectedStrategies.push('tags');
-    } else if (arg === '--out' && args[i + 1]) {
+    } else if (arg === '--out') {
+      if (!args[i + 1] || args[i + 1].startsWith('--')) throw new Error('--out requires a value');
       options.outDir = args[++i];
+    } else if (arg.startsWith('--')) {
+      throw new Error(`Unknown option: ${arg}`);
     }
   }
 
@@ -81,7 +86,7 @@ function getBoundaryCommits(options) {
 
   if (options.strategy === 'pattern' && options.pattern) {
     // Find commits introducing the pattern
-    const out = git(['log', '--diff-filter=A', '--topo-order', '--reverse', '--format=%H|%as|%s', '--', options.pattern], { ignoreError: true });
+    const out = git(['log', '--diff-filter=A', '--topo-order', '--reverse', '--format=%H|%as|%s', '--', options.pattern]);
     if (out) {
       const lines = out.split('\n').filter(Boolean);
       for (const line of lines) {
@@ -90,7 +95,7 @@ function getBoundaryCommits(options) {
       }
     }
   } else if (options.strategy === 'tags') {
-    const out = git(['tag', '--sort=creatordate'], { ignoreError: true });
+    const out = git(['tag', '--sort=creatordate']);
     if (out) {
       const tags = out.split('\n').filter(Boolean);
       for (const tag of tags) {
@@ -108,7 +113,7 @@ function getBoundaryCommits(options) {
     boundaries.push({ sha: shaA, date: dateA, subject: `Range Start: ${revA}`, trigger: revA });
     boundaries.push({ sha: shaB, date: dateB, subject: `Range End: ${revB || 'HEAD'}`, trigger: revB || 'HEAD' });
   } else if (options.strategy === 'mainline') {
-    const out = git(['log', '--first-parent', '--merges', '--format=%H|%as|%s'], { ignoreError: true });
+    const out = git(['log', '--first-parent', '--merges', '--format=%H|%as|%s']);
     if (out) {
       for (const line of out.split('\n').filter(Boolean)) {
         const [sha, date, subject] = line.split('|');
@@ -118,7 +123,9 @@ function getBoundaryCommits(options) {
     }
   }
 
-  const firstCommit = git(['rev-list', '--max-parents=0', 'HEAD']).split('\n')[0];
+  const firstCommit = (options.strategy === 'mainline'
+    ? git(['rev-list', '--first-parent', '--max-parents=0', 'HEAD'])
+    : git(['rev-list', '--max-parents=0', 'HEAD'])).split('\n')[0];
   const headCommit = git(['rev-parse', 'HEAD']);
   if (options.strategy === 'mainline') {
     const rootBoundary = {
@@ -134,7 +141,7 @@ function getBoundaryCommits(options) {
       trigger: 'HEAD',
     };
     const order = options.strategy === 'mainline'
-      ? git(['rev-list', '--first-parent', '--reverse', 'HEAD'], { ignoreError: true }).split('\n').filter(Boolean)
+      ? git(['rev-list', '--first-parent', '--reverse', 'HEAD']).split('\n').filter(Boolean)
       : [];
     return normalizeMainlineBoundaries(boundaries, rootBoundary, headBoundary, order);
   }
@@ -174,7 +181,7 @@ function analyzeInterval(prev, curr, index) {
   const range = `${prev.sha}..${curr.sha}`;
 
   // Commits in interval
-  const logRaw = git(['log', '--topo-order', '--reverse', '--format=%h|%an|%as|%s', range], { ignoreError: true });
+  const logRaw = git(['log', '--topo-order', '--reverse', '--format=%h|%an|%as|%s', range]);
   const commits = logRaw
     ? logRaw.split('\n').filter(Boolean).map(line => {
         const [shortSha, author, date, subject] = line.split('|');
@@ -186,7 +193,7 @@ function analyzeInterval(prev, curr, index) {
     : [];
 
   // Shortstat
-  const shortstat = git(['diff', '--shortstat', prev.sha, curr.sha], { ignoreError: true });
+  const shortstat = git(['diff', '--shortstat', prev.sha, curr.sha]);
   let filesChanged = 0, linesAdded = 0, linesDeleted = 0;
   if (shortstat) {
     const fMatch = shortstat.match(/(\d+)\s+file/);
@@ -198,7 +205,7 @@ function analyzeInterval(prev, curr, index) {
   }
 
   // Name-status with rename detection
-  const nameStatusRaw = git(['diff', '--name-status', '-M', prev.sha, curr.sha], { ignoreError: true });
+  const nameStatusRaw = git(['diff', '--name-status', '-M', prev.sha, curr.sha]);
   const fileStatuses = parseNameStatus(nameStatusRaw);
 
   // Subsystem churn aggregation
@@ -305,7 +312,30 @@ function main() {
   }
 
   const ledgerPath = path.join(outDir, 'interval-ledger.json');
-  fs.writeFileSync(ledgerPath, JSON.stringify({ intervals }, null, 2), 'utf8');
+  const summary = intervals.reduce((result, interval) => {
+    result.commitCount += interval.commitCount;
+    result.filesChanged += interval.metrics.filesChanged;
+    result.linesAdded += interval.metrics.linesAdded;
+    result.linesDeleted += interval.metrics.linesDeleted;
+    result.churn += interval.metrics.churn;
+    return result;
+  }, { intervalCount: intervals.length, commitCount: 0, filesChanged: 0, linesAdded: 0, linesDeleted: 0, churn: 0 });
+  const subsystem = {};
+  const convergence = {};
+  for (const interval of intervals) {
+    for (const [key, value] of Object.entries(interval.subsystemFileModifications)) {
+      subsystem[key] = (subsystem[key] || 0) + value;
+    }
+    convergence[interval.convergenceStatus] = (convergence[interval.convergenceStatus] || 0) + 1;
+  }
+  fs.writeFileSync(ledgerPath, JSON.stringify({
+    strategy: options.strategy,
+    boundaries,
+    summary,
+    subsystem,
+    convergence,
+    intervals,
+  }, null, 2), 'utf8');
 
   const digestPath = path.join(outDir, 'evolution-digest.md');
   fs.writeFileSync(digestPath, generateMarkdownDigest(intervals, options), 'utf8');
@@ -316,7 +346,12 @@ function main() {
 }
 
 if (require.main === module) {
-  main();
+  try {
+    main();
+  } catch (err) {
+    console.error(`[git-history-interval-study] ${err.message}`);
+    process.exitCode = 1;
+  }
 }
 
 module.exports = {

@@ -1,6 +1,16 @@
 #!/usr/bin/env node
 const assert = require('assert');
-const { normalizeMainlineBoundaries, parseNameStatus } = require('./interval_ledger');
+const { normalizeMainlineBoundaries, parseNameStatus, parseArgs } = require('./interval_ledger');
+
+function withArgs(argv, callback) {
+  const original = process.argv;
+  process.argv = ['node', 'interval_ledger.js', ...argv];
+  try {
+    return callback();
+  } finally {
+    process.argv = original;
+  }
+}
 
 const statuses = parseNameStatus(
   'R100\told/name.js\tnew/name.js\nC100\told/source.js\tnew/copy.js\nM\tsrc/index.js\n',
@@ -31,16 +41,12 @@ assert.deepStrictEqual(
   ['root', 'merge-a', 'merge-b', 'head'],
 );
 
+assert.strictEqual(withArgs(['--mainline'], () => parseArgs().strategy), 'mainline');
+assert.throws(() => withArgs(['--pattern'], parseArgs), /--pattern requires a value/);
+assert.throws(() => withArgs(['--range', '--tags'], parseArgs), /--range requires a value/);
+assert.throws(() => withArgs(['--unknown'], parseArgs), /Unknown option: --unknown/);
 assert.throws(
-  () => {
-    const args = process.argv;
-    process.argv = ['node', 'interval_ledger.js', '--mainline', '--tags'];
-    try {
-      require('./interval_ledger').parseArgs();
-    } finally {
-      process.argv = args;
-    }
-  },
+  () => withArgs(['--mainline', '--tags'], parseArgs),
   /Boundary strategies are mutually exclusive: mainline, tags/,
 );
 
