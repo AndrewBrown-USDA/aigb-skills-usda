@@ -81,9 +81,7 @@ Generate plots for scaling analysis. Log-log plots reveal asymptotic behavior (O
 
 ## Example 1: Hash Map Benchmarks
 
-**Functions**: `classify()`, `subst()` -- value lookup and substitution  
-**Parameter**: Lookup table size (n_lookup)  
-**Expected scaling**: O(1) average with hash map, O(n^2) with nested loops
+**Functions**: `classify()`, `subst()` -- value lookup and substitution **Parameter**: Lookup table size (n_lookup) **Expected scaling**: O(1) average with hash map, O(n^2) with nested loops
 
 From archive `benchmark_hash.R` pattern:
 
@@ -130,9 +128,7 @@ dev.off()
 
 ## Example 2: Other Function Benchmarks
 
-**Functions**: catalyze, unique, freq, crosstab  
-**Parameters**: Category count, raster size, cardinality (each function differs)  
-**Timeout**: 60s per run
+**Functions**: catalyze, unique, freq, crosstab **Parameters**: Category count, raster size, cardinality (each function differs) **Timeout**: 60s per run
 
 From archive `benchmark_other_functions.R` pattern:
 

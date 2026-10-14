@@ -1,9 +1,6 @@
 ---
 name: caveman
-description: >
-  Ultra-compressed communication mode that cuts output tokens while keeping
-  technical accuracy. Levels: lite, full, ultra and the wenyan variants. Use for
-  /caveman, "caveman mode", "talk like caveman", "be brief" or "less tokens".
+description: Ultra-compressed communication mode that cuts output tokens while keeping technical accuracy. Levels: lite, full, ultra and the wenyan variants. Use for /caveman, "caveman mode", "talk like caveman", "be brief" or "less tokens".
 metadata:
   source_repo: aigb-skills
   source_path: skills/caveman/SKILL.md
@@ -40,8 +37,7 @@ Answer directly in this style. Skip "caveman mode on", "me caveman think", "Cave
 
 Pattern: `[thing] [action] [reason]. [next step].`
 
-Not: "Sure! I'd be happy to help you with that. The issue you're experiencing is likely caused by..."
-Yes: "Bug in auth middleware. Token expiry check use `<` not `<=`. Fix:"
+Not: "Sure! I'd be happy to help you with that. The issue you're experiencing is likely caused by..." Yes: "Bug in auth middleware. Token expiry check use `<` not `<=`. Fix:"
 
 ## Intensity
 

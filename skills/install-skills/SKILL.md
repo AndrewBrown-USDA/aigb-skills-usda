@@ -97,20 +97,17 @@ bash skills/install-skills/scripts/install.sh --target-path ~/my-custom-skills -
    ```bash
    bash skills/install-skills/scripts/install.sh --target claude --all --symlink
    ```
-   This creates entries in `~/.claude/skills/` that point back to the repo.
+This creates entries in `~/.claude/skills/` that point back to the repo.
 
-4. **Verify installation**
-   Check that skill directories appeared in `~/.claude/skills/`:
+4. **Verify installation** Check that skill directories appeared in `~/.claude/skills/`:
    ```bash
    ls ~/.claude/skills/
    # Output: agent-onboarding, deslop, doc-consistency, ...
    ```
 
-5. **Reload Claude Code**
-   If Claude Code is open, restart it to refresh the skill list (or just run a new session).
+5. **Reload Claude Code** If Claude Code is open, restart it to refresh the skill list (or just run a new session).
 
-6. **Invoke a skill**
-   Now you can use the skills in any Claude Code session. For example:
+6. **Invoke a skill** Now you can use the skills in any Claude Code session. For example:
    ```
    /python-code-style
    ```

@@ -10,44 +10,26 @@ metadata:
 ---
 # ADR Distillation: Formalize Living Architecture Decisions
 
-Captures and formalizes enduring system architecture decisions into tracked,
-standardized Architecture Decision Records (ADRs). Bridges the gap between
-incremental, often disposable planning artifacts (`planning/`) and the
-long-term repository truth recorded under `docs/decisions/`.
+Captures and formalizes enduring system architecture decisions into tracked, standardized Architecture Decision Records (ADRs). Bridges the gap between incremental, often disposable planning artifacts (`planning/`) and the long-term repository truth recorded under `docs/decisions/`.
 
-Inspired by Michael Nygard's ADR format, Markdown Architectural Decision
-Records (MADR), and Martin Fowler's ADR guidance.
+Inspired by Michael Nygard's ADR format, Markdown Architectural Decision Records (MADR), and Martin Fowler's ADR guidance.
 
 ## When to Use
 
-- **Pre-Implementation (Reconnaissance & Pre-Step)**: During `plan-wave` or
-  task inception, to inspect active architectural decisions and resolve
-  conflicts or explicit superseding intent before code is written.
-- **Post-Implementation (Wave Completion & Post-Step)**: After a wave completes
-  or milestone is reached, to extract enduring architectural choices from
-  grilling logs (`EXECUTION_PLAN_N.md`), runtime deviations (`STATE_N.md`), or
-  git history before context compaction or plan cleanup.
-- **Repository History Mining (Scaffold-Free Mode)**: In projects without
-  `planning/` scaffolds, by clustering commit histories, diffs, and PR
-  discussions across milestones to construct a retroactive architectural timeline.
+- **Pre-Implementation (Reconnaissance & Pre-Step)**: During `plan-wave` or task inception, to inspect active architectural decisions and resolve conflicts or explicit superseding intent before code is written.
+- **Post-Implementation (Wave Completion & Post-Step)**: After a wave completes or milestone is reached, to extract enduring architectural choices from grilling logs (`EXECUTION_PLAN_N.md`), runtime deviations (`STATE_N.md`), or git history before context compaction or plan cleanup.
+- **Repository History Mining (Scaffold-Free Mode)**: In projects without `planning/` scaffolds, by clustering commit histories, diffs, and PR discussions across milestones to construct a retroactive architectural timeline.
 
 ---
 
 ## The Heuristic Filter: Architecture vs. Transient Churn
 
-ADRs must represent living, long-term system design rather than task checklists.
-Before minting an ADR, ensure the decision satisfies **at least two** criteria:
+ADRs must represent living, long-term system design rather than task checklists. Before minting an ADR, ensure the decision satisfies **at least two** criteria:
 
-1. **High Reversibility Cost**: Changing or undoing this choice requires
-   substantial multi-module refactoring or data migration (e.g., database
-   selection, framework change, CLI dispatch paradigm).
-2. **Pattern-Setting**: The decision establishes a precedent or convention that
-   future waves and agents must adhere to (e.g., standardizing on YAML frontmatter,
-   Node >=18 engine constraints, zero-network user installation).
-3. **Cross-Cutting Boundary**: Affects multiple components, public APIs,
-   shared data contracts, or repository boundaries.
-4. **Evaluated Trade-Offs**: Consciously accepted specific downsides to gain
-   strategic benefits (e.g., increased disk usage for offline availability).
+1. **High Reversibility Cost**: Changing or undoing this choice requires substantial multi-module refactoring or data migration (e.g., database selection, framework change, CLI dispatch paradigm).
+2. **Pattern-Setting**: The decision establishes a precedent or convention that future waves and agents must adhere to (e.g., standardizing on YAML frontmatter, Node >=18 engine constraints, zero-network user installation).
+3. **Cross-Cutting Boundary**: Affects multiple components, public APIs, shared data contracts, or repository boundaries.
+4. **Evaluated Trade-Offs**: Consciously accepted specific downsides to gain strategic benefits (e.g., increased disk usage for offline availability).
 
 ### What NOT to Record in an ADR:
 - Checkbox completions from task micro-plans (`tasks/N.W.id.todo.md`).
@@ -72,8 +54,7 @@ Used when working within `plan-wave` and `wave-orchestration`:
    - Incorporate unexpected runtime discoveries from `STATE_N.md` wave reports.
 
 ### Mode B: Git History Mode (Scaffold-Free Mining)
-Used in repositories that do not use incremental planning documents, or for
-retroactive documentation:
+Used in repositories that do not use incremental planning documents, or for retroactive documentation:
 
 1. **Inputs**:
    - Commit history: `git log --reverse --patch [rev-range]`
@@ -91,15 +72,11 @@ retroactive documentation:
 ### 1. Pre-Step: Reconnaissance & Resolution (`plan-wave`)
 Before writing code or locking task DAGs:
 
-1. **Ingest Active Decisions**: Read `docs/decisions/README.md` and inspect all
-   records where `status: Accepted`.
-2. **Inject Constraints**: Feed active ADR requirements directly into task specs
-   as non-negotiable constraints.
-3. **Resolve Divergences Upfront**: If the user's request conflicts with an
-   active ADR, do not silently proceed. Grill the user:
+1. **Ingest Active Decisions**: Read `docs/decisions/README.md` and inspect all records where `status: Accepted`.
+2. **Inject Constraints**: Feed active ADR requirements directly into task specs as non-negotiable constraints.
+3. **Resolve Divergences Upfront**: If the user's request conflicts with an active ADR, do not silently proceed. Grill the user:
    > *"ADR-[ID] specifies [Current Choice]. The proposed goal requires [New Choice]. Does this plan supersede ADR-[ID], or should we adapt the plan to comply with ADR-[ID]?"*
-4. **Record Superseding Intent**: If the user intends to supersede, document it
-   in `EXECUTION_PLAN_N.md` so the post-step knows to update the link.
+4. **Record Superseding Intent**: If the user intends to supersede, document it in `EXECUTION_PLAN_N.md` so the post-step knows to update the link.
 
 ### 2. Post-Step: Distillation & Living Index Update (`wave-orchestration`)
 After wave execution passes verification and before compaction:
@@ -116,8 +93,7 @@ After wave execution passes verification and before compaction:
 
 ## ADR Document Format
 
-Records are stored in `docs/decisions/NNNN-<slug>.md` using standard YAML frontmatter
-and MADR-compatible sections:
+Records are stored in `docs/decisions/NNNN-<slug>.md` using standard YAML frontmatter and MADR-compatible sections:
 
 ```markdown
 ---

@@ -20,7 +20,7 @@ Capture URLs, file lists, or search results into deterministic, verifiable Markd
    ```bash
    pip install git+https://github.com/AndrewBrown-USDA/web-source-bundler.git
    ```
-   *(Or if developing locally within the repository workspace: `pip install -e .`)*
+*(Or if developing locally within the repository workspace: `pip install -e .`)*
 
 2. **Install Playwright browser binaries**:
    ```bash

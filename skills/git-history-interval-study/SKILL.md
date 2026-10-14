@@ -66,23 +66,19 @@ sequenceDiagram
 
 Select a boundary strategy based on the repository structure:
 
-1. **Strategy A (Artifact Creation - e.g. Planning Files)**:
-   Finds commits where key tracking or plan files were added:
+1. **Strategy A (Artifact Creation - e.g. Planning Files)**: Finds commits where key tracking or plan files were added:
    ```bash
    git log --diff-filter=A --format="%H|%as|%s" -- "planning/EXECUTION_PLAN_*.md" | sort -t'|' -k2
    ```
-2. **Strategy B (Version Tags)**:
-   Extracts chronological tags:
+2. **Strategy B (Version Tags)**: Extracts chronological tags:
    ```bash
    git tag --sort=creatordate
    ```
-3. **Strategy C (Mainline Merges / PRs)**:
-   Identifies merge commits on the primary branch:
+3. **Strategy C (Mainline Merges / PRs)**: Identifies merge commits on the primary branch:
    ```bash
    git log --first-parent --merges --format="%H|%as|%s"
    ```
-4. **Strategy D (Explicit Revisions)**:
-   Accepts user-specified commit SHAs or branch ranges (e.g. `v0.1.0..v0.2.0`).
+4. **Strategy D (Explicit Revisions)**: Accepts user-specified commit SHAs or branch ranges (e.g. `v0.1.0..v0.2.0`).
 
 ### Phase 2: Quantitative Interval Extraction
 
@@ -100,18 +96,15 @@ For each adjacent pair $[C_{k-1}, C_k]$:
    ```bash
    git diff --name-status -M C_{k-1} C_k
    ```
-4. **Subsystem Directory Aggregation**:
-   Aggregate line churn by module directory (`skills/`, `src/`, `scripts/`, `docs/`, `planning/`).
+4. **Subsystem Directory Aggregation**: Aggregate line churn by module directory (`skills/`, `src/`, `scripts/`, `docs/`, `planning/`).
 
 ### Phase 3: Qualitative Analysis & Convergence Tracking
 
-1. **Commit Type Breakdown**:
-   Classify commit messages using Conventional Commits (`feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`).
+1. **Commit Type Breakdown**: Classify commit messages using Conventional Commits (`feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`).
 2. **Convergence Heuristic**:
    - **Volatile / Divergent**: High addition/deletion churn ($C_i = L_{add} + L_{del}$), frequent changes to interfaces and public signatures, high ratio of `feat` and `refactor` commits.
    - **Stabilizing / Converging**: Diminishing churn over intervals, stable API boundaries, transition to `test`, `fix`, and `docs` commits.
-3. **Pickaxe Symbol Tracking (`git log -S`)**:
-   Verify when specific classes, functions, or architectural patterns were added or adapted across intervals:
+3. **Pickaxe Symbol Tracking (`git log -S`)**: Verify when specific classes, functions, or architectural patterns were added or adapted across intervals:
    ```bash
    git log -S "<symbol-name>" -p C_{k-1}..C_k
    ```

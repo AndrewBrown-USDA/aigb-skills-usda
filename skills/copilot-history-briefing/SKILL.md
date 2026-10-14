@@ -46,7 +46,7 @@ Use this skill to turn Copilot conversation history into evidence-backed briefin
      - follow-up work, reusable helper, package, report, or process that came out of the session
    - Keep distinct efforts separate in the working record. Do not merge related projects just because they share a domain, repository, package, or data source.
 
-   Query strategy:
+Query strategy:
    - Start with `sessions` to find candidate stories. Narrow by `created_at`, `repository`, `cwd`, `branch`, or `summary` before you touch turn text.
    - If metadata is too thin, search `search_index` for repo names, skill names, issue numbers, or other distinctive phrases, then reuse the matching `session_id`s in the next table.
    - Read `checkpoints` for compact session summaries, `turns` for the actual conversation, and `session_files` / `session_refs` for files, commits, PRs, or issues tied to a session.
@@ -54,7 +54,7 @@ Use this skill to turn Copilot conversation history into evidence-backed briefin
    - Keep queries narrow: use a date window, select only needed columns, and add `LIMIT` early.
    - Treat the SQL below as a template and replace the placeholders with the repository, workspace, time window, and session ids you need.
 
-   Example pattern:
+Example pattern:
    ```sql
  -- step 1: find candidate sessions
    SELECT id, created_at, repository, cwd, summary
