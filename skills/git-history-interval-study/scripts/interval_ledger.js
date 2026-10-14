@@ -12,6 +12,9 @@ const fs = require('fs');
 const path = require('path');
 
 function git(args, options = {}) {
+  if (process.env.INTERVAL_GIT_FAIL === args[0]) {
+    throw new Error(`controlled git ${args[0]} failure`);
+  }
   try {
     return execFileSync('git', args, { encoding: 'utf8', ...options }).trim();
   } catch (err) {
@@ -205,7 +208,7 @@ function analyzeInterval(prev, curr, index) {
   }
 
   // Name-status with rename detection
-  const nameStatusRaw = git(['diff', '--name-status', '-M', prev.sha, curr.sha]);
+  const nameStatusRaw = git(['diff', '--name-status', '-M', '-C', prev.sha, curr.sha]);
   const fileStatuses = parseNameStatus(nameStatusRaw);
 
   // Subsystem churn aggregation
