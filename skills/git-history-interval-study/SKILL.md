@@ -78,6 +78,9 @@ Select a boundary strategy based on the repository structure:
    ```bash
    git log --first-parent --merges --format="%H|%as|%s"
    ```
+   Select this strategy explicitly with `--mainline`. It is mutually exclusive
+   with `--pattern`, `--range`, and `--tags`; merge commits are ordered
+   chronologically to form adjacent interval boundaries.
 4. **Strategy D (Explicit Revisions)**: Accepts user-specified commit SHAs or branch ranges (e.g. `v0.1.0..v0.2.0`).
 
 ### Phase 2: Quantitative Interval Extraction

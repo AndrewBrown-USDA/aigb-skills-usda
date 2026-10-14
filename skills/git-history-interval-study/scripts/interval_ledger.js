@@ -20,30 +20,57 @@ function git(args, options = {}) {
   }
 }
 
+function parseNameStatus(raw) {
+  return raw
+    ? raw.split('\n').filter(Boolean).map(l => {
+        const parts = l.split(/\t+/);
+        const isRenameOrCopy = /^[RC]\d*$/.test(parts[0]);
+        return {
+          status: parts[0],
+          path: isRenameOrCopy ? parts[2] : parts[1],
+          ...(isRenameOrCopy ? { oldPath: parts[1] } : {}),
+        };
+      })
+    : [];
+}
+
 function parseArgs() {
   const args = process.argv.slice(2);
   const options = {
     strategy: 'auto',
     pattern: '',
     range: '',
+    mainline: false,
     tags: false,
     outDir: '.scratch',
   };
+  const selectedStrategies = [];
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--pattern' && args[i + 1]) {
       options.pattern = args[++i];
       options.strategy = 'pattern';
+      selectedStrategies.push('pattern');
     } else if (arg === '--range' && args[i + 1]) {
       options.range = args[++i];
       options.strategy = 'range';
+      selectedStrategies.push('range');
+    } else if (arg === '--mainline') {
+      options.mainline = true;
+      options.strategy = 'mainline';
+      selectedStrategies.push('mainline');
     } else if (arg === '--tags') {
       options.tags = true;
       options.strategy = 'tags';
+      selectedStrategies.push('tags');
     } else if (arg === '--out' && args[i + 1]) {
       options.outDir = args[++i];
     }
+  }
+
+  if (selectedStrategies.length > 1) {
+    throw new Error(`Boundary strategies are mutually exclusive: ${selectedStrategies.join(', ')}`);
   }
 
   return options;
@@ -80,10 +107,19 @@ function getBoundaryCommits(options) {
     const dateB = git(['log', '-1', '--format=%as', shaB]);
     boundaries.push({ sha: shaA, date: dateA, subject: `Range Start: ${revA}`, trigger: revA });
     boundaries.push({ sha: shaB, date: dateB, subject: `Range End: ${revB || 'HEAD'}`, trigger: revB || 'HEAD' });
+  } else if (options.strategy === 'mainline') {
+    const out = git(['log', '--first-parent', '--merges', '--format=%H|%as|%s'], { ignoreError: true });
+    if (out) {
+      for (const line of out.split('\n').filter(Boolean)) {
+        const [sha, date, subject] = line.split('|');
+        boundaries.push({ sha, date, subject, trigger: sha });
+      }
+      boundaries.reverse();
+    }
   }
 
   // If auto or no boundaries found, fallback to first commit and HEAD
-  if (boundaries.length < 2) {
+  if (options.strategy !== 'mainline' && boundaries.length < 2) {
     const firstCommit = git(['rev-list', '--max-parents=0', 'HEAD']).split('\n')[0];
     const headCommit = git(['rev-parse', 'HEAD']);
     if (!boundaries.some(b => b.sha === firstCommit)) {
@@ -136,12 +172,7 @@ function analyzeInterval(prev, curr, index) {
 
   // Name-status with rename detection
   const nameStatusRaw = git(['diff', '--name-status', '-M', prev.sha, curr.sha], { ignoreError: true });
-  const fileStatuses = nameStatusRaw
-    ? nameStatusRaw.split('\n').filter(Boolean).map(l => {
-        const parts = l.split(/\t+/);
-        return { status: parts[0], path: parts[1], extra: parts[2] };
-      })
-    : [];
+  const fileStatuses = parseNameStatus(nameStatusRaw);
 
   // Subsystem churn aggregation
   const subsystemChurn = {};
@@ -169,6 +200,7 @@ function analyzeInterval(prev, curr, index) {
     commits,
     metrics: { filesChanged, linesAdded, linesDeleted, churn },
     commitTypes,
+    fileStatuses,
     subsystemFileModifications: subsystemChurn,
     convergenceStatus: isConverging ? 'converged' : 'evolving',
   };
@@ -231,7 +263,7 @@ function main() {
   const boundaries = getBoundaryCommits(options);
 
   if (boundaries.length < 2) {
-    console.error('Need at least 2 boundary commits to study history intervals.');
+    console.error('Need at least 2 boundary commits to study history intervals; mainline requires at least 2 merge commits.');
     process.exit(1);
   }
 
@@ -256,4 +288,8 @@ function main() {
   console.log(`  -> Digest: ${digestPath}`);
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = { parseArgs, getBoundaryCommits, analyzeInterval, parseNameStatus };
