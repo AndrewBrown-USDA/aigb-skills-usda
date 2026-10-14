@@ -20,7 +20,7 @@
 | Task | Wave | Status | Depends on |
 |---|---:|---|---|
 | 8.1 Metadata and upstream sync correctness | 1 | done | — |
-| 8.2 Interval-ledger contract and failure semantics | 2 | pending | — |
+| 8.2 Interval-ledger contract and failure semantics | 2 | done | 8.1 |
 | 8.3 Validator portability and skill-format corrections | 3 | pending | 8.1, 8.2 |
 | 8.4 Regression wiring and final integration gates | 4 | pending | 8.3 |
 
@@ -42,3 +42,10 @@
 - Branch/status: `v030a...andrew/v030a [ahead 26, behind 12]`; no catalog diff after baseline generation.
 - `npm test`: passed; smoke checks passed for 29 skills and emitted the expected missing-source maintainer diagnostic.
 - `node skills\git-history-interval-study\scripts\interval_ledger-test.js`: passed.
+
+## 8.2
+- Status: implemented and targeted acceptance passed.
+- Changed files: `skills/git-history-interval-study/scripts/interval_ledger.js`, `interval_ledger-test.js`, and `SKILL.md`.
+- Tests: direct interval regression passed; argument, mainline, failure, rename/copy, and output-schema assertions passed.
+- Verification: `git diff --check` passed; no metadata, catalog, package, or state production files changed by the task.
+- Deviations: none.
