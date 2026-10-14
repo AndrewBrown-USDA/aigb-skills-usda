@@ -96,20 +96,32 @@ npx skills install --mode symlink --target ~/.agents/skills
 Synchronizes the `./skills` directory from upstream source repositories listed in `catalog/skills.lock.json`. Requires local checkouts of source repositories.
 
 ```bash
-# Maintainer sync
+# Maintainer sync (local checkouts only by default)
 npx skills sync --mode copy
 # or: make sync
+
+# Explicitly permit clone/fetch recovery when a local checkout or ref is missing
+npx skills sync --mode copy --allow-network
+
+`skills sync` never clones or fetches by default. `--no-clone` remains a
+compatibility alias for this local-only behavior. Use `--allow-network` only
+when intentionally permitting maintainer network recovery.
 ```
 
 ## Curated Skills & Attribution
 
-The catalog includes 27 curated skills:
+The catalog includes 29 curated skills:
 
 - **Skill metadata contract:** Each `skills/*/SKILL.md` frontmatter must provide
   the standard top-level `name` and `description` fields. Supported standard
   optional fields remain top-level when used. Repository-specific synchronization
-  fields belong under a `metadata` mapping: `source_repo`, `source_path`,
-  `source_ref`, `upstream`, `upstream_name`, and `version`.
+  fields belong under a `metadata` mapping: `source_repo`, `source_path`, and
+  `source_url` identify the canonical bundled source; `upstream_repo`,
+  `upstream_ref`, optional `upstream_name`, and `version` preserve upstream
+  provenance. Legacy `source_ref` and `upstream` are read-only fallbacks for
+  `upstream_ref` and `upstream_repo`. Known canonical repositories derive a
+  GitHub URL; unknown repositories leave `source_url` unset rather than
+  fabricating one.
 - **Authority and catalog:** `skills/*/SKILL.md` frontmatter is authoritative.
   `catalog/skills.lock.json` is generated compatibility and index data derived
   from that frontmatter; edit the skill metadata rather than hand-editing the

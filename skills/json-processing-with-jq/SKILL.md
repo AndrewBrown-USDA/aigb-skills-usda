@@ -74,8 +74,7 @@ curl -s http://localhost:8000/v1/chat/completions \
   -d '{...}' | jq -r '.choices[0].message.tool_calls[0].function.arguments | fromjson'
 ```
 
-The `-r` flag outputs raw strings (without quotes).
-The `fromjson` converts JSON string to object.
+The `-r` flag outputs raw strings (without quotes). The `fromjson` converts JSON string to object.
 
 ### Extract Multiple Fields
 ```bash

@@ -54,24 +54,18 @@ These patterns make writing sound robotic:
 
 ## Examples
 
-**Before:**
-"In the rapidly evolving landscape of modern security architecture, implementing zero-trust methodologies serves as a testament to an organization's commitment to proactive threat mitigation."
+**Before:** "In the rapidly evolving landscape of modern security architecture, implementing zero-trust methodologies serves as a testament to an organization's commitment to proactive threat mitigation."
 
-**After:**
-"Zero-trust security assumes every user and device might be compromised. Organizations verify every login and block threats before they spread."
+**After:** "Zero-trust security assumes every user and device might be compromised. Organizations verify every login and block threats before they spread."
 
 ---
 
-**Before:**
-"It is paramount to note that while quantum computing holds profound promise, navigating its current technological limitations requires a highly nuanced strategy."
+**Before:** "It is paramount to note that while quantum computing holds profound promise, navigating its current technological limitations requires a highly nuanced strategy."
 
-**After:**
-"Quantum computers are still experimental. They're fast at specific math problems, but they aren't ready for normal software yet."
+**After:** "Quantum computers are still experimental. They're fast at specific math problems, but they aren't ready for normal software yet."
 
 ---
 
-**Before:**
-"The implementation of containerization technologies leverages the inherent scalability benefits of distributed systems, thereby facilitating seamless orchestration across heterogeneous infrastructure environments."
+**Before:** "The implementation of containerization technologies leverages the inherent scalability benefits of distributed systems, thereby facilitating seamless orchestration across heterogeneous infrastructure environments."
 
-**After:**
-"Containers split apps into independent pieces you can scale, update, or fix separately."
+**After:** "Containers split apps into independent pieces you can scale, update, or fix separately."

@@ -1,0 +1,385 @@
+#!/usr/bin/env node
+/**
+ * interval_ledger.js
+ *
+ * Lightweight, zero-external-dependency script to slice git history into
+ * structured intervals based on tags, file pattern creations, or explicit ranges,
+ * outputting interval-ledger.json and evolution-digest.md.
+ */
+
+const { execFileSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+function git(args, options = {}) {
+  if (process.env.INTERVAL_GIT_FAIL === args[0]) {
+    throw new Error(`controlled git ${args[0]} failure`);
+  }
+  try {
+    return execFileSync('git', args, { encoding: 'utf8', ...options }).trim();
+  } catch (err) {
+    if (options.ignoreError) return '';
+    throw err;
+  }
+}
+
+function parseNameStatus(raw) {
+  return raw
+    ? raw.split('\n').filter(Boolean).map(l => {
+        const parts = l.split(/\t+/);
+        const isRenameOrCopy = /^[RC]\d*$/.test(parts[0]);
+        return {
+          status: parts[0],
+          path: isRenameOrCopy ? parts[2] : parts[1],
+          ...(isRenameOrCopy ? { oldPath: parts[1] } : {}),
+        };
+      })
+    : [];
+}
+
+function parseNumstat(raw) {
+  return raw
+    ? raw.split('\n').filter(Boolean).map(line => {
+        const parts = line.split('\t');
+        const additions = /^\d+$/.test(parts[0]) ? parseInt(parts[0], 10) : 0;
+        const deletions = /^\d+$/.test(parts[1]) ? parseInt(parts[1], 10) : 0;
+        const renamed = parts.length >= 4;
+        return {
+          additions,
+          deletions,
+          path: renamed ? parts[3] : parts[2],
+          ...(renamed ? { oldPath: parts[2] } : {}),
+        };
+      })
+    : [];
+}
+
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const options = {
+    strategy: 'auto',
+    pattern: '',
+    range: '',
+    mainline: false,
+    tags: false,
+    outDir: '.scratch',
+  };
+  const selectedStrategies = [];
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--pattern') {
+      if (!args[i + 1] || args[i + 1].startsWith('--')) throw new Error('--pattern requires a value');
+      options.pattern = args[++i];
+      options.strategy = 'pattern';
+      selectedStrategies.push('pattern');
+    } else if (arg === '--range') {
+      if (!args[i + 1] || args[i + 1].startsWith('--')) throw new Error('--range requires a value');
+      options.range = args[++i];
+      options.strategy = 'range';
+      selectedStrategies.push('range');
+    } else if (arg === '--mainline') {
+      options.mainline = true;
+      options.strategy = 'mainline';
+      selectedStrategies.push('mainline');
+    } else if (arg === '--tags') {
+      options.tags = true;
+      options.strategy = 'tags';
+      selectedStrategies.push('tags');
+    } else if (arg === '--out') {
+      if (!args[i + 1] || args[i + 1].startsWith('--')) throw new Error('--out requires a value');
+      options.outDir = args[++i];
+    } else if (arg.startsWith('--')) {
+      throw new Error(`Unknown option: ${arg}`);
+    }
+  }
+
+  if (selectedStrategies.length > 1) {
+    throw new Error(`Boundary strategies are mutually exclusive: ${selectedStrategies.join(', ')}`);
+  }
+
+  return options;
+}
+
+function getBoundaryCommits(options) {
+  const boundaries = [];
+
+  if (options.strategy === 'pattern' && options.pattern) {
+    // Find commits introducing the pattern
+    const out = git(['log', '--diff-filter=A', '--topo-order', '--reverse', '--format=%H|%as|%s', '--', options.pattern]);
+    if (out) {
+      const lines = out.split('\n').filter(Boolean);
+      for (const line of lines) {
+        const [sha, date, subject] = line.split('|');
+        boundaries.push({ sha, date, subject, trigger: options.pattern });
+      }
+    }
+  } else if (options.strategy === 'tags') {
+    const out = git(['tag', '--sort=creatordate']);
+    if (out) {
+      const tags = out.split('\n').filter(Boolean);
+      for (const tag of tags) {
+        const sha = git(['rev-parse', `${tag}^{commit}`]);
+        const date = git(['log', '-1', '--format=%as', sha]);
+        boundaries.push({ sha, date, subject: `Tag: ${tag}`, trigger: tag });
+      }
+    }
+  } else if (options.strategy === 'range' && options.range) {
+    const [revA, revB] = options.range.split('..');
+    const shaA = git(['rev-parse', revA]);
+    const shaB = git(['rev-parse', revB || 'HEAD']);
+    const dateA = git(['log', '-1', '--format=%as', shaA]);
+    const dateB = git(['log', '-1', '--format=%as', shaB]);
+    boundaries.push({ sha: shaA, date: dateA, subject: `Range Start: ${revA}`, trigger: revA });
+    boundaries.push({ sha: shaB, date: dateB, subject: `Range End: ${revB || 'HEAD'}`, trigger: revB || 'HEAD' });
+  } else if (options.strategy === 'mainline') {
+    const out = git(['log', '--first-parent', '--merges', '--format=%H|%as|%s']);
+    if (out) {
+      for (const line of out.split('\n').filter(Boolean)) {
+        const [sha, date, subject] = line.split('|');
+        boundaries.push({ sha, date, subject, trigger: sha });
+      }
+      boundaries.reverse();
+    }
+  }
+
+  const firstCommit = (options.strategy === 'mainline'
+    ? git(['rev-list', '--first-parent', '--max-parents=0', 'HEAD'])
+    : git(['rev-list', '--max-parents=0', 'HEAD'])).split('\n')[0];
+  const headCommit = git(['rev-parse', 'HEAD']);
+  if (options.strategy === 'mainline') {
+    const rootBoundary = {
+      sha: firstCommit,
+      date: git(['log', '-1', '--format=%as', firstCommit]),
+      subject: 'Initial Commit',
+      trigger: 'root',
+    };
+    const headBoundary = {
+      sha: headCommit,
+      date: git(['log', '-1', '--format=%as', headCommit]),
+      subject: 'HEAD',
+      trigger: 'HEAD',
+    };
+    const order = options.strategy === 'mainline'
+      ? git(['rev-list', '--first-parent', '--reverse', 'HEAD']).split('\n').filter(Boolean)
+      : [];
+    return normalizeMainlineBoundaries(boundaries, rootBoundary, headBoundary, order);
+  }
+  if (boundaries.length < 2) {
+    if (!boundaries.some(b => b.sha === firstCommit)) {
+      boundaries.unshift({
+        sha: firstCommit,
+        date: git(['log', '-1', '--format=%as', firstCommit]),
+        subject: 'Initial Commit',
+        trigger: 'root',
+      });
+    }
+    if (!boundaries.some(b => b.sha === headCommit)) {
+      boundaries.push({
+        sha: headCommit,
+        date: git(['log', '-1', '--format=%as', headCommit]),
+        subject: 'HEAD',
+        trigger: 'HEAD',
+      });
+    }
+  }
+
+  return boundaries;
+}
+
+function normalizeMainlineBoundaries(boundaries, rootBoundary, headBoundary, order = []) {
+  const result = [...boundaries];
+  if (!result.some(boundary => boundary.sha === rootBoundary.sha)) result.push(rootBoundary);
+  if (!result.some(boundary => boundary.sha === headBoundary.sha)) result.push(headBoundary);
+  if (order.length === 0) return result;
+  const positions = new Map(order.map((sha, index) => [sha, index]));
+  return result.sort((a, b) => (positions.get(a.sha) ?? Number.MAX_SAFE_INTEGER)
+    - (positions.get(b.sha) ?? Number.MAX_SAFE_INTEGER));
+}
+
+function analyzeInterval(prev, curr, index) {
+  const range = `${prev.sha}..${curr.sha}`;
+
+  // Commits in interval
+  const logRaw = git(['log', '--topo-order', '--reverse', '--format=%h|%an|%as|%s', range]);
+  const commits = logRaw
+    ? logRaw.split('\n').filter(Boolean).map(line => {
+        const [shortSha, author, date, subject] = line.split('|');
+        let type = 'other';
+        const match = subject.match(/^([a-zA-Z]+)(\([^\)]+\))?:\s*(.*)$/);
+        if (match) type = match[1].toLowerCase();
+        return { shortSha, author, date, subject, type };
+      })
+    : [];
+
+  // Shortstat
+  const shortstat = git(['diff', '--shortstat', prev.sha, curr.sha]);
+  let filesChanged = 0, linesAdded = 0, linesDeleted = 0;
+  if (shortstat) {
+    const fMatch = shortstat.match(/(\d+)\s+file/);
+    const aMatch = shortstat.match(/(\d+)\s+insertion/);
+    const dMatch = shortstat.match(/(\d+)\s+deletion/);
+    if (fMatch) filesChanged = parseInt(fMatch[1], 10);
+    if (aMatch) linesAdded = parseInt(aMatch[1], 10);
+    if (dMatch) linesDeleted = parseInt(dMatch[1], 10);
+  }
+
+  // Name-status with rename detection
+  const nameStatusRaw = git(['diff', '--name-status', '-M', '-C', prev.sha, curr.sha]);
+  const fileStatuses = parseNameStatus(nameStatusRaw);
+  const numstats = parseNumstat(git(['diff', '--numstat', '-M', '-C', prev.sha, curr.sha]));
+
+  // Subsystem churn aggregation
+  const subsystemChurn = {};
+  for (const item of numstats) {
+    const prefix = item.path.split('/')[0] || 'root';
+    subsystemChurn[prefix] = (subsystemChurn[prefix] || 0) + item.additions + item.deletions;
+  }
+
+  // Conventional commit distribution
+  const commitTypes = {};
+  for (const c of commits) {
+    commitTypes[c.type] = (commitTypes[c.type] || 0) + 1;
+  }
+
+  const churn = linesAdded + linesDeleted;
+  const isConverging = churn < 100 && (commitTypes['feat'] || 0) === 0;
+
+  return {
+    intervalId: `I${index + 1}`,
+    fromSha: prev.sha,
+    toSha: curr.sha,
+    fromTrigger: prev.trigger,
+    toTrigger: curr.trigger,
+    commitCount: commits.length,
+    commits,
+    metrics: { filesChanged, linesAdded, linesDeleted, churn },
+    commitTypes,
+    fileStatuses,
+    subsystemFileModifications: subsystemChurn,
+    convergenceStatus: isConverging ? 'converged' : 'evolving',
+  };
+}
+
+function generateMarkdownDigest(intervals, options) {
+  let md = `# Repository History Evolution Digest\n\n`;
+  md += `**Generated**: ${new Date().toISOString()}\n`;
+  md += `**Strategy**: ${options.strategy}\n`;
+  md += `**Interval Count**: ${intervals.length}\n\n`;
+
+  md += `## 1. Evolution Timeline & Interval Overview\n\n`;
+  md += `| Interval | Range / Trigger | Commits | Files Changed | Churn (+/-) | Convergence Status |\n`;
+  md += `| --- | --- | --- | --- | --- | --- |\n`;
+
+  for (const inv of intervals) {
+    md += `| ${inv.intervalId} | \`${inv.fromTrigger}\` -> \`${inv.toTrigger}\` | ${inv.commitCount} | ${inv.metrics.filesChanged} | +${inv.metrics.linesAdded} / -${inv.metrics.linesDeleted} | **${inv.convergenceStatus}** |\n`;
+  }
+  md += `\n---\n\n`;
+
+  md += `## 2. Detailed Interval Analysis\n\n`;
+  for (const inv of intervals) {
+    md += `### Interval ${inv.intervalId}: \`${inv.fromTrigger}\` -> \`${inv.toTrigger}\`\n\n`;
+    md += `- **Boundaries**: \`${inv.fromSha.substring(0, 8)}\`.. \`${inv.toSha.substring(0, 8)}\`\n`;
+    md += `- **Commit Types**: ${Object.entries(inv.commitTypes).map(([k, v]) => `${k} (${v})`).join(', ') || 'none'}\n`;
+    md += `- **Active Subsystems**: ${Object.entries(inv.subsystemFileModifications).map(([k, v]) => `\`${k}/\` (${v} files)`).join(', ') || 'none'}\n\n`;
+
+    md += `#### Key Commits\n`;
+    if (inv.commits.length === 0) {
+      md += `*No commits directly in this revision interval.*\n\n`;
+    } else {
+      for (const c of inv.commits.slice(0, 10)) {
+        md += `- \`${c.shortSha}\` (${c.date}): ${c.subject}\n`;
+      }
+      if (inv.commits.length > 10) {
+        md += `- *(and ${inv.commits.length - 10} more commits)*\n`;
+      }
+      md += `\n`;
+    }
+  }
+
+  md += `## 3. Feed for Downstream Skills (ADR Distillation)\n\n`;
+  md += `The intervals above surfaced structural component changes. Potential architectural candidates:\n\n`;
+  for (const inv of intervals) {
+    const featsAndRefactors = inv.commits.filter(c => c.type === 'feat' || c.type === 'refactor');
+    if (featsAndRefactors.length > 0) {
+      md += `### From ${inv.intervalId} (\`${inv.fromTrigger}\` -> \`${inv.toTrigger}\`):\n`;
+      for (const item of featsAndRefactors) {
+        md += `- **Candidate Decision**: \`${item.subject}\` (Commit: \`${item.shortSha}\`)\n`;
+      }
+      md += `\n`;
+    }
+  }
+
+  return md;
+}
+
+function main() {
+  const options = parseArgs();
+  const boundaries = getBoundaryCommits(options);
+
+  if (boundaries.length < 2) {
+    console.error('Need at least 2 boundary commits to study history intervals.');
+    process.exit(1);
+  }
+
+  const intervals = [];
+  for (let i = 0; i < boundaries.length - 1; i++) {
+    intervals.push(analyzeInterval(boundaries[i], boundaries[i + 1], i));
+  }
+
+  const outDir = path.resolve(process.cwd(), options.outDir);
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir, { recursive: true });
+  }
+
+  const ledgerPath = path.join(outDir, 'interval-ledger.json');
+  const summary = intervals.reduce((result, interval) => {
+    result.commitCount += interval.commitCount;
+    result.filesChanged += interval.metrics.filesChanged;
+    result.linesAdded += interval.metrics.linesAdded;
+    result.linesDeleted += interval.metrics.linesDeleted;
+    result.churn += interval.metrics.churn;
+    return result;
+  }, { intervalCount: intervals.length, commitCount: 0, filesChanged: 0, linesAdded: 0, linesDeleted: 0, churn: 0 });
+  const subsystem = {};
+  const convergence = {};
+  for (const interval of intervals) {
+    for (const [key, value] of Object.entries(interval.subsystemFileModifications)) {
+      subsystem[key] = (subsystem[key] || 0) + value;
+    }
+    convergence[interval.convergenceStatus] = (convergence[interval.convergenceStatus] || 0) + 1;
+  }
+  fs.writeFileSync(ledgerPath, JSON.stringify({
+    strategy: options.strategy,
+    boundaries,
+    summary,
+    subsystem,
+    convergence,
+    intervals,
+  }, null, 2), 'utf8');
+
+  const digestPath = path.join(outDir, 'evolution-digest.md');
+  fs.writeFileSync(digestPath, generateMarkdownDigest(intervals, options), 'utf8');
+
+  console.log(`[git-history-interval-study] Successfully processed ${intervals.length} intervals.`);
+  console.log(`  -> Ledger: ${ledgerPath}`);
+  console.log(`  -> Digest: ${digestPath}`);
+}
+
+if (require.main === module) {
+  try {
+    main();
+  } catch (err) {
+    console.error(`[git-history-interval-study] ${err.message}`);
+    process.exitCode = 1;
+  }
+}
+
+module.exports = {
+  parseArgs,
+  getBoundaryCommits,
+  normalizeMainlineBoundaries,
+  analyzeInterval,
+  parseNameStatus,
+  parseNumstat,
+};

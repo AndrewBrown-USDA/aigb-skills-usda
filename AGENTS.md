@@ -31,8 +31,8 @@
 - **Do not run `skills sync` or `make sync` to install skills.** Sync is maintainer-only and rebuilds `skills/` from upstream source checkouts.
 
 ### Maintainer Sync and Catalog
-- `skills/*/SKILL.md` frontmatter is authoritative. It requires top-level `name` and `description`; supported standard optional fields remain top-level. Repository-specific synchronization metadata is nested under `metadata`, using `source_repo`, `source_path`, `source_ref`, `upstream`, and `version`.
-- `npx skills sync --mode copy` (or `make sync`) re-materializes `skills/` from repositories indexed in `catalog/skills.lock.json`; local source checkouts are required.
+- `skills/*/SKILL.md` frontmatter is authoritative. It requires top-level `name` and `description`; supported standard optional fields remain top-level. Repository-specific metadata is nested under `metadata`: `source_repo`, `source_path`, and `source_url` identify the canonical bundled source; `upstream_repo`, `upstream_ref`, and optional `upstream_name` preserve provenance. Legacy `source_ref` and `upstream` are read-only fallbacks for `upstream_ref` and `upstream_repo`.
+- `npx skills sync --mode copy` (or `make sync`) re-materializes `skills/` from repositories indexed in `catalog/skills.lock.json`; it is local-only by default and requires local source checkouts. Use `--allow-network` for explicit clone/fetch recovery; `--no-clone` remains a compatibility alias.
 - `npm run catalog:mine` (or `make catalog`) regenerates the catalog lockfile.
 
 ### Validation

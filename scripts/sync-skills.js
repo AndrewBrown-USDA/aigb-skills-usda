@@ -8,6 +8,7 @@ const { execFileSync } = require('node:child_process');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_LOCKFILE = path.join(REPO_ROOT, 'catalog', 'skills.lock.json');
 const DEFAULT_TARGET_DIR = path.join(REPO_ROOT, 'skills');
+const { normalizeMetadata, validateMetadata } = require('./skill-metadata');
 
 function printHelp() {
   process.stdout.write([
@@ -17,6 +18,8 @@ function printHelp() {
     '  --mode <copy|symlink>   Materialization mode (default: copy)',
     '  --lockfile <path>       Path to catalog/skills.lock.json',
     '  --target <path>         Destination directory (default: ./skills)',
+    '  --allow-network         Allow clone/fetch recovery for missing repositories or refs',
+    '  --no-clone              Compatibility alias for the local-only default',
     '  --help, -h              Show this help message',
     ''
   ].join('\n'));
@@ -35,6 +38,8 @@ function parseArgs(argv) {
     mode: 'copy',
     lockfile: DEFAULT_LOCKFILE,
     target: DEFAULT_TARGET_DIR,
+    clone: false,
+    allowNetwork: false,
     help: false
   };
 
@@ -53,6 +58,13 @@ function parseArgs(argv) {
       case '--target':
         options.target = path.resolve(process.cwd(), expandHomeDir(argv[i + 1]));
         i += 1;
+        break;
+      case '--no-clone':
+        options.clone = false;
+        break;
+      case '--allow-network':
+        options.clone = true;
+        options.allowNetwork = true;
         break;
       case '--help':
       case '-h':
@@ -85,7 +97,26 @@ function loadLockfile(lockfilePath) {
   return data;
 }
 
-function resolveSourceRoot(sourceRepo) {
+function runGit(sourceRoot, args) {
+  return execFileSync('git', ['-C', sourceRoot, ...args], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+}
+
+function cloneSourceRepo(sourceUrl, targetPath) {
+  fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+  execFileSync('git', ['clone', sourceUrl, targetPath], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+}
+
+function resolveSourceRoot(entry, options) {
+  const sourceRepo = entry.source_repo;
+  const sourcePath = /^https?:\/\//.test(sourceRepo)
+    ? new URL(sourceRepo).pathname.split('/').filter(Boolean).slice(-2).join('-').replace(/\.git$/, '')
+    : sourceRepo;
   if (path.isAbsolute(sourceRepo)) {
     if (fs.existsSync(sourceRepo)) {
       return sourceRepo;
@@ -97,21 +128,50 @@ function resolveSourceRoot(sourceRepo) {
     );
   }
 
-  const siblingCandidate = path.resolve(REPO_ROOT, '..', sourceRepo);
+  const siblingCandidate = path.resolve(REPO_ROOT, '..', sourcePath);
   if (fs.existsSync(siblingCandidate)) {
     return siblingCandidate;
   }
 
-  const localCandidate = path.resolve(REPO_ROOT, sourceRepo);
+  const localCandidate = path.resolve(REPO_ROOT, sourcePath);
   if (fs.existsSync(localCandidate)) {
     return localCandidate;
   }
 
+  if (options.clone && entry.source_url) {
+    try {
+      cloneSourceRepo(entry.source_url, siblingCandidate);
+      return siblingCandidate;
+    } catch (error) {
+      throw new Error(
+        `Maintainer sync error: Failed to clone canonical source repository "${sourceRepo}" from "${entry.source_url}" to "${siblingCandidate}": ${error.message}`
+      );
+    }
+  }
+
+  const cloneHint = options.allowNetwork
+    ? 'No canonical source_url is available in the lockfile, so it cannot be cloned automatically. '
+    : 'Automatic cloning and fetching are disabled by default; use --allow-network to permit network recovery. ';
   throw new Error(
     `Maintainer sync error: Upstream source repository "${sourceRepo}" was not found (checked "${siblingCandidate}" and "${localCandidate}"). ` +
+    cloneHint +
     `The "sync" command is intended for repository maintainers with local checkout of source repos. ` +
     `For users and agents installing packaged skills, run "npx skills install --target <dir>" (or "make install-skills") instead.`
   );
+}
+
+function isCloneableRepositoryUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && (
+      url.hostname === 'github.com' ||
+      url.hostname === 'gitlab.com' ||
+      url.hostname === 'bitbucket.org' ||
+      url.pathname.endsWith('.git')
+    );
+  } catch (error) {
+    return false;
+  }
 }
 
 function validateEntry(entry) {
@@ -123,9 +183,17 @@ function validateEntry(entry) {
     throw new Error('Each lockfile entry must include a non-empty name');
   }
 
-  const metadata = entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {};
-  const sourceRepo = metadata.source_repo || entry.source_repo;
-  const sourcePath = metadata.source_path || entry.source_path;
+  const metadata = normalizeMetadata({
+    ...(entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {}),
+    ...entry
+  });
+  const validation = validateMetadata(metadata);
+  if (!validation.valid) throw new Error(`Skill ${entry.name} metadata: ${validation.errors.join('; ')}`);
+  const { sourceRepo, sourcePath, sourceUrl } = {
+    sourceRepo: metadata.source_repo,
+    sourcePath: metadata.source_path,
+    sourceUrl: metadata.source_url
+  };
 
   if (typeof sourceRepo !== 'string' || sourceRepo.length === 0) {
     throw new Error(`Skill ${entry.name} is missing source_repo`);
@@ -134,19 +202,32 @@ function validateEntry(entry) {
   if (typeof sourcePath !== 'string' || sourcePath.length === 0) {
     throw new Error(`Skill ${entry.name} is missing source_path`);
   }
+
+  if (sourceUrl !== null && sourceUrl !== undefined &&
+      (typeof sourceUrl !== 'string' || !/^https?:\/\//.test(sourceUrl))) {
+    throw new Error(`Skill ${entry.name} is missing a valid canonical source_url`);
+  }
 }
 
 function normalizedEntry(entry) {
   const metadata = entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {};
   const version = metadata.version || entry.version;
-  return {
+  const normalized = normalizeMetadata({
     ...entry,
     ...metadata,
     source_repo: metadata.source_repo || entry.source_repo,
     source_path: metadata.source_path || entry.source_path,
+    source_url: metadata.source_url || entry.source_url,
+    upstream_repo: metadata.upstream_repo || entry.upstream_repo || entry.upstream,
+    upstream_ref: metadata.upstream_ref || entry.upstream_ref,
+    upstream_path: metadata.upstream_path || entry.upstream_path
+  });
+  return {
+    ...entry,
+    ...metadata,
+    ...normalized,
     upstream_name: metadata.upstream_name || entry.upstream_name,
     source_ref: metadata.source_ref || entry.source_ref,
-    upstream: metadata.upstream || entry.upstream,
     version: version && typeof version === 'object' ? version.value : version
   };
 }
@@ -163,11 +244,27 @@ function validateSourceSkill(skillName, sourcePath) {
   }
 }
 
-function runGit(sourceRoot, args) {
-  return execFileSync('git', ['-C', sourceRoot, ...args], {
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe']
-  });
+function fetchSourceRef(sourceRoot, sourceRef, options = {}) {
+  if (!sourceRef) return;
+  try {
+    runGit(sourceRoot, ['rev-parse', '--verify', `${sourceRef}^{commit}`]);
+    return;
+  } catch (error) {
+    // Resolve locally before contacting the network.
+  }
+  if (!options.allowNetwork) {
+    throw new Error(
+      `Unable to resolve git ref "${sourceRef}" in ${sourceRoot}: ` +
+      'Automatic fetching is disabled by default; use --allow-network to permit network recovery.'
+    );
+  }
+  try {
+    runGit(sourceRoot, ['fetch', '--tags', 'origin']);
+    runGit(sourceRoot, ['fetch', 'origin', sourceRef]);
+    runGit(sourceRoot, ['rev-parse', '--verify', `${sourceRef}^{commit}`]);
+  } catch (error) {
+    throw new Error(`Unable to resolve git ref "${sourceRef}" in ${sourceRoot}: ${error.message}`);
+  }
 }
 
 function sanitizeSkillContent(content) {
@@ -196,7 +293,7 @@ function sanitizeSkillContent(content) {
   return sanitized;
 }
 
-function extractGitSkill(sourceRoot, sourceRef, sourceDirRel, destDir) {
+function extractGitSkill(sourceRoot, sourceRef, sourceDirRel, destDir, packagedName = null) {
   let normalizedSourceDir = sourceDirRel.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
   if (normalizedSourceDir === '.') {
     normalizedSourceDir = '';
@@ -251,11 +348,11 @@ function extractGitSkill(sourceRoot, sourceRef, sourceDirRel, destDir) {
         `Unable to extract git-pinned file ${sourceRef}:${repositoryPath}: ${error.message}`
       );
     }
-    fs.writeFileSync(
-      destinationPath,
-      relativePath === 'SKILL.md' ? sanitizeSkillContent(content) : content,
-      'utf8'
-    );
+    if (relativePath === 'SKILL.md') {
+      content = sanitizeSkillContent(content);
+      if (packagedName) content = content.replace(/^name:\s*.*$/m, `name: ${packagedName}`);
+    }
+    fs.writeFileSync(destinationPath, content, 'utf8');
   }
 }
 
@@ -270,7 +367,19 @@ function createRelativeLinkTarget(sourceDir, destDir) {
   return relativeTarget.length > 0 ? relativeTarget : sourceDir;
 }
 
+function sameFilesystemEntry(firstPath, secondPath) {
+  try {
+    return fs.realpathSync(firstPath) === fs.realpathSync(secondPath);
+  } catch (error) {
+    return path.resolve(firstPath) === path.resolve(secondPath);
+  }
+}
+
 function linkSkill(sourceDir, destDir) {
+  if (fs.existsSync(sourceDir) && fs.existsSync(destDir) && sameFilesystemEntry(sourceDir, destDir)) {
+    return;
+  }
+
   // If target skill already exists, clean only this skill target to allow safe update/amend
   if (fs.existsSync(destDir) || fs.lstatSync(destDir, { throwIfNoEntry: false })) {
     fs.rmSync(destDir, { recursive: true, force: true });
@@ -298,6 +407,10 @@ function linkSkill(sourceDir, destDir) {
 }
 
 function copySkill(sourceDir, destDir) {
+  if (fs.existsSync(sourceDir) && fs.existsSync(destDir) && sameFilesystemEntry(sourceDir, destDir)) {
+    return;
+  }
+
   // If target skill already exists, clean only this skill target to allow safe update/amend
   if (fs.existsSync(destDir) || fs.lstatSync(destDir, { throwIfNoEntry: false })) {
     fs.rmSync(destDir, { recursive: true, force: true });
@@ -318,12 +431,30 @@ function updateSkillMetadata(destSkillMd, entry) {
 
   let content = fs.readFileSync(destSkillMd, 'utf8');
   const normalized = normalizedEntry(entry);
+  content = content.replace(/(^---[\r\n]+)([\s\S]*?)(^---[\r\n]+)/m, (match, start, block, end) => {
+    const renamed = block.replace(/^name:\s*.*$/m, `name: ${entry.name}`);
+    return `${start}${renamed}${end}`;
+  });
+  if (
+    normalized.source_repo === 'aigb-skills' &&
+    !normalized.source_ref &&
+    !normalized.source_url &&
+    !normalized.upstream_name
+  ) {
+    content = content.replace(/^name:\s*.*$/m, `name: ${entry.name}`);
+    content = content.replace(/^name:\s*.*$/m, `name: ${entry.name}`);
+    fs.writeFileSync(destSkillMd, sanitizeSkillContent(content), 'utf8');
+    return;
+  }
+
   const metadata = [];
   const license = normalized.license;
-  if (normalized.author && normalized.author.toLowerCase().includes('matt pocock')) {
-    metadata.push(['author', 'Matt Pocock (https://github.com/mattpocock/skills)']);
+  const formatMetadataValue = (value) => Array.isArray(value) ? JSON.stringify(value) : value;
+  if (normalized.author) {
+    metadata.push(['author', formatMetadataValue(normalized.author)]);
   }
-  for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream', 'upstream_name', 'version']) {
+  if (normalized.authors) metadata.push(['authors', formatMetadataValue(normalized.authors)]);
+  for (const key of ['source_repo', 'source_path', 'source_url', 'source_ref', 'upstream_repo', 'upstream_ref', 'upstream_path', 'upstream_name', 'version']) {
     if (normalized[key]) metadata.push([key, normalized[key]]);
   }
 
@@ -332,7 +463,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   }
 
   const addMissingMetadata = (block) => {
-    const lines = block.split(/\r?\n/).filter((line) => !/^(author|license|source|source_repo|source_path|source_ref|upstream|upstream_name|version):/.test(line));
+    const lines = block.split(/\r?\n/).filter((line) => !/^\s*(author|license|source|source_repo|source_path|source_url|source_ref|upstream|upstream_repo|upstream_ref|upstream_path|upstream_name|version):/.test(line));
     let updatedBlock = lines.join('\n').trimEnd();
     const packagedNamePattern = /^name:\s*.*$/m;
     if (packagedNamePattern.test(updatedBlock)) {
@@ -358,7 +489,7 @@ function updateSkillMetadata(destSkillMd, entry) {
       return updatedBlock;
     }
     for (const [key, value] of metadata) {
-      const keyPattern = new RegExp(`^\\s{2}${key}:`, 'm');
+      const keyPattern = new RegExp(`^\\s+${key}:`, 'm');
       if (!keyPattern.test(updatedBlock)) {
         updatedBlock += `\n  ${key}: ${value}`;
       }
@@ -406,23 +537,57 @@ function syncSkills(options) {
     }
     seenNames.add(normalized.name);
 
-    const sourceRoot = sourceRoots.get(normalized.source_repo) || resolveSourceRoot(normalized.source_repo);
+    const sourceRoot = sourceRoots.get(normalized.source_repo) || resolveSourceRoot(normalized, options);
     sourceRoots.set(normalized.source_repo, sourceRoot);
 
-    const sourcePath = path.resolve(sourceRoot, normalized.source_path);
-    const sourceDir = path.dirname(sourcePath);
-    const sourceDirRel = path.posix.dirname(normalized.source_path.replace(/\\/g, '/'));
+    const pinnedRepo = normalized.upstream_repo;
+    const pinnedRef = normalized.upstream_ref || (
+      !pinnedRepo || pinnedRepo === normalized.source_repo ? normalized.source_ref : null
+    );
+    let extractionRoot = sourceRoot;
+    let extractionRef = null;
+    if (pinnedRepo && pinnedRepo !== normalized.source_repo) {
+      try {
+        extractionRoot = resolveSourceRoot(
+          { ...normalized, source_repo: pinnedRepo, source_url: pinnedRepo },
+          { ...options, clone: options.clone && isCloneableRepositoryUrl(pinnedRepo) }
+        );
+        extractionRef = pinnedRef;
+      } catch (error) {
+        if (isCloneableRepositoryUrl(pinnedRepo)) throw error;
+      }
+    }
+    if (extractionRef) {
+      fetchSourceRef(extractionRoot, extractionRef, options);
+      try {
+        const pinnedPath = (normalized.upstream_path || normalized.source_path).replace(/\\/g, '/');
+        if (!runGit(extractionRoot, ['ls-tree', '-r', '--name-only', extractionRef, '--', pinnedPath]).trim()) {
+          extractionRoot = sourceRoot;
+          extractionRef = null;
+        }
+      } catch (error) {
+        extractionRoot = sourceRoot;
+        extractionRef = null;
+      }
+    }
 
-    if (!normalized.source_ref) {
+    const extractionPath = extractionRef
+      ? (normalized.upstream_path || normalized.source_path)
+      : normalized.source_path;
+    const sourcePath = path.resolve(extractionRoot, extractionPath);
+    const sourceDir = path.dirname(sourcePath);
+    const sourceDirRel = path.posix.dirname(extractionPath.replace(/\\/g, '/'));
+
+    if (!extractionRef) {
       validateSourceSkill(normalized.name, sourcePath);
     }
 
     resolvedSkills.push({
       name: normalized.name,
       sourceDir,
-      sourceRoot,
+      sourceRoot: extractionRoot,
       sourceDirRel,
-      sourceRef: normalized.source_ref || null,
+      sourceRef: extractionRef,
       upstreamName: normalized.upstream_name || null
     });
   }
@@ -434,11 +599,10 @@ function syncSkills(options) {
 
     if (skill.sourceRef) {
       if (mode === 'symlink') {
-        process.stderr.write(
-          `Warning: symlink mode is unavailable for git-pinned skill "${skill.name}"; falling back to copy mode.\n`
-        );
+        const kind = skill.upstreamName ? 'aliased' : 'git-pinned';
+        process.stderr.write(`Warning: symlink mode is unavailable for ${kind} skill "${skill.name}"; falling back to copy mode.\n`);
       }
-      extractGitSkill(skill.sourceRoot, skill.sourceRef, skill.sourceDirRel, destDir);
+      extractGitSkill(skill.sourceRoot, skill.sourceRef, skill.sourceDirRel, destDir, skill.name);
     } else if (mode === 'symlink' && skill.upstreamName) {
       process.stderr.write(
         `Warning: symlink mode is unavailable for aliased skill "${skill.name}"; falling back to copy mode.\n`
@@ -493,5 +657,6 @@ module.exports = {
   syncSkills,
   loadLockfile,
   resolveSourceRoot,
-  extractGitSkill
+  extractGitSkill,
+  updateSkillMetadata
 };

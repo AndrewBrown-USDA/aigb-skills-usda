@@ -5,6 +5,7 @@ const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SKILLS_DIR = path.join(REPO_ROOT, 'skills');
+const { normalizeMetadata } = require('./skill-metadata');
 
 function parseSimpleYamlFrontmatter(content) {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -53,18 +54,18 @@ function parseSimpleYamlFrontmatter(content) {
   return result;
 }
 
-function scanCuratedSkills() {
-  if (!fs.existsSync(SKILLS_DIR)) {
-    throw new Error(`Skills directory not found: ${SKILLS_DIR}`);
+function scanCuratedSkills(skillsDir = SKILLS_DIR) {
+  if (!fs.existsSync(skillsDir)) {
+    throw new Error(`Skills directory not found: ${skillsDir}`);
   }
 
-  const entries = fs.readdirSync(SKILLS_DIR, { withFileTypes: true });
+  const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
   const skills = [];
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     const skillName = entry.name;
-    const skillPath = path.join(SKILLS_DIR, skillName, 'SKILL.md');
+    const skillPath = path.join(skillsDir, skillName, 'SKILL.md');
     if (!fs.existsSync(skillPath)) continue;
 
     const content = fs.readFileSync(skillPath, 'utf8');
@@ -72,10 +73,11 @@ function scanCuratedSkills() {
 
     const name = fm.name || skillName;
     const metadata = fm.metadata || {};
-    const sourceRepo = metadata.source_repo || 'aigb-skills';
-    const sourcePath = metadata.source_path || `skills/${skillName}/SKILL.md`;
-    const sourceRef = metadata.source_ref;
-    const upstreamName = metadata.upstream_name;
+    const normalized = normalizeMetadata({
+      ...metadata,
+      source_repo: metadata.source_repo || 'aigb-skills',
+      source_path: metadata.source_path || `skills/${skillName}/SKILL.md`
+    });
     const author = metadata.author;
     const license = fm.license;
     const versionVal = metadata.version ? String(metadata.version).trim() : null;
@@ -88,11 +90,13 @@ function scanCuratedSkills() {
       name,
       ...(author ? { author } : {}),
       ...(license ? { license } : {}),
-      source_repo: sourceRepo,
-      source_path: sourcePath,
-      ...(sourceRef ? { source_ref: sourceRef } : {}),
-      ...(upstreamName ? { upstream_name: upstreamName } : {}),
-      ...(metadata.upstream ? { upstream: metadata.upstream } : {}),
+      source_repo: normalized.source_repo,
+      source_path: normalized.source_path,
+      source_url: normalized.source_url,
+      ...(normalized.upstream_name ? { upstream_name: normalized.upstream_name } : {}),
+      ...(normalized.upstream_ref ? { upstream_ref: normalized.upstream_ref } : {}),
+      ...(normalized.upstream_repo ? { upstream_repo: normalized.upstream_repo } : {}),
+      ...(normalized.upstream_path ? { upstream_path: normalized.upstream_path } : {}),
       version
     };
 
@@ -126,8 +130,8 @@ function printHelp() {
   ].join('\n') + '\n');
 }
 
-function buildLockfile() {
-  const skills = scanCuratedSkills();
+function buildLockfile(skillsDir = SKILLS_DIR) {
+  const skills = scanCuratedSkills(skillsDir);
   return {
     schema_version: 1,
     generated_by: 'scripts/mine-history.js',
@@ -164,4 +168,13 @@ function main() {
   process.stdout.write(json);
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  parseSimpleYamlFrontmatter,
+  scanCuratedSkills,
+  buildLockfile,
+  parseArgs
+};

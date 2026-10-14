@@ -31,6 +31,8 @@ function printHelp() {
     '  --target <path>         Target directory (default: ./skills)',
     '  --lockfile <path>       Path to catalog/skills.lock.json',
     '  --mode <copy|symlink>   Materialization mode (default: copy)',
+    '  --allow-network         Allow clone/fetch recovery for missing repositories or refs',
+    '  --no-clone              Compatibility alias for the local-only default',
     ''
   ].join('\n') + '\n');
 }
@@ -66,4 +68,3 @@ module.exports = {
   runCli,
   printHelp
 };
-

@@ -27,10 +27,11 @@ function runNode(args) {
   });
 }
 
-function runNodeResult(args) {
+function runNodeResult(args, env = process.env) {
   const result = spawnSync(process.execPath, args, {
     cwd: repoRoot,
-    encoding: 'utf8'
+    encoding: 'utf8',
+    env
   });
   return {
     status: result.status,
@@ -73,7 +74,8 @@ function assertGrillingContent(targetDir, requireAttribution = true) {
   const content = fs.readFileSync(grillingMd, 'utf8');
   assert.match(content, /Each question should be formatted like so:/);
   if (requireAttribution) {
-    assert.equal(parseFrontmatter(content).metadata.source_ref, 'v1.2.0');
+    const metadata = parseFrontmatter(content).metadata;
+    assert.equal(metadata.upstream_ref || metadata.source_ref, 'v1.2.0');
     assert.match(parseFrontmatter(content).metadata.author, /Matt Pocock/i);
   }
 }
@@ -96,6 +98,9 @@ function main() {
   assert.match(helpOutput, /Commands:/);
   assert.match(helpOutput, /skills/);
 
+  // 2a. Verify interval-ledger regression coverage
+  runNode(['skills/git-history-interval-study/scripts/interval_ledger-test.js']);
+
   // 3. Verify lockfile schema and curated skills
   const lockfile = readJson(lockfilePath);
   assert.equal(lockfile.schema_version, 1);
@@ -113,6 +118,7 @@ function main() {
     assert.equal(typeof entry.name, 'string');
     assert.equal(typeof entry.source_repo, 'string');
     assert.equal(typeof entry.source_path, 'string');
+    assert.equal(entry.source_url, 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
     assert.equal(entry.publishability, undefined);
     assert.equal(entry.provenance, undefined);
     assert.equal(entry.selection_status, undefined);
@@ -128,27 +134,29 @@ function main() {
     } else {
       assert.equal(entry.version.value, null, `missing version value must be null for ${entry.name}`);
     }
-    if (entry.upstream !== undefined) assert.match(entry.upstream, /^https?:\/\//);
+    if (entry.upstream_repo !== undefined) assert.match(entry.upstream_repo, /^https?:\/\//);
+    if (entry.upstream_path !== undefined) assert.equal(typeof entry.upstream_path, 'string');
   }
 
   const planFirst = lockfile.skills.find(s => s.name === 'plan-first');
   assert.ok(planFirst, 'plan-first must exist');
   assert.equal(planFirst.version.status, 'resolved');
   assert.equal(planFirst.version.value, '1.0');
-  assert.match(planFirst.upstream, /https:\/\/www\.reddit\.com\/r\/LocalLLaMA\/s\/w0G0mMp1js/);
+  assert.match(planFirst.upstream_repo, /https:\/\/www\.reddit\.com\/r\/LocalLLaMA\/s\/w0G0mMp1js/);
 
   const grilling = lockfile.skills.find(s => s.name === 'grilling');
   assert.ok(grilling, 'grilling must exist');
-  assert.equal(grilling.source_ref, 'v1.2.0');
-  assert.equal(grilling.upstream, 'https://github.com/mattpocock/skills');
+  assert.equal(grilling.upstream_ref, 'v1.2.0');
+  assert.equal(grilling.upstream_repo, 'https://github.com/mattpocock/skills');
 
   const tdd = lockfile.skills.find(s => s.name === 'tdd');
   assert.ok(tdd, 'tdd must exist');
   assert.match(tdd.author, /Matt Pocock/i);
   assert.equal(tdd.license, 'MIT');
-  assert.equal(tdd.source_repo, 'mattpocock-skills');
-  assert.equal(tdd.source_ref, 'v1.2.0');
-  assert.match(tdd.upstream, /github\.com\/mattpocock\/skills/);
+  assert.equal(tdd.source_repo, 'aigb-skills');
+  assert.equal(tdd.source_url, 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
+  assert.equal(tdd.upstream_ref, 'v1.2.0');
+  assert.match(tdd.upstream_repo, /github\.com\/mattpocock\/skills/);
 
   const applyFedOssLicense = lockfile.skills.find(s => s.name === 'apply-fed-oss-license');
   assert.ok(applyFedOssLicense, 'apply-fed-oss-license must exist');
@@ -156,7 +164,7 @@ function main() {
   assert.equal(applyFedOssLicense.version.value, '1.0.0');
 
   const expectedCount = lockfile.skills.length;
-  assert.equal(expectedCount, 27, 'lockfile must contain all 27 packaged skills');
+  assert.equal(expectedCount, 29, 'lockfile must contain all 29 packaged skills');
   const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools', 'argument-hint']);
   for (const skill of lockfile.skills) {
     const skillFile = path.join(repoRoot, 'skills', skill.name, 'SKILL.md');
@@ -164,8 +172,15 @@ function main() {
     assert.equal(parsed.fields.name, skill.name);
     assert.equal(typeof parsed.fields.description, 'string');
     assert.ok(parsed.metadata && typeof parsed.metadata === 'object');
-    for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream']) {
-      if (skill[key] !== undefined) assert.equal(parsed.metadata[key], skill[key], `${skill.name} metadata.${key}`);
+    for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream_repo', 'upstream_ref']) {
+      if (skill[key] !== undefined) {
+        const actual = key === 'upstream_repo'
+          ? (parsed.metadata.upstream_repo || parsed.metadata.upstream)
+          : key === 'upstream_ref'
+            ? (parsed.metadata.upstream_ref || parsed.metadata.source_ref)
+          : parsed.metadata[key];
+        assert.equal(actual, skill[key], `${skill.name} metadata.${key}`);
+      }
     }
     if (skill.version && skill.version.value !== null) {
       assert.equal(parsed.metadata.version, String(skill.version.value), `${skill.name} metadata.version`);
@@ -181,6 +196,7 @@ function main() {
   const cliSyncOutput = runNode([
     'bin/skills.js',
     'sync',
+    '--allow-network',
     '--mode',
     'copy',
     '--lockfile',
@@ -209,6 +225,7 @@ function main() {
   // 5. Test scripts/sync-skills.js (copy mode)
   const syncOutput = runNode([
     'scripts/sync-skills.js',
+    '--allow-network',
     '--mode',
     'copy',
     '--lockfile',
@@ -337,6 +354,7 @@ function main() {
   // 7. Test symlink mode for sync
   const symlinkResult = runNodeResult([
     'scripts/sync-skills.js',
+    '--allow-network',
     '--mode',
     'symlink',
     '--lockfile',
@@ -355,7 +373,7 @@ function main() {
   );
   assert.match(
     symlinkResult.stderr,
-    /symlink mode is unavailable for git-pinned skill "grilling"; falling back to copy mode/i
+    /symlink mode is unavailable for (?:git-pinned|aliased) skill ".+"; falling back to copy mode/i
   );
   assertSkillLayout(symlinkTarget, lockfile.skills);
   assertGrillingContent(symlinkTarget, false);
@@ -412,6 +430,8 @@ function main() {
   let syncErrorCaught = false;
   try {
     const invalidLockfilePath = path.join(scratchRoot, 'invalid.lock.json');
+    const missingSourceName = `missing-sync-fixture-${process.pid}`;
+    fs.rmSync(path.resolve(repoRoot, '..', missingSourceName), { recursive: true, force: true });
     fs.writeFileSync(
       invalidLockfilePath,
       JSON.stringify({
@@ -419,23 +439,42 @@ function main() {
         skills: [
           {
             name: 'fake-skill',
-            source_repo: 'non-existent-source-repo-xyz',
+            source_repo: missingSourceName,
             source_path: 'skills/fake-skill/SKILL.md',
+            source_url: 'https://github.com/AndrewBrown-USDA/aigb-skills.git',
+            upstream_repo: 'https://example.invalid/non-existent-source-repo-xyz.git',
             version: { status: 'resolved', value: '1.0.0' }
           }
         ]
       }, null, 2)
     );
-    runNode([
+    const defaultResult = runNodeResult([
       'scripts/sync-skills.js',
       '--lockfile',
       invalidLockfilePath,
       '--target',
       path.join(scratchRoot, 'invalid-target')
     ]);
+    assert.equal(defaultResult.status, 1);
+    assert.match(defaultResult.stderr, /Automatic cloning and fetching are disabled by default/i);
+
+    const optInResult = runNodeResult([
+      'scripts/sync-skills.js',
+      '--allow-network',
+      '--lockfile',
+      invalidLockfilePath,
+      '--target',
+      path.join(scratchRoot, 'network-target')
+    ]);
+    assert.equal(optInResult.status, 1);
+    assert.match(optInResult.stderr, /Failed to clone canonical source repository|Skill source directory not found/i);
+    assert.doesNotMatch(optInResult.stdout, /^Synced /m);
+    syncErrorCaught = true;
+    assert.match(defaultResult.stderr, /Maintainer sync error/i);
   } catch (err) {
     syncErrorCaught = true;
-    assert.match(err.stderr || err.message, /Maintainer sync error/i);
+    assert.match(err.stderr || err.message, /Maintainer sync error|Skill source directory not found/i);
+    assert.match(err.stderr || err.message, /Automatic cloning and fetching are disabled by default/i);
   }
   assert.ok(syncErrorCaught, 'Sync must fail with clear maintainer error on missing source repos');
 

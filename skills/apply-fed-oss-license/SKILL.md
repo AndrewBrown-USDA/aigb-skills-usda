@@ -99,24 +99,20 @@ the terms of the MIT License above apply.
 ### R Packages (CRAN / Bioconductor)
 R package tooling (`R CMD check`, CRAN automated parsers) expects strict formatting. A raw `LICENSE.md` alone is insufficient if the `DESCRIPTION` specifies `file LICENSE`.
 
-1. **Update DESCRIPTION**:
-   Set the `License` field to:
+1. **Update DESCRIPTION**: Set the `License` field to:
    ```dcf
    License: MIT + file LICENSE
    ```
 
-2. **Generate Top-Level LICENSE File**:
-   CRAN requires this file to contain only two specific key-value lines (`YEAR` and `COPYRIGHT HOLDER`). Do not put full markdown or narrative prose in this exact file:
+2. **Generate Top-Level LICENSE File**: CRAN requires this file to contain only two specific key-value lines (`YEAR` and `COPYRIGHT HOLDER`). Do not put full markdown or narrative prose in this exact file:
    ```text
    YEAR: [YEAR]
    COPYRIGHT HOLDER: U.S. Federal Government (in countries where recognized), package contributors
    ```
 
-3. **Retain Full Text in LICENSE.md or LICENSE.note**:
-   Leave `LICENSE.md` (from Step 2) in the repository root or provide a `LICENSE.note` so developers and package inspectors have access to the complete MIT text and Section 105 rider.
+3. **Retain Full Text in LICENSE.md or LICENSE.note**: Leave `LICENSE.md` (from Step 2) in the repository root or provide a `LICENSE.note` so developers and package inspectors have access to the complete MIT text and Section 105 rider.
 
-4. **Add to .Rbuildignore**:
-   Ensure markdown-only artifacts do not trigger build warnings during `R CMD check`:
+4. **Add to .Rbuildignore**: Ensure markdown-only artifacts do not trigger build warnings during `R CMD check`:
    ```regex
    ^INTENT\.md$
    ^LICENSE\.md$

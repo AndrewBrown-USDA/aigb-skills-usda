@@ -8,6 +8,7 @@ const { spawnSync } = require('node:child_process');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_LOCKFILE = path.join(REPO_ROOT, 'catalog', 'skills.lock.json');
 const DEFAULT_SKILLS_DIR = path.join(REPO_ROOT, 'skills');
+const { normalizeMetadata, validateMetadata } = require('./skill-metadata');
 
 function parseArgs(argv) {
   const options = {
@@ -135,6 +136,13 @@ function findLocalReferences(body, skillDir) {
 }
 
 function validateSkill(entry, skillsDir, results) {
+  const metadataValidation = validateMetadata({
+    ...entry,
+    ...(entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {})
+  });
+  if (!metadataValidation.valid) {
+    addResult(results, entry.name, 'metadata', 'failed', metadataValidation.errors.join('; '));
+  }
   const skillDir = path.join(skillsDir, entry.name);
   const skillPath = path.join(skillDir, 'SKILL.md');
 
@@ -170,10 +178,31 @@ function validateSkill(entry, skillsDir, results) {
   if (customTopLevel.length) {
     addResult(results, entry.name, 'metadata', 'failed', `Custom top-level metadata keys are not allowed: ${customTopLevel.join(', ')}`);
   }
-  const metadataFields = ['author', 'source_repo', 'source_path', 'source_ref', 'upstream', 'upstream_name'];
+  const normalizedEntry = normalizeMetadata(entry);
+  const metadataFields = ['author', 'authors', 'source_repo', 'source_path', 'source_url', 'source_ref', 'upstream', 'upstream_name', 'upstream_repo', 'upstream_ref', 'upstream_path'];
   for (const key of metadataFields) {
-    if (entry[key] !== undefined && frontmatter.metadata[key] !== entry[key]) {
-      addResult(results, entry.name, 'metadata', 'failed', `Frontmatter metadata.${key} does not match catalog entry`);
+    const catalogMetadata = entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {};
+    const catalogValue = entry[key] !== undefined ? entry[key] : catalogMetadata[key];
+    const expected = key === 'source_ref'
+      ? (entry.source_ref !== undefined || catalogMetadata.source_ref !== undefined ? normalizedEntry.upstream_ref : undefined)
+      : key === 'source_url'
+        ? (catalogValue !== undefined && catalogValue !== normalizeMetadata({ source_repo: entry.source_repo }).source_url
+          ? catalogValue
+          : undefined)
+        : (catalogValue !== undefined ? normalizedEntry[key] : undefined);
+    const actual = key === 'source_ref' || key === 'upstream_ref'
+      ? (frontmatter.metadata.upstream_ref || frontmatter.metadata.source_ref)
+      : key === 'upstream_repo'
+        ? (frontmatter.metadata.upstream_repo || frontmatter.metadata.upstream)
+        : key === 'source_url'
+          ? frontmatter.metadata.source_url
+        : frontmatter.metadata[key];
+    if (expected !== undefined && expected !== null) {
+      if (actual === undefined || actual === null || actual === '') {
+        addResult(results, entry.name, 'metadata', 'failed', `Frontmatter metadata.${key} is required by catalog entry`);
+      } else if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+        addResult(results, entry.name, 'metadata', 'failed', `Frontmatter metadata.${key} does not match catalog entry`);
+      }
     }
   }
   if (entry.version && entry.version.value !== null && frontmatter.metadata.version !== String(entry.version.value)) {
@@ -210,7 +239,8 @@ function runBehavioralChecks(skillsDir, results, repositoryRoot = REPO_ROOT) {
       addResult(results, skill, 'behavior', 'failed', `Missing bundled check: ${relativeScript}`);
       continue;
     }
-    const result = spawnSync('python', [scriptPath], { cwd: REPO_ROOT, encoding: 'utf8' });
+    const pythonBin = selectPython();
+    const result = spawnSync(pythonBin, [scriptPath], { cwd: REPO_ROOT, encoding: 'utf8' });
     if (result.error || result.status !== 0) {
       addResult(
         results,
@@ -223,6 +253,31 @@ function runBehavioralChecks(skillsDir, results, repositoryRoot = REPO_ROOT) {
       addResult(results, skill, 'behavior', 'passed', relativeScript);
     }
   }
+}
+
+function selectPython({
+  env = process.env,
+  platform = process.platform,
+  runner = spawnSync
+} = {}) {
+  if (env.PYTHON) {
+    return env.PYTHON;
+  }
+
+  const candidates = platform === 'win32'
+    ? ['python', 'python3', 'py']
+    : ['python', 'python3'];
+  for (const candidate of candidates) {
+    const probe = runner(candidate, ['--version'], {
+      stdio: 'ignore',
+      windowsHide: platform === 'win32'
+    });
+    if (!probe.error && probe.status === 0) {
+      return candidate;
+    }
+  }
+
+  return 'python';
 }
 
 function writeReport(reportPath, report) {
@@ -271,4 +326,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { main, parseArgs, parseFrontmatter, findLocalReferences, runBehavioralChecks };
+module.exports = { main, parseArgs, parseFrontmatter, findLocalReferences, runBehavioralChecks, selectPython };
