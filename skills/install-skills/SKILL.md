@@ -97,7 +97,7 @@ bash skills/install-skills/scripts/install.sh --target-path ~/my-custom-skills -
    ```bash
    bash skills/install-skills/scripts/install.sh --target claude --all --symlink
    ```
-This creates entries in `~/.claude/skills/` that point back to the repo.
+   This creates entries in `~/.claude/skills/` that point back to the repo.
 
 4. **Verify installation** Check that skill directories appeared in `~/.claude/skills/`:
    ```bash
