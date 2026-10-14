@@ -21,7 +21,7 @@
 |---|---:|---|---|
 | 8.1 Metadata and upstream sync correctness | 1 | done | — |
 | 8.2 Interval-ledger contract and failure semantics | 2 | done | 8.1 |
-| 8.3 Validator portability and skill-format corrections | 3 | pending | 8.1, 8.2 |
+| 8.3 Validator portability and skill-format corrections | 3 | done | 8.1, 8.2 |
 | 8.4 Regression wiring and final integration gates | 4 | pending | 8.3 |
 
 ## Task reports
@@ -49,3 +49,10 @@
 - Tests: direct interval regression passed; argument, mainline, failure, rename/copy, and output-schema assertions passed.
 - Verification: `git diff --check` passed; no metadata, catalog, package, or state production files changed by the task.
 - Deviations: none.
+
+## 8.3
+- Status: implemented and targeted acceptance passed.
+- Changed files: `scripts/validate-skills.js`, new `scripts/validate-skills-format-test.js`, and quoted YAML description in `skills/caveman/SKILL.md`.
+- Tests: dedicated format test, `npm run test:validate`, and `npm run validate:skills` passed; packaged validation reported 29 skills and 31 checks.
+- Verification: `git diff --check` passed; Markdown indentation was confirmed unchanged after review.
+- Deviations: initial format test created a missing `.scratch` directory; fixture setup was corrected before the passing rerun.
