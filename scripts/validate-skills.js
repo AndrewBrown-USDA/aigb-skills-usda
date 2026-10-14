@@ -8,6 +8,7 @@ const { spawnSync } = require('node:child_process');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_LOCKFILE = path.join(REPO_ROOT, 'catalog', 'skills.lock.json');
 const DEFAULT_SKILLS_DIR = path.join(REPO_ROOT, 'skills');
+const { normalizeMetadata, validateMetadata } = require('./skill-metadata');
 
 function parseArgs(argv) {
   const options = {
@@ -135,6 +136,13 @@ function findLocalReferences(body, skillDir) {
 }
 
 function validateSkill(entry, skillsDir, results) {
+  const metadataValidation = validateMetadata({
+    ...entry,
+    ...(entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {})
+  });
+  if (!metadataValidation.valid) {
+    addResult(results, entry.name, 'metadata', 'failed', metadataValidation.errors.join('; '));
+  }
   const skillDir = path.join(skillsDir, entry.name);
   const skillPath = path.join(skillDir, 'SKILL.md');
 
@@ -170,9 +178,16 @@ function validateSkill(entry, skillsDir, results) {
   if (customTopLevel.length) {
     addResult(results, entry.name, 'metadata', 'failed', `Custom top-level metadata keys are not allowed: ${customTopLevel.join(', ')}`);
   }
-  const metadataFields = ['author', 'source_repo', 'source_path', 'source_ref', 'upstream', 'upstream_name'];
+  const normalizedEntry = normalizeMetadata(entry);
+  const metadataFields = ['author', 'source_repo', 'source_path', 'source_ref', 'upstream', 'upstream_name', 'upstream_repo', 'upstream_ref'];
   for (const key of metadataFields) {
-    if (entry[key] !== undefined && frontmatter.metadata[key] !== entry[key]) {
+    const expected = key === 'source_ref' ? normalizedEntry.upstream_ref : normalizedEntry[key];
+    const actual = key === 'source_ref' || key === 'upstream_ref'
+      ? (frontmatter.metadata.upstream_ref || frontmatter.metadata.source_ref)
+      : key === 'upstream_repo'
+        ? (frontmatter.metadata.upstream_repo || frontmatter.metadata.upstream)
+        : frontmatter.metadata[key];
+    if (expected !== undefined && expected !== null && actual !== expected) {
       addResult(results, entry.name, 'metadata', 'failed', `Frontmatter metadata.${key} does not match catalog entry`);
     }
   }

@@ -8,6 +8,7 @@ const { execFileSync } = require('node:child_process');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_LOCKFILE = path.join(REPO_ROOT, 'catalog', 'skills.lock.json');
 const DEFAULT_TARGET_DIR = path.join(REPO_ROOT, 'skills');
+const { normalizeMetadata, validateMetadata } = require('./skill-metadata');
 
 function printHelp() {
   process.stdout.write([
@@ -159,10 +160,17 @@ function validateEntry(entry) {
     throw new Error('Each lockfile entry must include a non-empty name');
   }
 
-  const metadata = entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {};
-  const sourceRepo = metadata.source_repo || entry.source_repo;
-  const sourcePath = metadata.source_path || entry.source_path;
-  const sourceUrl = metadata.source_url || entry.source_url;
+  const metadata = normalizeMetadata({
+    ...(entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {}),
+    ...entry
+  });
+  const validation = validateMetadata(metadata);
+  if (!validation.valid) throw new Error(`Skill ${entry.name} metadata: ${validation.errors.join('; ')}`);
+  const { sourceRepo, sourcePath, sourceUrl } = {
+    sourceRepo: metadata.source_repo,
+    sourcePath: metadata.source_path,
+    sourceUrl: metadata.source_url
+  };
 
   if (typeof sourceRepo !== 'string' || sourceRepo.length === 0) {
     throw new Error(`Skill ${entry.name} is missing source_repo`);
@@ -180,16 +188,21 @@ function validateEntry(entry) {
 function normalizedEntry(entry) {
   const metadata = entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {};
   const version = metadata.version || entry.version;
-  return {
+  const normalized = normalizeMetadata({
     ...entry,
     ...metadata,
     source_repo: metadata.source_repo || entry.source_repo,
     source_path: metadata.source_path || entry.source_path,
     source_url: metadata.source_url || entry.source_url,
+    upstream_repo: metadata.upstream_repo || entry.upstream_repo || entry.upstream,
+    upstream_ref: metadata.upstream_ref || entry.upstream_ref || entry.source_ref
+  });
+  return {
+    ...entry,
+    ...metadata,
+    ...normalized,
     upstream_name: metadata.upstream_name || entry.upstream_name,
     source_ref: metadata.source_ref || entry.source_ref,
-    upstream_repo: metadata.upstream_repo || entry.upstream_repo || entry.upstream,
-    upstream_ref: metadata.upstream_ref || entry.upstream_ref,
     version: version && typeof version === 'object' ? version.value : version
   };
 }
@@ -487,24 +500,29 @@ function syncSkills(options) {
     const sourceRoot = sourceRoots.get(normalized.source_repo) || resolveSourceRoot(normalized, options);
     sourceRoots.set(normalized.source_repo, sourceRoot);
 
-    if (normalized.source_ref) {
-      fetchSourceRef(sourceRoot, normalized.source_ref);
+    const pinnedRef = normalized.upstream_ref;
+    const pinnedRepo = normalized.upstream_repo;
+    const extractionRoot = pinnedRepo && pinnedRepo !== normalized.source_repo
+      ? resolveSourceRoot({ ...normalized, source_repo: pinnedRepo, source_url: pinnedRepo }, options)
+      : sourceRoot;
+    if (pinnedRef) {
+      fetchSourceRef(extractionRoot, pinnedRef);
     }
 
-    const sourcePath = path.resolve(sourceRoot, normalized.source_path);
+    const sourcePath = path.resolve(extractionRoot, normalized.source_path);
     const sourceDir = path.dirname(sourcePath);
     const sourceDirRel = path.posix.dirname(normalized.source_path.replace(/\\/g, '/'));
 
-    if (!normalized.source_ref) {
+    if (!pinnedRef) {
       validateSourceSkill(normalized.name, sourcePath);
     }
 
     resolvedSkills.push({
       name: normalized.name,
       sourceDir,
-      sourceRoot,
+      sourceRoot: extractionRoot,
       sourceDirRel,
-      sourceRef: normalized.source_ref || null,
+      sourceRef: pinnedRef || null,
       upstreamName: normalized.upstream_name || null
     });
   }

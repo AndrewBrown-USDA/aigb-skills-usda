@@ -5,6 +5,7 @@ const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SKILLS_DIR = path.join(REPO_ROOT, 'skills');
+const { normalizeMetadata } = require('./skill-metadata');
 
 function parseSimpleYamlFrontmatter(content) {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -72,11 +73,11 @@ function scanCuratedSkills(skillsDir = SKILLS_DIR) {
 
     const name = fm.name || skillName;
     const metadata = fm.metadata || {};
-    const sourceRepo = metadata.source_repo || 'aigb-skills';
-    const sourcePath = metadata.source_path || `skills/${skillName}/SKILL.md`;
-    const sourceRef = metadata.upstream_ref || metadata.source_ref;
-    const upstreamName = metadata.upstream_name;
-    const upstreamRepo = metadata.upstream_repo || metadata.upstream;
+    const normalized = normalizeMetadata({
+      ...metadata,
+      source_repo: metadata.source_repo || 'aigb-skills',
+      source_path: metadata.source_path || `skills/${skillName}/SKILL.md`
+    });
     const author = metadata.author;
     const license = fm.license;
     const versionVal = metadata.version ? String(metadata.version).trim() : null;
@@ -89,23 +90,16 @@ function scanCuratedSkills(skillsDir = SKILLS_DIR) {
       name,
       ...(author ? { author } : {}),
       ...(license ? { license } : {}),
-      source_repo: sourceRepo,
-      source_path: sourcePath,
-      source_url: canonicalSourceUrl(sourceRepo),
-      ...(upstreamName ? { upstream_name: upstreamName } : {}),
-      ...(sourceRepo === 'aigb-skills' && sourceRef ? { upstream_ref: sourceRef } : {}),
-      ...(sourceRepo === 'aigb-skills' && upstreamRepo ? { upstream_repo: upstreamRepo } : {}),
+      source_repo: normalized.source_repo,
+      source_path: normalized.source_path,
+      source_url: normalized.source_url,
+      ...(normalized.upstream_name ? { upstream_name: normalized.upstream_name } : {}),
+      ...(normalized.upstream_ref ? { upstream_ref: normalized.upstream_ref } : {}),
+      ...(normalized.upstream_repo ? { upstream_repo: normalized.upstream_repo } : {}),
       version
     };
 
     skills.push(entryObj);
-  }
-
-  function canonicalSourceUrl(sourceRepo) {
-    const sourceUrls = {
-      'aigb-skills': 'https://github.com/AndrewBrown-USDA/aigb-skills.git'
-    };
-    return sourceUrls[sourceRepo] || `https://github.com/${sourceRepo}.git`;
   }
 
   // Consistent ordering by skill name
