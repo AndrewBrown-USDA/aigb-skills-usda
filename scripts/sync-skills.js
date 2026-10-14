@@ -410,7 +410,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   }
 
   const addMissingMetadata = (block) => {
-    const lines = block.split(/\r?\n/).filter((line) => !/^(author|license|source|source_repo|source_path|source_url|source_ref|upstream|upstream_repo|upstream_ref|upstream_name|version):/.test(line));
+    const lines = block.split(/\r?\n/).filter((line) => !/^\s*(author|license|source|source_repo|source_path|source_url|source_ref|upstream|upstream_repo|upstream_ref|upstream_name|version):/.test(line));
     let updatedBlock = lines.join('\n').trimEnd();
     const packagedNamePattern = /^name:\s*.*$/m;
     if (packagedNamePattern.test(updatedBlock)) {
@@ -436,7 +436,7 @@ function updateSkillMetadata(destSkillMd, entry) {
       return updatedBlock;
     }
     for (const [key, value] of metadata) {
-      const keyPattern = new RegExp(`^\\s{2}${key}:`, 'm');
+      const keyPattern = new RegExp(`^\\s+${key}:`, 'm');
       if (!keyPattern.test(updatedBlock)) {
         updatedBlock += `\n  ${key}: ${value}`;
       }
@@ -575,5 +575,6 @@ module.exports = {
   syncSkills,
   loadLockfile,
   resolveSourceRoot,
-  extractGitSkill
+  extractGitSkill,
+  updateSkillMetadata
 };

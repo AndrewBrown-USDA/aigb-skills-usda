@@ -7,6 +7,8 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { runBehavioralChecks, selectPython } = require('./validate-skills');
+const { updateSkillMetadata } = require('./sync-skills');
+const { scanCuratedSkills } = require('./mine-history');
 
 const validator = path.join(__dirname, 'validate-skills.js');
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'aigb-skills-validator-'));
@@ -116,6 +118,73 @@ try {
     platform: 'win32',
     runner: () => ({ status: 1, error: new Error('not found') })
   }), 'python');
+
+  const metadataRoot = path.join(tempRoot, 'metadata-round-trip');
+  const metadataSkill = path.join(metadataRoot, 'skill', 'SKILL.md');
+  fs.mkdirSync(path.dirname(metadataSkill), { recursive: true });
+  fs.writeFileSync(metadataSkill, [
+    '---',
+    'name: old-name',
+    'metadata:',
+    '    source_ref: stale-ref',
+    '    upstream: stale-repo',
+    '    upstream_ref: stale-upstream-ref',
+    '    upstream_repo: stale-upstream-repo',
+    '    version: stale-version',
+    '---',
+    '# Example'
+  ].join('\n'), 'utf8');
+  updateSkillMetadata(metadataSkill, {
+    name: 'normalized-name',
+    source_repo: 'aigb-skills',
+    source_path: 'skills/example/SKILL.md',
+    source_url: 'https://github.com/AndrewBrown-USDA/aigb-skills.git',
+    source_ref: 'normalized-ref',
+    upstream_ref: 'normalized-upstream-ref',
+    upstream_repo: 'normalized-upstream-repo',
+    version: '1.0.0'
+  });
+  const normalizedContent = fs.readFileSync(metadataSkill, 'utf8');
+  assert.match(normalizedContent, /name: normalized-name/);
+  assert.match(normalizedContent, /source_ref: normalized-ref/);
+  assert.match(normalizedContent, /upstream_ref: normalized-upstream-ref/);
+  assert.match(normalizedContent, /upstream_repo: normalized-upstream-repo/);
+  assert.doesNotMatch(normalizedContent, /stale-(ref|repo|version)/);
+
+  const curatedRoot = path.join(tempRoot, 'curated-round-trip');
+  const curatedSkill = path.join(curatedRoot, 'new-keys', 'SKILL.md');
+  const legacySkill = path.join(curatedRoot, 'legacy-keys', 'SKILL.md');
+  fs.mkdirSync(path.dirname(curatedSkill), { recursive: true });
+  fs.mkdirSync(path.dirname(legacySkill), { recursive: true });
+  const frontmatter = (name, metadata) => [
+    '---',
+    `name: ${name}`,
+    'metadata:',
+    ...Object.entries(metadata).map(([key, value]) => `  ${key}: ${value}`),
+    '---',
+    '# Example'
+  ].join('\n');
+  fs.writeFileSync(curatedSkill, frontmatter('new-keys', {
+    source_repo: 'aigb-skills',
+    source_path: 'skills/new-keys/SKILL.md',
+    upstream_ref: 'new-ref',
+    upstream_repo: 'new-repo',
+    source_url: 'https://provenance.example.test/should-not-be-used'
+  }), 'utf8');
+  fs.writeFileSync(legacySkill, frontmatter('legacy-keys', {
+    source_repo: 'aigb-skills',
+    source_path: 'skills/legacy-keys/SKILL.md',
+    source_ref: 'legacy-ref',
+    upstream: 'legacy-repo'
+  }), 'utf8');
+  const mined = scanCuratedSkills(curatedRoot);
+  const minedNew = mined.find((entry) => entry.name === 'new-keys');
+  const minedLegacy = mined.find((entry) => entry.name === 'legacy-keys');
+  assert.equal(minedNew.upstream_ref, 'new-ref');
+  assert.equal(minedNew.upstream_repo, 'new-repo');
+  assert.equal(minedNew.source_url, 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
+  assert.equal(minedLegacy.upstream_ref, 'legacy-ref');
+  assert.equal(minedLegacy.upstream_repo, 'legacy-repo');
   console.log('Validator tests passed.');
 } finally {
   fs.rmSync(tempRoot, { recursive: true, force: true });

@@ -53,18 +53,18 @@ function parseSimpleYamlFrontmatter(content) {
   return result;
 }
 
-function scanCuratedSkills() {
-  if (!fs.existsSync(SKILLS_DIR)) {
-    throw new Error(`Skills directory not found: ${SKILLS_DIR}`);
+function scanCuratedSkills(skillsDir = SKILLS_DIR) {
+  if (!fs.existsSync(skillsDir)) {
+    throw new Error(`Skills directory not found: ${skillsDir}`);
   }
 
-  const entries = fs.readdirSync(SKILLS_DIR, { withFileTypes: true });
+  const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
   const skills = [];
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     const skillName = entry.name;
-    const skillPath = path.join(SKILLS_DIR, skillName, 'SKILL.md');
+    const skillPath = path.join(skillsDir, skillName, 'SKILL.md');
     if (!fs.existsSync(skillPath)) continue;
 
     const content = fs.readFileSync(skillPath, 'utf8');
@@ -74,9 +74,9 @@ function scanCuratedSkills() {
     const metadata = fm.metadata || {};
     const sourceRepo = metadata.source_repo || 'aigb-skills';
     const sourcePath = metadata.source_path || `skills/${skillName}/SKILL.md`;
-    const sourceRef = metadata.source_ref;
+    const sourceRef = metadata.upstream_ref || metadata.source_ref;
     const upstreamName = metadata.upstream_name;
-    const upstreamRepo = metadata.upstream;
+    const upstreamRepo = metadata.upstream_repo || metadata.upstream;
     const author = metadata.author;
     const license = fm.license;
     const versionVal = metadata.version ? String(metadata.version).trim() : null;
@@ -135,8 +135,8 @@ function printHelp() {
   ].join('\n') + '\n');
 }
 
-function buildLockfile() {
-  const skills = scanCuratedSkills();
+function buildLockfile(skillsDir = SKILLS_DIR) {
+  const skills = scanCuratedSkills(skillsDir);
   return {
     schema_version: 1,
     generated_by: 'scripts/mine-history.js',
@@ -173,4 +173,13 @@ function main() {
   process.stdout.write(json);
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  parseSimpleYamlFrontmatter,
+  scanCuratedSkills,
+  buildLockfile,
+  parseArgs
+};
