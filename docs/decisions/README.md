@@ -11,3 +11,5 @@ Records are maintained in accordance with the [adr-distillation](../../skills/ad
 |---|---|---|---|---|---|---|
 | [0001](0001-record-architecture-decisions.md) | Record Architecture Decisions | Accepted | 2026-10-12 | - | - | Repository Baseline |
 | [0002](0002-package-bundled-skills-directly.md) | Package Bundled Skills Directly Without Network Sync | Accepted | 2026-10-12 | - | - | Offline Agent Distribution |
+| [0003](0003-canonical-and-upstream-metadata.md) | Separate Canonical Skill Identity from Upstream Provenance | Accepted | 2026-10-14 | - | - | v0.3 Metadata Contract |
+| [0004](0004-maintainer-sync-boundary.md) | Keep Maintainer Synchronization Separate from Canonical Packaging | Accepted | 2026-10-14 | - | - | v0.3 Synchronization |
