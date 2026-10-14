@@ -179,15 +179,17 @@ function validateSkill(entry, skillsDir, results) {
     addResult(results, entry.name, 'metadata', 'failed', `Custom top-level metadata keys are not allowed: ${customTopLevel.join(', ')}`);
   }
   const normalizedEntry = normalizeMetadata(entry);
-  const metadataFields = ['author', 'source_repo', 'source_path', 'source_ref', 'upstream', 'upstream_name', 'upstream_repo', 'upstream_ref'];
+  const metadataFields = ['author', 'authors', 'source_repo', 'source_path', 'source_url', 'source_ref', 'upstream', 'upstream_name', 'upstream_repo', 'upstream_ref'];
   for (const key of metadataFields) {
     const expected = key === 'source_ref' ? normalizedEntry.upstream_ref : normalizedEntry[key];
     const actual = key === 'source_ref' || key === 'upstream_ref'
       ? (frontmatter.metadata.upstream_ref || frontmatter.metadata.source_ref)
       : key === 'upstream_repo'
         ? (frontmatter.metadata.upstream_repo || frontmatter.metadata.upstream)
+        : key === 'source_url'
+          ? frontmatter.metadata.source_url
         : frontmatter.metadata[key];
-    if (expected !== undefined && expected !== null && actual !== expected) {
+    if (expected !== undefined && expected !== null && actual !== undefined && JSON.stringify(actual) !== JSON.stringify(expected)) {
       addResult(results, entry.name, 'metadata', 'failed', `Frontmatter metadata.${key} does not match catalog entry`);
     }
   }
@@ -250,7 +252,10 @@ function selectPython({
     return env.PYTHON;
   }
 
-  for (const candidate of ['python', 'python3']) {
+  const candidates = platform === 'win32'
+    ? ['python', 'python3', 'py']
+    : ['python', 'python3'];
+  for (const candidate of candidates) {
     const probe = runner(candidate, ['--version'], {
       stdio: 'ignore',
       windowsHide: platform === 'win32'
