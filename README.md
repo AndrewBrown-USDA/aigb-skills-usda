@@ -96,9 +96,16 @@ npx skills install --mode symlink --target ~/.agents/skills
 Synchronizes the `./skills` directory from upstream source repositories listed in `catalog/skills.lock.json`. Requires local checkouts of source repositories.
 
 ```bash
-# Maintainer sync
+# Maintainer sync (local checkouts only by default)
 npx skills sync --mode copy
 # or: make sync
+
+# Explicitly permit clone/fetch recovery when a local checkout or ref is missing
+npx skills sync --mode copy --allow-network
+
+`skills sync` never clones or fetches by default. `--no-clone` remains a
+compatibility alias for this local-only behavior. Use `--allow-network` only
+when intentionally permitting maintainer network recovery.
 ```
 
 ## Curated Skills & Attribution

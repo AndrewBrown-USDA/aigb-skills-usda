@@ -27,10 +27,11 @@ function runNode(args) {
   });
 }
 
-function runNodeResult(args) {
+function runNodeResult(args, env = process.env) {
   const result = spawnSync(process.execPath, args, {
     cwd: repoRoot,
-    encoding: 'utf8'
+    encoding: 'utf8',
+    env
   });
   return {
     status: result.status,
@@ -195,6 +196,7 @@ function main() {
   const cliSyncOutput = runNode([
     'bin/skills.js',
     'sync',
+    '--allow-network',
     '--mode',
     'copy',
     '--lockfile',
@@ -223,6 +225,7 @@ function main() {
   // 5. Test scripts/sync-skills.js (copy mode)
   const syncOutput = runNode([
     'scripts/sync-skills.js',
+    '--allow-network',
     '--mode',
     'copy',
     '--lockfile',
@@ -351,6 +354,7 @@ function main() {
   // 7. Test symlink mode for sync
   const symlinkResult = runNodeResult([
     'scripts/sync-skills.js',
+    '--allow-network',
     '--mode',
     'symlink',
     '--lockfile',
@@ -426,6 +430,8 @@ function main() {
   let syncErrorCaught = false;
   try {
     const invalidLockfilePath = path.join(scratchRoot, 'invalid.lock.json');
+    const missingSourceName = `missing-sync-fixture-${process.pid}`;
+    fs.rmSync(path.resolve(repoRoot, '..', missingSourceName), { recursive: true, force: true });
     fs.writeFileSync(
       invalidLockfilePath,
       JSON.stringify({
@@ -433,7 +439,7 @@ function main() {
         skills: [
           {
             name: 'fake-skill',
-            source_repo: 'non-existent-source-repo-xyz',
+            source_repo: missingSourceName,
             source_path: 'skills/fake-skill/SKILL.md',
             source_url: 'https://github.com/AndrewBrown-USDA/aigb-skills.git',
             upstream_repo: 'https://example.invalid/non-existent-source-repo-xyz.git',
@@ -442,18 +448,33 @@ function main() {
         ]
       }, null, 2)
     );
-    runNode([
+    const defaultResult = runNodeResult([
       'scripts/sync-skills.js',
-      '--no-clone',
       '--lockfile',
       invalidLockfilePath,
       '--target',
       path.join(scratchRoot, 'invalid-target')
     ]);
+    assert.equal(defaultResult.status, 1);
+    assert.match(defaultResult.stderr, /Automatic cloning and fetching are disabled by default/i);
+
+    const optInResult = runNodeResult([
+      'scripts/sync-skills.js',
+      '--allow-network',
+      '--lockfile',
+      invalidLockfilePath,
+      '--target',
+      path.join(scratchRoot, 'network-target')
+    ]);
+    assert.equal(optInResult.status, 1);
+    assert.match(optInResult.stderr, /Failed to clone canonical source repository|Skill source directory not found/i);
+    assert.doesNotMatch(optInResult.stdout, /^Synced /m);
+    syncErrorCaught = true;
+    assert.match(defaultResult.stderr, /Maintainer sync error/i);
   } catch (err) {
     syncErrorCaught = true;
-    assert.match(err.stderr || err.message, /Maintainer sync error/i);
-    assert.match(err.stderr || err.message, /Automatic cloning is disabled by --no-clone/i);
+    assert.match(err.stderr || err.message, /Maintainer sync error|Skill source directory not found/i);
+    assert.match(err.stderr || err.message, /Automatic cloning and fetching are disabled by default/i);
   }
   assert.ok(syncErrorCaught, 'Sync must fail with clear maintainer error on missing source repos');
 

@@ -18,7 +18,8 @@ function printHelp() {
     '  --mode <copy|symlink>   Materialization mode (default: copy)',
     '  --lockfile <path>       Path to catalog/skills.lock.json',
     '  --target <path>         Destination directory (default: ./skills)',
-    '  --no-clone              Do not auto-clone missing upstream source repositories',
+    '  --allow-network         Allow clone/fetch recovery for missing repositories or refs',
+    '  --no-clone              Compatibility alias for the local-only default',
     '  --help, -h              Show this help message',
     ''
   ].join('\n'));
@@ -37,7 +38,8 @@ function parseArgs(argv) {
     mode: 'copy',
     lockfile: DEFAULT_LOCKFILE,
     target: DEFAULT_TARGET_DIR,
-    clone: true,
+    clone: false,
+    allowNetwork: false,
     help: false
   };
 
@@ -59,6 +61,10 @@ function parseArgs(argv) {
         break;
       case '--no-clone':
         options.clone = false;
+        break;
+      case '--allow-network':
+        options.clone = true;
+        options.allowNetwork = true;
         break;
       case '--help':
       case '-h':
@@ -143,9 +149,9 @@ function resolveSourceRoot(entry, options) {
     }
   }
 
-  const cloneHint = options.clone
+  const cloneHint = options.allowNetwork
     ? 'No canonical source_url is available in the lockfile, so it cannot be cloned automatically. '
-    : 'Automatic cloning is disabled by --no-clone. ';
+    : 'Automatic cloning and fetching are disabled by default; use --allow-network to permit network recovery. ';
   throw new Error(
     `Maintainer sync error: Upstream source repository "${sourceRepo}" was not found (checked "${siblingCandidate}" and "${localCandidate}"). ` +
     cloneHint +
@@ -237,8 +243,14 @@ function validateSourceSkill(skillName, sourcePath) {
   }
 }
 
-function fetchSourceRef(sourceRoot, sourceRef) {
+function fetchSourceRef(sourceRoot, sourceRef, options = {}) {
   if (!sourceRef) return;
+  if (!options.allowNetwork) {
+    throw new Error(
+      `Unable to resolve git ref "${sourceRef}" in ${sourceRoot}: ` +
+      'Automatic fetching is disabled by default; use --allow-network to permit network recovery.'
+    );
+  }
   try {
     runGit(sourceRoot, ['rev-parse', '--verify', `${sourceRef}^{commit}`]);
     return;
@@ -542,7 +554,7 @@ function syncSkills(options) {
       }
     }
     if (extractionRef) {
-      fetchSourceRef(extractionRoot, extractionRef);
+      fetchSourceRef(extractionRoot, extractionRef, options);
       try {
         const pinnedPath = (normalized.upstream_path || normalized.source_path).replace(/\\/g, '/');
         if (!runGit(extractionRoot, ['ls-tree', '-r', '--name-only', extractionRef, '--', pinnedPath]).trim()) {

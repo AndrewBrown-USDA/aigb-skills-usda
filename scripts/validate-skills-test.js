@@ -7,7 +7,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { runBehavioralChecks, selectPython } = require('./validate-skills');
-const { resolveSourceRoot, updateSkillMetadata } = require('./sync-skills');
+const { parseArgs, resolveSourceRoot, updateSkillMetadata } = require('./sync-skills');
 const { scanCuratedSkills } = require('./mine-history');
 const {
   deriveSourceUrl,
@@ -19,6 +19,9 @@ const validator = path.join(__dirname, 'validate-skills.js');
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'aigb-skills-validator-'));
 
 try {
+  assert.equal(parseArgs([]).allowNetwork, false);
+  assert.equal(parseArgs(['--no-clone']).allowNetwork, false);
+  assert.equal(parseArgs(['--allow-network']).allowNetwork, true);
   assert.equal(deriveSourceUrl('aigb-skills'), 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
   assert.equal(deriveSourceUrl('unknown-repo'), null);
   assert.deepEqual(normalizeMetadata({
