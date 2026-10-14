@@ -112,6 +112,40 @@ try {
   syncSkills({ lockfile: pinnedLock, target: pinnedTarget, mode: 'copy', clone: false, allowNetwork: false });
   assert.ok(fs.existsSync(path.join(pinnedTarget, 'pinned', 'SKILL.md')));
 
+  for (const [label, source_url] of [['omitted', undefined], ['null', null]]) {
+    const localOnlyLock = path.join(tempRoot, `local-only-${label}.lock.json`);
+    const localOnlyEntry = {
+      name: 'pinned',
+      source_repo: sourceRepo,
+      source_path: 'skills/pinned/SKILL.md'
+    };
+    if (source_url !== undefined) localOnlyEntry.source_url = source_url;
+    fs.writeFileSync(localOnlyLock, JSON.stringify({
+      schema_version: 1,
+      skills: [localOnlyEntry]
+    }), 'utf8');
+    const localOnlyTarget = path.join(tempRoot, `local-only-${label}-target`);
+    syncSkills({ lockfile: localOnlyLock, target: localOnlyTarget, mode: 'copy', clone: false, allowNetwork: false });
+    assert.ok(fs.existsSync(path.join(localOnlyTarget, 'pinned', 'SKILL.md')));
+  }
+
+  const malformedSourceUrlLock = path.join(tempRoot, 'malformed-source-url.lock.json');
+  fs.writeFileSync(malformedSourceUrlLock, JSON.stringify({
+    schema_version: 1,
+    skills: [{ name: 'pinned', source_repo: sourceRepo, source_path: 'skills/pinned/SKILL.md',
+      source_url: 'not-a-url' }]
+  }), 'utf8');
+  assert.throws(
+    () => syncSkills({
+      lockfile: malformedSourceUrlLock,
+      target: path.join(tempRoot, 'malformed-source-url-target'),
+      mode: 'copy',
+      clone: false,
+      allowNetwork: false
+    }),
+    /metadata:.*source_url/
+  );
+
   const missingUpstreamRepo = path.join(tempRoot, 'missing-upstream-repo');
   fs.mkdirSync(missingUpstreamRepo, { recursive: true });
   run(missingUpstreamRepo, ['init', '-q']);

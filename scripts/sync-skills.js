@@ -203,7 +203,8 @@ function validateEntry(entry) {
     throw new Error(`Skill ${entry.name} is missing source_path`);
   }
 
-  if (typeof sourceUrl !== 'string' || !/^https?:\/\//.test(sourceUrl)) {
+  if (sourceUrl !== null && sourceUrl !== undefined &&
+      (typeof sourceUrl !== 'string' || !/^https?:\/\//.test(sourceUrl))) {
     throw new Error(`Skill ${entry.name} is missing a valid canonical source_url`);
   }
 }
