@@ -218,7 +218,7 @@ function normalizedEntry(entry) {
     source_path: metadata.source_path || entry.source_path,
     source_url: metadata.source_url || entry.source_url,
     upstream_repo: metadata.upstream_repo || entry.upstream_repo || entry.upstream,
-    upstream_ref: metadata.upstream_ref || entry.upstream_ref || entry.source_ref,
+    upstream_ref: metadata.upstream_ref || entry.upstream_ref,
     upstream_path: metadata.upstream_path || entry.upstream_path
   });
   return {
@@ -245,17 +245,17 @@ function validateSourceSkill(skillName, sourcePath) {
 
 function fetchSourceRef(sourceRoot, sourceRef, options = {}) {
   if (!sourceRef) return;
-  if (!options.allowNetwork) {
-    throw new Error(
-      `Unable to resolve git ref "${sourceRef}" in ${sourceRoot}: ` +
-      'Automatic fetching is disabled by default; use --allow-network to permit network recovery.'
-    );
-  }
   try {
     runGit(sourceRoot, ['rev-parse', '--verify', `${sourceRef}^{commit}`]);
     return;
   } catch (error) {
     // Resolve locally before contacting the network.
+  }
+  if (!options.allowNetwork) {
+    throw new Error(
+      `Unable to resolve git ref "${sourceRef}" in ${sourceRoot}: ` +
+      'Automatic fetching is disabled by default; use --allow-network to permit network recovery.'
+    );
   }
   try {
     runGit(sourceRoot, ['fetch', '--tags', 'origin']);
@@ -448,10 +448,11 @@ function updateSkillMetadata(destSkillMd, entry) {
 
   const metadata = [];
   const license = normalized.license;
+  const formatMetadataValue = (value) => Array.isArray(value) ? JSON.stringify(value) : value;
   if (normalized.author) {
-    metadata.push(['author', normalized.author]);
+    metadata.push(['author', formatMetadataValue(normalized.author)]);
   }
-  if (normalized.authors) metadata.push(['authors', normalized.authors]);
+  if (normalized.authors) metadata.push(['authors', formatMetadataValue(normalized.authors)]);
   for (const key of ['source_repo', 'source_path', 'source_url', 'source_ref', 'upstream_repo', 'upstream_ref', 'upstream_path', 'upstream_name', 'version']) {
     if (normalized[key]) metadata.push([key, normalized[key]]);
   }
@@ -538,8 +539,10 @@ function syncSkills(options) {
     const sourceRoot = sourceRoots.get(normalized.source_repo) || resolveSourceRoot(normalized, options);
     sourceRoots.set(normalized.source_repo, sourceRoot);
 
-    const pinnedRef = normalized.upstream_ref;
     const pinnedRepo = normalized.upstream_repo;
+    const pinnedRef = normalized.upstream_ref || (
+      !pinnedRepo || pinnedRepo === normalized.source_repo ? normalized.source_ref : null
+    );
     let extractionRoot = sourceRoot;
     let extractionRef = null;
     if (pinnedRepo && pinnedRepo !== normalized.source_repo) {
