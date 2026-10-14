@@ -16,15 +16,15 @@ function writeFixture(root, metadata, frontmatterMetadata = metadata) {
   const skillsDir = path.join(root, 'skills');
   const skillDir = path.join(skillsDir, 'fixture');
   fs.mkdirSync(skillDir, { recursive: true });
+  const metadataLines = Object.entries(frontmatterMetadata)
+    .filter(([key]) => ['author', 'authors', 'source_repo', 'source_path', 'source_url', 'upstream_path'].includes(key))
+    .map(([key, value]) => `  ${key}: ${Array.isArray(value) ? JSON.stringify(value) : value}`);
   fs.writeFileSync(path.join(skillDir, 'SKILL.md'), [
     '---',
     'name: fixture',
     'description: Fixture skill',
     'metadata:',
-    `  author: ${frontmatterMetadata.author}`,
-    `  source_repo: ${frontmatterMetadata.source_repo}`,
-    `  source_path: ${frontmatterMetadata.source_path}`,
-    `  source_url: ${frontmatterMetadata.source_url}`,
+    ...metadataLines,
     '---',
     '',
     '# Fixture',
@@ -78,7 +78,8 @@ const validMetadata = {
   author: 'Example Author',
   source_repo: 'example-repo',
   source_path: 'skills/fixture/SKILL.md',
-  source_url: 'https://example.test/source'
+  source_url: 'https://example.test/source',
+  upstream_path: 'skills/fixture/SKILL.md'
 };
 const valid = runFixture(validMetadata);
 assert.equal(valid.exitCode, 0);
@@ -96,5 +97,31 @@ const urlMismatch = badUrl.report.checks.find((check) => check.details.includes(
 assert.equal(badUrl.exitCode, 1);
 assert.ok(urlMismatch);
 fs.rmSync(badUrl.root, { recursive: true, force: true });
+
+for (const field of ['source_url', 'author', 'upstream_path']) {
+  const missingMetadata = { ...validMetadata };
+  delete missingMetadata[field];
+  const missing = runFixture(validMetadata, missingMetadata);
+  assert.equal(missing.exitCode, 1);
+  assert.ok(missing.report.checks.some((check) => check.details.includes(`metadata.${field} is required`)));
+  fs.rmSync(missing.root, { recursive: true, force: true });
+}
+
+for (const field of ['source_url', 'author', 'upstream_path']) {
+  const mismatchMetadata = { ...validMetadata, [field]: `different-${field}` };
+  const mismatch = runFixture(validMetadata, mismatchMetadata);
+  assert.equal(mismatch.exitCode, 1);
+  assert.ok(mismatch.report.checks.some((check) => check.details.includes(`metadata.${field} does not match`)));
+  fs.rmSync(mismatch.root, { recursive: true, force: true });
+}
+
+const legacyMetadata = {
+  name: 'fixture',
+  source_repo: 'example-repo',
+  source_path: 'skills/fixture/SKILL.md'
+};
+const legacy = runFixture(legacyMetadata, legacyMetadata);
+assert.equal(legacy.exitCode, 0);
+fs.rmSync(legacy.root, { recursive: true, force: true });
 
 console.log('Validator format tests passed.');
