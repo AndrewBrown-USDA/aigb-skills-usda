@@ -19,7 +19,7 @@
 |---|---:|---|---|
 | 9.1.1 Local-only sync policy and clone-helper cleanup | 1 | done | — |
 | 9.2.1 Required frontmatter metadata validation | 2 | done | 9.1.1 |
-| 9.3.1 Interval CLI failure and schema regressions | 3 | pending | 9.2.1 |
+| 9.3.1 Interval CLI failure and schema regressions | 3 | done | 9.2.1 |
 | 9.4.1 Final integration gates | 4 | pending | 9.3.1 |
 
 ## Task reports
@@ -40,6 +40,13 @@
 - Tests: focused format tests, `npm run test:validate`, and `npm run validate:skills` passed (29 skills/31 checks).
 - Verification: `git diff --check` passed; no sync, smoke, catalog, package, skill, interval, or ADR files changed.
 - Deviations: none.
+
+## 9.3.1
+- Status: implemented and targeted acceptance passed.
+- Changed files: `skills/git-history-interval-study/scripts/interval_ledger.js` and `interval_ledger-test.js`.
+- Tests: CLI fixture regression passed; valid schema, rename/copy paths, invalid revisions, controlled `git log`/`git diff` failures, and artifact cleanup are covered.
+- Verification: `git diff --check` passed; `.scratch` fixtures were removed.
+- Deviations: used the smallest `INTERVAL_GIT_FAIL` seam because Windows executable lookup bypassed PATH stubs.
 
 ## Baseline details
 
