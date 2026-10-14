@@ -6,12 +6,12 @@
 - [x] `npm test` passed with expected missing-source maintainer diagnostic
 - [x] Direct interval-ledger regression passed
 - [x] ADRs 0002–0004 reviewed; plan complies
-- [ ] Task 9.1 targeted tests
-- [ ] Task 9.2 targeted tests
-- [ ] Task 9.3 targeted tests
-- [ ] Final serial suites
-- [ ] Final catalog reproducibility
-- [ ] Final diff check and clean worktree
+- [x] Task 9.1 targeted tests
+- [x] Task 9.2 targeted tests
+- [x] Task 9.3 targeted tests
+- [x] Final serial suites
+- [x] Final catalog reproducibility
+- [x] Final diff check and clean worktree
 
 ## Wave board
 
@@ -20,7 +20,7 @@
 | 9.1.1 Local-only sync policy and clone-helper cleanup | 1 | done | — |
 | 9.2.1 Required frontmatter metadata validation | 2 | done | 9.1.1 |
 | 9.3.1 Interval CLI failure and schema regressions | 3 | done | 9.2.1 |
-| 9.4.1 Final integration gates | 4 | pending | 9.3.1 |
+| 9.4.1 Final integration gates | 4 | done | 9.3.1 |
 
 ## Task reports
 
@@ -47,6 +47,14 @@
 - Tests: CLI fixture regression passed; valid schema, rename/copy paths, invalid revisions, controlled `git log`/`git diff` failures, and artifact cleanup are covered.
 - Verification: `git diff --check` passed; `.scratch` fixtures were removed.
 - Deviations: used the smallest `INTERVAL_GIT_FAIL` seam because Windows executable lookup bypassed PATH stubs.
+
+## 9.4.1
+- Status: complete; read-only verification passed.
+- Focused gates: format tests, validator tests, packaged validation, smoke, and interval CLI regression passed.
+- Packaged validation: 29 skills and 31 checks.
+- Catalog SHA-256 matched across two generations: `D43015DEA13C120D7F00B83F5D9C292AB927B1D8009DD2B449CFC703D4DF17D8`.
+- `git diff --check` passed; worktree clean after verification.
+- Confirmed findings: local-only sync, required modern metadata including `upstream_path`, and CLI failure/schema coverage all verified.
 
 ## Baseline details
 
