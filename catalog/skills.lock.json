@@ -47,6 +47,18 @@
       }
     },
     {
+      "name": "arcpy-migration",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/arcpy-migration/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
       "name": "caveman",
       "source_repo": "aigb-skills",
       "source_path": "skills/caveman/SKILL.md",
