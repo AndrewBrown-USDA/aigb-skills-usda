@@ -164,7 +164,7 @@ function main() {
   assert.equal(applyFedOssLicense.version.value, '1.0.0');
 
   const expectedCount = lockfile.skills.length;
-  assert.equal(expectedCount, 29, 'lockfile must contain all 29 packaged skills');
+  assert.equal(expectedCount, 30, 'lockfile must contain all 30 packaged skills');
   const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools', 'argument-hint']);
   for (const skill of lockfile.skills) {
     const skillFile = path.join(repoRoot, 'skills', skill.name, 'SKILL.md');

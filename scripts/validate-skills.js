@@ -255,6 +255,53 @@ function runBehavioralChecks(skillsDir, results, repositoryRoot = REPO_ROOT) {
   }
 }
 
+function runDocumentContractChecks(skillsDir, results) {
+  const contracts = {
+    'conventional-commits': [
+      '## Message Format',
+      '## Default Type Taxonomy',
+      '## Bodies and Footers',
+      'Refs: #123',
+      'Reviewed-by: Example User',
+      'Change-Id: Iabc123',
+      'BREAKING CHANGE: callers must pass an explicit format',
+      'Status: Valid | Invalid | Valid with project-specific concerns'
+    ],
+    'arcpy-migration': [
+      '## Phase gates',
+      '### Gate 1: Approve shared contracts',
+      '### Gate 2: Separate adapter and core',
+      '### Gate 4: Show behavior matches',
+      '### Gate 5: Release check',
+      '## Required artifacts'
+    ],
+    'goal-alignment': [
+      '## Traceability model',
+      '## Workflow',
+      '## Verdict behavior',
+      '**ALIGNED**',
+      '**PARTIALLY ALIGNED**',
+      '**MISALIGNED**',
+      '## Unresolved-decision rules',
+      'If execution can safely proceed on a bounded subset, mark that subset `PARTIALLY ALIGNED`.'
+    ]
+  };
+
+  for (const [skill, requiredSections] of Object.entries(contracts)) {
+    const skillPath = path.join(skillsDir, skill, 'SKILL.md');
+    if (!fs.existsSync(skillPath)) {
+      continue;
+    }
+    const content = fs.readFileSync(skillPath, 'utf8');
+    const missing = requiredSections.filter((section) => !content.includes(section));
+    if (missing.length > 0) {
+      addResult(results, skill, 'document-contract', 'failed', `Missing required content: ${missing.join('; ')}`);
+    } else {
+      addResult(results, skill, 'document-contract', 'passed', 'Required skill document contract satisfied');
+    }
+  }
+}
+
 function selectPython({
   env = process.env,
   platform = process.platform,
@@ -300,6 +347,7 @@ function main(argv) {
   for (const entry of lockfile.skills) {
     validateSkill(entry, options.skillsDir, results);
   }
+  runDocumentContractChecks(options.skillsDir, results);
   runBehavioralChecks(options.skillsDir, results);
 
   const report = {
@@ -326,4 +374,12 @@ if (require.main === module) {
   }
 }
 
-module.exports = { main, parseArgs, parseFrontmatter, findLocalReferences, runBehavioralChecks, selectPython };
+module.exports = {
+  main,
+  parseArgs,
+  parseFrontmatter,
+  findLocalReferences,
+  runBehavioralChecks,
+  runDocumentContractChecks,
+  selectPython
+};
