@@ -113,6 +113,7 @@ function main() {
   assert.ok(skillNames.includes('web-source-bundler'), 'web-source-bundler must be present in lockfile');
   assert.ok(skillNames.includes('grilling'), 'grilling must be present in lockfile');
   assert.ok(skillNames.includes('code-review-2axis'), 'code-review-2axis must be present in lockfile');
+  assert.ok(skillNames.includes('arcpy-migration'), 'arcpy-migration must be present in lockfile');
 
   for (const entry of lockfile.skills) {
     assert.equal(typeof entry.name, 'string');
@@ -163,8 +164,20 @@ function main() {
   assert.equal(applyFedOssLicense.version.status, 'resolved');
   assert.equal(applyFedOssLicense.version.value, '1.0.0');
 
-  const expectedCount = lockfile.skills.length;
-  assert.equal(expectedCount, 29, 'lockfile must contain all 29 packaged skills');
+  const packagedSkillNames = fs.readdirSync(path.join(repoRoot, 'skills'), { withFileTypes: true })
+    .filter(entry => entry.isDirectory())
+    .map(entry => entry.name)
+    .sort();
+  const catalogSkillNames = lockfile.skills.map(skill => skill.name).sort();
+  const expectedCount = packagedSkillNames.length;
+  assert.deepEqual(
+    catalogSkillNames,
+    packagedSkillNames,
+    'lockfile skills must exactly match packaged skill directories'
+  );
+  for (const skillName of ['conventional-commits', 'arcpy-migration', 'goal-alignment']) {
+    assert.ok(catalogSkillNames.includes(skillName), `${skillName} must exist in the catalog`);
+  }
   const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools', 'argument-hint']);
   for (const skill of lockfile.skills) {
     const skillFile = path.join(repoRoot, 'skills', skill.name, 'SKILL.md');

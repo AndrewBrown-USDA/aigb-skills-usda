@@ -1,0 +1,25 @@
+operation:
+  id: clip-raster
+  source_tool: arcpy.management.Clip
+  inputs:
+    - name: raster
+      type: raster
+      crs: required
+    - name: mask
+      type: polygon
+      crs: required
+  outputs:
+    - name: clipped_raster
+      type: GeoTIFF
+      crs: source-raster
+      naming: "{stem}_clipped.tif"
+  semantics:
+    reprojection: "Reproject mask to raster CRS before clipping"
+    nodata: "Preserve source NoData; record all-NoData output"
+    tolerance: null
+    deterministic: true
+  side_effects: []
+  unsupported_behavior: []
+  tests:
+    - mixed-crs-mask
+    - all-nodata-window
