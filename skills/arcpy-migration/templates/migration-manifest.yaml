@@ -1,0 +1,22 @@
+migration:
+  id: example-workflow-v1
+  source:
+    entrypoint: path/to/arcpy_script.py
+    arcgis_version: "3.x"
+    arcpy_version: "3.x"
+  target:
+    python: "3.12"
+    libraries: [geopandas, shapely, rasterio, pyproj, fiona]
+  operations:
+    - id: project-input
+      source_tool: arcpy.management.Project
+      replacement: pyproj/GeoPandas
+      status: supported
+  contracts:
+    input_crs_required: true
+    output_crs_required: true
+    vertical_units_required: false
+    nodata_required: true
+    deterministic_outputs: true
+  limitations:
+    - "Map-document insertion is not migrated"

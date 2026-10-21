@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { execFileSync } = require('node:child_process');
-const { runBehavioralChecks, selectPython } = require('./validate-skills');
+const { runBehavioralChecks, runDocumentContractChecks, selectPython } = require('./validate-skills');
 const { parseArgs, resolveSourceRoot, syncSkills, updateSkillMetadata } = require('./sync-skills');
 const { scanCuratedSkills } = require('./mine-history');
 const {
@@ -243,6 +243,22 @@ try {
 
   fs.writeFileSync(
     path.join(skillDir, 'SKILL.md'),
+    [
+      '---', 'name: example-alias', 'description: Example skill', 'metadata:',
+      '  source_repo: example-repo', '  source_path: skills/example/SKILL.md',
+      '  source_ref: v1.0.0', '  upstream: https://example.test/skills',
+      '  upstream_name: example', '  version: 1.0', '---', '',
+      '# Example', '', 'See `./references/missing.md`.'
+    ].join('\n')
+  );
+  const missingReference = spawnSync(process.execPath, [
+    validator, '--lockfile', lockfile, '--skills-dir', skillsDir
+  ], { encoding: 'utf8' });
+  assert.equal(missingReference.status, 1);
+  assert.match(missingReference.stdout + missingReference.stderr, /Missing local reference/);
+
+  fs.writeFileSync(
+    path.join(skillDir, 'SKILL.md'),
     '---\nname: example-alias\ndescription: Example skill\nsource_repo: example-repo\nmetadata:\n  source_repo: example-repo\n---\n\n# Example\n',
     'utf8'
   );
@@ -287,6 +303,17 @@ try {
   runBehavioralChecks(skillsDir, behaviorResults, behaviorRoot);
   assert.equal(behaviorResults.length, 2);
   assert.ok(behaviorResults.every((check) => check.status === 'failed'));
+
+  const documentContractResults = [];
+  runDocumentContractChecks(path.join(__dirname, '..', 'skills'), documentContractResults);
+  assert.deepEqual(
+    documentContractResults.map((check) => [check.skill, check.status]),
+    [
+      ['conventional-commits', 'passed'],
+      ['arcpy-migration', 'passed'],
+      ['goal-alignment', 'passed']
+    ]
+  );
 
   const probes = [];
   const fakeRunner = (command) => {
