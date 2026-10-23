@@ -4,6 +4,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
 const { execFileSync, spawnSync } = require('node:child_process');
 const { parseFrontmatter } = require('./validate-skills');
 
@@ -271,6 +272,24 @@ function main() {
   assertSkillLayout(installTarget, lockfile.skills);
   assertSkillAttribution(installTarget);
 
+  const sentinelPath = path.join(installTarget, 'plan-first', 'sentinel.txt');
+  fs.writeFileSync(sentinelPath, 'preserve me');
+  const refusal = runNodeResult(['scripts/install.js', '--target', installTarget, '--skill', 'plan-first']);
+  assert.equal(refusal.status, 1);
+  assert.match(refusal.stderr, /Use --force to replace/);
+  assert.equal(fs.readFileSync(sentinelPath, 'utf8'), 'preserve me');
+  const forceResult = runNodeResult(['scripts/install.js', '--target', installTarget, '--skill', 'plan-first', '--force']);
+  assert.equal(forceResult.status, 0);
+  assert.ok(!fs.existsSync(sentinelPath));
+  fs.writeFileSync(path.join(installTarget, 'unrelated.txt'), 'keep');
+  const selectedTarget = path.join(scratchRoot, 'smoke-selected-force');
+  fs.mkdirSync(path.join(selectedTarget, 'plan-first'), { recursive: true });
+  fs.writeFileSync(path.join(selectedTarget, 'plan-first', 'sentinel'), 'replace');
+  fs.mkdirSync(path.join(selectedTarget, 'custom'), { recursive: true });
+  fs.writeFileSync(path.join(selectedTarget, 'custom', 'keep'), 'keep');
+  runNode(['scripts/install.js', '--target', selectedTarget, '--skill', 'plan-first', '--force']);
+  assert.ok(fs.existsSync(path.join(selectedTarget, 'custom', 'keep')));
+
   // 6b. Test CLI install command
   const cliInstallOutput = runNode([
     'bin/skills.js',
@@ -278,7 +297,8 @@ function main() {
     '--mode',
     'copy',
     '--target',
-    installTarget
+    installTarget,
+    '--force'
   ]).trim();
 
   assert.equal(
@@ -404,6 +424,41 @@ function main() {
     );
   }
 
+  // 8. Test install overlap rejection before mutation in both modes.
+  const overlapRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-install-overlap-'));
+  try {
+    const overlapSource = path.join(overlapRoot, 'source');
+    fs.mkdirSync(path.join(overlapSource, 'fixture'), { recursive: true });
+    fs.writeFileSync(path.join(overlapSource, 'fixture', 'SKILL.md'), 'name: fixture');
+    for (const mode of ['copy', 'symlink']) {
+      const fixtures = [
+        { source: overlapSource, target: overlapSource, marker: path.join(overlapSource, 'fixture', 'SKILL.md') },
+        {
+          source: path.join(overlapRoot, `${mode}-target-outer`, 'source'),
+          target: path.join(overlapRoot, `${mode}-target-outer`),
+          marker: path.join(overlapRoot, `${mode}-target-outer`, 'marker')
+        },
+        {
+          source: path.join(overlapRoot, `${mode}-source-outer`),
+          target: path.join(overlapRoot, `${mode}-source-outer`, 'target'),
+          marker: path.join(overlapRoot, `${mode}-source-outer`, 'marker')
+        }
+      ];
+      for (const { source, target, marker } of fixtures) {
+        fs.mkdirSync(path.join(source, 'fixture'), { recursive: true });
+        fs.writeFileSync(path.join(source, 'fixture', 'SKILL.md'), 'name: fixture');
+        fs.mkdirSync(target, { recursive: true });
+        fs.writeFileSync(marker, 'untouched');
+        const result = runNodeResult(['scripts/install.js', '--source', source, '--target', target, '--mode', mode]);
+        assert.equal(result.status, 1, `${mode} overlap must fail: ${source} -> ${target}`);
+        assert.match(result.stderr, /must not overlap/);
+        assert.equal(fs.readFileSync(marker, 'utf8'), 'untouched');
+      }
+    }
+  } finally {
+    fs.rmSync(overlapRoot, { recursive: true, force: true });
+  }
+
   // 8. Test symlink mode for install
   const installSymlinkTarget = path.join(scratchRoot, 'smoke-install-symlink');
   const installSymlinkOutput = runNode([
@@ -431,7 +486,8 @@ function main() {
     '--mode',
     'copy',
     '--target',
-    installTarget
+    installTarget,
+    '--force'
   ]);
 
   assert.ok(

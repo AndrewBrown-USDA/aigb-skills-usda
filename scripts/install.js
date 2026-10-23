@@ -21,6 +21,8 @@ function printHelp() {
     '  --source <path>          Source skills directory (default: ./skills)',
     '  --skill, --skills <name> Single skill name or comma-separated list of skills',
     '  --mode <copy|symlink>    Materialization mode (default: copy)',
+    '  --force                  Replace matching skills; conflicts are refused by default',
+    '  Source and target directories must not overlap.',
     '  --help, -h               Show this help message',
     '',
     'Common target locations:',
@@ -45,6 +47,7 @@ function parseArgs(argv) {
     source: DEFAULT_SOURCE_DIR,
     target: null,
     skills: null,
+    force: false,
     help: false
   };
 
@@ -83,6 +86,9 @@ function parseArgs(argv) {
       }
       case '--lockfile':
         i += 1;
+        break;
+      case '--force':
+        options.force = true;
         break;
       case '--help':
       case '-h':
@@ -156,6 +162,22 @@ function installSkills(options) {
     throw new Error(`Source skills directory not found: ${sourceDir}`);
   }
 
+  const resolvedSource = fs.realpathSync(sourceDir);
+  const resolvedTarget = path.resolve(targetDir);
+  const targetParent = path.dirname(resolvedTarget);
+  const targetExists = fs.existsSync(resolvedTarget) || fs.lstatSync(resolvedTarget, { throwIfNoEntry: false });
+  const resolvedTargetParent = fs.existsSync(targetParent) ? fs.realpathSync(targetParent) : targetParent;
+  const canonicalTarget = targetExists
+    ? fs.realpathSync(resolvedTarget)
+    : path.join(resolvedTargetParent, path.basename(resolvedTarget));
+  const isWithin = (parent, child) => {
+    const relative = path.relative(parent, child);
+    return relative === '' || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative));
+  };
+  if (isWithin(resolvedSource, canonicalTarget) || isWithin(canonicalTarget, resolvedSource)) {
+    throw new Error(`Source and target directories must not overlap: ${resolvedSource} and ${canonicalTarget}`);
+  }
+
   const entries = fs.readdirSync(sourceDir, { withFileTypes: true });
   const availableSkillDirs = entries
     .filter(entry => entry.isDirectory() && fs.existsSync(path.join(sourceDir, entry.name, 'SKILL.md')))
@@ -174,6 +196,17 @@ function installSkills(options) {
       throw new Error(`Skill(s) not found in ${sourceDir}: ${missing.join(', ')}`);
     }
     skillDirs = requested;
+  }
+
+  if (fs.existsSync(targetDir) && !fs.statSync(targetDir).isDirectory()) {
+    throw new Error(`Target is not a directory: ${targetDir}`);
+  }
+  const conflicts = skillDirs.filter(skillName => {
+    const dest = path.join(targetDir, skillName);
+    return fs.existsSync(dest) || fs.lstatSync(dest, { throwIfNoEntry: false });
+  });
+  if (conflicts.length > 0 && !options.force) {
+    throw new Error(`Skill(s) already exist in target: ${conflicts.join(', ')}. Use --force to replace them.`);
   }
 
   if (!fs.existsSync(targetDir)) {

@@ -26,6 +26,8 @@ function printHelp() {
     '  --source <path>          Source skills directory (default: ./skills)',
     '  --skill, --skills <name> Single skill name or comma-separated list of skills',
     '  --mode <copy|symlink>    Materialization mode (default: copy)',
+    '  --force                  Replace matching skills; conflicts are refused by default',
+    '  Source and target directories must not overlap.',
     '',
     'Sync Options (Maintainers):',
     '  --target <path>         Target directory (default: ./skills)',

@@ -9,7 +9,7 @@ install: ## Install npm package dependencies
 	npm install
 
 install-skills: ## Install pre-packaged skills into agent directory (~/.agents/skills)
-	node scripts/install.js --mode copy --target ~/.agents/skills
+	node scripts/install.js --mode copy --target ~/.agents/skills --force
 
 test: ## Run smoke test suite
 	npm test

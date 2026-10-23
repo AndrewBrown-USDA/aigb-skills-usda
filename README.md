@@ -12,12 +12,13 @@
 
 ## Quick Start (Installing Skills)
 
-To install packaged skills into your agent directory (works out-of-the-box on any machine):
+From a checkout containing the packaged `skills/` directory, install skills using the local CLI; Node.js 18 or newer is required. The checked-in CLI has no third-party runtime dependencies, so no npm install step is needed:
 
 ```bash
-npm install
 npx skills install --target ~/.agents/skills
 ```
+
+This copies packaged skills and never fetches skill sources. To invoke the installed npm command after installing the package dependencies, run `npm install` and then `./node_modules/.bin/skills install --target ~/.agents/skills` from the repository root. The install command requires source and target to be separate, non-overlapping directories. Existing same-named skills in the destination are left untouched: by default, installation refuses the conflicting install; pass `--force` to replace the matching destination skills.
 
 Or using `make`:
 
@@ -27,6 +28,8 @@ make install
 make install-skills
 make test
 ```
+
+`make install` installs npm dependencies. `make install-skills` invokes the checked-in CLI directly and copies skills into `~/.agents/skills`; if any same-named skills already exist, it refuses unless the command is explicitly run with `--force` (the Make target does not pass `--force`). `make test` is the broader maintainer smoke suite and can require sibling source checkouts; it is not needed to install packaged skills.
 
 ### CI Validation vs. Maintainer Sync
 
@@ -48,6 +51,8 @@ working on `skills sync`; it is not the packaged-only CI contract.
 - Copilot CLI / Universal Agents: `npx skills install --target ~/.agents/skills`
 - Claude Code: `npx skills install --target ~/.claude/skills`
 - Pi coding agent: `npx skills install --target ~/.pi/agent/skills`
+
+These commands copy the packaged skills from this checkout. Existing matching names cause installation to refuse; add `--force` only when you intend to replace those destination skills.
 
 ### Project-Directory & Skill-Specific Installs
 
@@ -72,23 +77,24 @@ npx skills install --target ~/.pi/agent/skills --skills plan-first,dr-lexus,code
 npx skills install --target ./.agents/skills --skills plan-first,web-source-bundler
 ```
 
-You can also use the bash helper in `skills/install-skills/scripts/install.sh`:
+For a safe local helper example, specify a temporary target rather than a real agent directory:
 
 ```bash
-# Install a single skill via bash script
-bash skills/install-skills/scripts/install.sh --target pi --skill plan-first
+bash skills/install-skills/scripts/install.sh --target-path ./.scratch/pi-skills --skill plan-first
 ```
+
+The helper writes to the custom path selected by `--target-path`; use a scratch directory for testing. Existing same-named skills at a destination are replaced by the helper.
 
 ## Install vs. Maintainer Sync
 
 ### 1. `skills install` (For Users & Agents)
-Installs pre-packaged skills directly from the local `./skills` directory into your agent directory without requiring external source repositories or network calls.
+Installs pre-packaged skills directly from the local `./skills` directory into your agent directory without requiring external source repositories or network calls. The source and target must be separate, non-overlapping directories. Existing same-named skills are preserved because installation refuses to proceed; `--force` opts into replacing those matching destination skills.
 
 ```bash
-# Copy mode (default)
+# Copy mode (default); refuses conflicts unless --force is added
 npx skills install --mode copy --target ~/.agents/skills
 
-# Symlink / junction mode
+# Symlink / junction mode; also refuses conflicts unless --force is added
 npx skills install --mode symlink --target ~/.agents/skills
 ```
 
@@ -102,11 +108,11 @@ npx skills sync --mode copy
 
 # Explicitly permit clone/fetch recovery when a local checkout or ref is missing
 npx skills sync --mode copy --allow-network
+```
 
-`skills sync` never clones or fetches by default. `--no-clone` remains a
+`skills sync` does not clone or fetch by default. `--no-clone` remains a
 compatibility alias for this local-only behavior. Use `--allow-network` only
 when intentionally permitting maintainer network recovery.
-```
 
 ## Curated Skills & Attribution
 
@@ -146,5 +152,5 @@ For example, `code-review-2axis` uses `upstream_name: code-review`.
 
 ## Troubleshooting
 
-- **`skills: command not found`**: Run `npm install` first.
+- **`skills: command not found`**: Run `npm install` before using the package's `skills` binary.
 - **Symlink mode on Windows**: If symlinks fail due to permissions, use `--mode copy` (default).
