@@ -41,11 +41,25 @@ function runNodeResult(args, env = process.env) {
   };
 }
 
-function runMake(args) {
+function runMake(args, env = process.env) {
   return execFileSync('make', args, {
     cwd: repoRoot,
-    encoding: 'utf8'
+    encoding: 'utf8',
+    env
   });
+}
+
+function runMakeResult(args, env = process.env) {
+  const result = spawnSync('make', args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    env
+  });
+  return {
+    status: result.status,
+    stdout: result.stdout || '',
+    stderr: result.stderr || ''
+  };
 }
 
 function readJson(filePath) {
@@ -319,12 +333,22 @@ function main() {
   const makeForceInstallDryRun = runMake(['-n', 'install-skills', '--', '--force']);
   assert.match(makeForceInstallDryRun, /--force/);
   const makeSelectedInstallDryRun = runMake(['-n', 'install-skills', 'SKILLS=plan-first,dr-lexus']);
-  assert.match(makeSelectedInstallDryRun, /--skill "plan-first,dr-lexus"/);
+  assert.match(makeSelectedInstallDryRun, /--skill "\$SKILLS"/);
   const makeSingularInstallDryRun = runMake(['-n', 'install-skill', 'SKILL=plan-first']);
-  assert.match(makeSingularInstallDryRun, /--skill "plan-first"/);
+  assert.match(makeSingularInstallDryRun, /SKILLS="\$SKILL"/);
   const makeForceTargetDryRun = runMake(['-n', 'install-skills-force', 'SKILLS=plan-first,dr-lexus']);
-  assert.match(makeForceTargetDryRun, /--skill "plan-first,dr-lexus"/);
+  assert.match(makeForceTargetDryRun, /--skill "\$SKILLS"/);
   assert.match(makeForceTargetDryRun, /--force/);
+  const missingSingular = runMakeResult(['install-skill']);
+  assert.equal(missingSingular.status, 2);
+  assert.match(missingSingular.stderr, /requires SKILL=<name>/);
+  const hostileSkills = runMakeResult(
+    ['install-skills'],
+    { ...process.env, SKILLS: 'x"; echo INJECTED; #' }
+  );
+  assert.notEqual(hostileSkills.status, 0);
+  assert.match(hostileSkills.stderr, /Skill\(s\) not found/);
+  assert.doesNotMatch(hostileSkills.stdout + hostileSkills.stderr, /^INJECTED$/m);
 
   // 6c. Test single and comma-separated skill filtering
   const filterSingleTarget = path.join(scratchRoot, 'smoke-filter-single');
@@ -505,6 +529,51 @@ function main() {
     }
   } finally {
     fs.rmSync(ancestorSymlinkRoot, { recursive: true, force: true });
+  }
+
+  // 8b. Reject source symlink aliases under the target before force-mode mutation.
+  const sourceAliasRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-install-source-alias-'));
+  try {
+    const sourceAliasTarget = path.join(sourceAliasRoot, 'target');
+    const sourceAliasActual = path.join(sourceAliasRoot, 'actual');
+    const sourceAlias = path.join(sourceAliasTarget, 'fixture');
+    fs.mkdirSync(path.join(sourceAliasActual, 'fixture'), { recursive: true });
+    fs.writeFileSync(path.join(sourceAliasActual, 'fixture', 'SKILL.md'), 'name: fixture');
+    fs.mkdirSync(sourceAliasTarget, { recursive: true });
+    fs.symlinkSync(sourceAliasActual, sourceAlias, process.platform === 'win32' ? 'junction' : 'dir');
+    const aliasResult = runNodeResult([
+      'scripts/install.js',
+      '--source',
+      sourceAlias,
+      '--target',
+      sourceAliasTarget,
+      '--skill',
+      'fixture',
+      '--force'
+    ]);
+    assert.equal(aliasResult.status, 1);
+    assert.match(aliasResult.stderr, /must not overlap/);
+    assert.equal(fs.lstatSync(sourceAlias).isSymbolicLink(), true);
+  } finally {
+    fs.rmSync(sourceAliasRoot, { recursive: true, force: true });
+  }
+
+  // 8c. Report dangling target symlinks as invalid targets.
+  const danglingRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-install-dangling-target-'));
+  try {
+    const danglingTarget = path.join(danglingRoot, 'target');
+    fs.symlinkSync(path.join(danglingRoot, 'missing'), danglingTarget, process.platform === 'win32' ? 'junction' : 'dir');
+    const danglingResult = runNodeResult([
+      'scripts/install.js',
+      '--source',
+      path.join(repoRoot, 'skills'),
+      '--target',
+      danglingTarget
+    ]);
+    assert.equal(danglingResult.status, 1);
+    assert.match(danglingResult.stderr, /Target is not a directory/);
+  } finally {
+    fs.rmSync(danglingRoot, { recursive: true, force: true });
   }
 
   // 8. Test symlink mode for install

@@ -10,7 +10,7 @@ const DEFAULT_SOURCE_DIR = path.join(REPO_ROOT, 'skills');
 function printHelp() {
   process.stdout.write([
     'Usage: node scripts/install.js [options]',
-    '   or: npx skills install [options]',
+    '   or: npx --no-install skills install [options]',
     '',
     'Description:',
     '  Installs pre-packaged skills directly from the local ./skills directory',
@@ -188,12 +188,17 @@ function installSkills(options) {
   }
 
   const resolvedSource = fs.realpathSync(sourceDir);
+  const absoluteSource = path.resolve(sourceDir);
   const canonicalTarget = resolveCanonicalPath(targetDir);
   const isWithin = (parent, child) => {
     const relative = path.relative(parent, child);
     return relative === '' || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative));
   };
-  if (isWithin(resolvedSource, canonicalTarget) || isWithin(canonicalTarget, resolvedSource)) {
+  if (
+    isWithin(resolvedSource, canonicalTarget)
+    || isWithin(canonicalTarget, resolvedSource)
+    || isWithin(canonicalTarget, absoluteSource)
+  ) {
     throw new Error(`Source and target directories must not overlap: ${resolvedSource} and ${canonicalTarget}`);
   }
 
@@ -217,8 +222,19 @@ function installSkills(options) {
     skillDirs = requested;
   }
 
-  if (fs.existsSync(targetDir) && !fs.statSync(targetDir).isDirectory()) {
-    throw new Error(`Target is not a directory: ${targetDir}`);
+  const targetEntry = fs.lstatSync(targetDir, { throwIfNoEntry: false });
+  if (targetEntry) {
+    let targetIsDirectory = false;
+    try {
+      targetIsDirectory = fs.statSync(targetDir).isDirectory();
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error;
+      }
+    }
+    if (!targetIsDirectory) {
+      throw new Error(`Target is not a directory: ${targetDir}`);
+    }
   }
   const conflicts = skillDirs.filter(skillName => {
     const dest = path.join(targetDir, skillName);
