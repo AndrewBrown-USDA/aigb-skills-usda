@@ -4,7 +4,7 @@
 
 ## What is here
 
-- A ready-to-use npm package with the `skills` CLI (`npx skills`).
+- A ready-to-use npm package with the `skills` CLI (`npx --no-install skills` after `npm link` from a checkout).
 - Curated skill catalog defined in `catalog/skills.lock.json`
 - Materialized and linkable skills in `skills/`.
 - Permissive MIT License at the repository root, with explicit third-party attribution external skills.

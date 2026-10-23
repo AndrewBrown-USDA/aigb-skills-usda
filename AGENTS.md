@@ -10,8 +10,11 @@ This repository packages a curated set of agent skills and a dependency-free Nod
 - `npm run validate:skills`
 - `npm run test:validate`
 - `npm test` (or `make test`) for the maintainer smoke path
-- `npx skills --help`
-- `npx skills install --target ~/.agents/skills` (or `make install-skills`)
+- `npm link` then `npx --no-install skills --help`
+- `npx --no-install skills install --target ~/.agents/skills` (or `make install-skills`)
+- `make install-skills SKILLS=plan-first,dr-lexus`
+- `make install-skill SKILL=plan-first`
+- `make install-skills-force SKILLS=plan-first,dr-lexus`
 
 ## Find Things
 - `bin/` -- executable shim for the `skills` CLI.
@@ -32,8 +35,8 @@ This repository packages a curated set of agent skills and a dependency-free Nod
 ## Workflows
 ### Installing Skills (Users & Agents)
 - **Primary off-ramp**: Pre-materialized skills live in `skills/`.
-- Install packaged skills with `npx skills install --target ~/.agents/skills` (or `~/.claude/skills`, `~/.pi/agent/skills`).
-- Or run `make install-skills`.
+- From a checkout, run `npm link`, then use `npx --no-install skills install --target ~/.agents/skills`.
+- Or run `make install-skills`; use `SKILLS=name1,name2` for selected skills, `make install-skill SKILL=name` for one skill, and `make install-skills-force` only when replacement is intentional.
 - **Do not run `skills sync` or `make sync` to install skills.** Sync is maintainer-only and rebuilds `skills/` from upstream source checkouts.
 
 ### Maintainer Sync and Catalog
@@ -53,7 +56,7 @@ This repository packages a curated set of agent skills and a dependency-free Nod
 - `package.json` exposes the `skills` bin through `bin/skills.js`.
 - `.scratch/` holds disposable validation reports and smoke artifacts; run `make clean` to remove it.
 - If package metadata changes, run `node -e "require('./package.json')"` before validation.
-- `Makefile` provides install, smoke, sync, catalog, and cleanup targets.
+- `Makefile` provides install, selected-skill install, force-install, smoke, sync, catalog, and cleanup targets.
 
 ## Working Conventions
 - Keep the public package minimal, reliable, and functional.
