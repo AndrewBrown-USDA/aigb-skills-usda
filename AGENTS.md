@@ -1,9 +1,12 @@
 # AGENTS.md - aigb-skills-usda
 
+This repository packages a curated set of agent skills and a dependency-free Node.js CLI for installing them. The checked-in `skills/` tree is the user-facing package; maintainer synchronization is a separate workflow.
+
 ## Quick Start
 - `git status --short --branch`
 - `node -e "require('./package.json')"`
 - `npm install` (or `make install`)
+- `npm run help`
 - `npm run validate:skills`
 - `npm run test:validate`
 - `npm test` (or `make test`) for the maintainer smoke path
@@ -13,8 +16,11 @@
 ## Find Things
 - `bin/` -- executable shim for the `skills` CLI.
 - `src/cli.js` -- public CLI command dispatch.
+- `package.json` -- package metadata, CLI entry point, and npm scripts.
+- `Makefile` -- install, test, sync, catalog, and cleanup targets.
 - `scripts/install.js` -- installs the packaged `skills/` tree.
 - `scripts/sync-skills.js` -- maintainer-only materialization from upstream checkouts.
+- `scripts/mine-history.js` -- regenerates the catalog from skill frontmatter.
 - `scripts/validate-skills.js` -- packaged-skill structural and selected behavioral validator.
 - `scripts/validate-skills-test.js` -- validator regression tests.
 - `scripts/smoke.js` -- broader maintainer smoke suite.
@@ -40,6 +46,7 @@
 - Packaged validation never clones, syncs, or accesses upstream/private repositories.
 - `npm test` and `make test` retain upstream-dependent maintainer smoke coverage and may require sibling source checkouts.
 - `npm run test:validate` tests validator success, structural failure, behavioral failure, and JSON reporting.
+- There is no separate build or lint script; use the package validation and smoke commands above.
 
 ## Infrastructure
 - Node.js `>=18` is required.
@@ -52,6 +59,7 @@
 - Keep the public package minimal, reliable, and functional.
 - The `skills install` command installs pre-bundled skills directly from `./skills` without external network or sibling-repository requirements.
 - The `skills sync` command is strictly for maintainers with local upstream checkouts.
+- Edit `skills/*/SKILL.md` frontmatter first, then run `npm run catalog:mine`; do not hand-edit generated catalog entries.
 - Multi-wave development and planning artifacts live under `planning/` following the `wave-orchestration` skill guidelines.
 - Prefer small, verifiable changes that are easy to review and maintain.
 
