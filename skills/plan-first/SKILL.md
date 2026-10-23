@@ -3,7 +3,7 @@ name: plan-first
 description: Structured planning workflow for any coding task. Use at the start of every new feature, bug fix, refactor, or implementation request. Analyzes the project, asks up to 5 clarifying questions, creates a TODO.md, gets user approval, then executes task by task. Never writes code before a plan is approved.
 license: MIT
 metadata:
-  author: Andrew G. Brown (https://github.com/brownag)
+  author: SoAp9035 (Reddit)
   version: 1.0
   source_repo: aigb-skills
   source_path: skills/plan-first/SKILL.md
