@@ -60,9 +60,11 @@ working on `skills sync`; it is not the packaged-only CI contract.
 
 ### Common Agent Install Targets
 
-- Copilot CLI / Universal Agents: `npx skills install --target ~/.agents/skills`
-- Claude Code: `npx skills install --target ~/.claude/skills`
-- Pi coding agent: `npx skills install --target ~/.pi/agent/skills`
+After running `npm link` in this checkout:
+
+- Copilot CLI / Universal Agents: `npx --no-install skills install --target ~/.agents/skills`
+- Claude Code: `npx --no-install skills install --target ~/.claude/skills`
+- Pi coding agent: `npx --no-install skills install --target ~/.pi/agent/skills`
 
 These commands copy the packaged skills from this checkout. Existing matching names cause installation to refuse; add `--force` only when you intend to replace those destination skills.
 
@@ -72,21 +74,21 @@ You can install skills directly into a local repository/project directory:
 
 ```bash
 # Install all skills into a local project's agent or GitHub Copilot folder
-npx skills install --target ./.agents/skills
-# or: npx skills install --target ./.github/skills
+npx --no-install skills install --target ./.agents/skills
+# or: npx --no-install skills install --target ./.github/skills
 ```
 
 To install a specific skill or a subset of skills, use `--skill` or `--skills` with single or comma-separated names:
 
 ```bash
 # Install a single skill to Pi coding agent
-npx skills install --target ~/.pi/agent/skills --skill plan-first
+npx --no-install skills install --target ~/.pi/agent/skills --skill plan-first
 
 # Install multiple selected skills
-npx skills install --target ~/.pi/agent/skills --skills plan-first,dr-lexus,code-review-2axis
+npx --no-install skills install --target ~/.pi/agent/skills --skills plan-first,dr-lexus,code-review-2axis
 
 # Install selected skills into a project directory
-npx skills install --target ./.agents/skills --skills plan-first,web-source-bundler
+npx --no-install skills install --target ./.agents/skills --skills plan-first,web-source-bundler
 ```
 
 For a safe local helper example, specify a temporary target rather than a real agent directory:
@@ -104,10 +106,10 @@ Installs pre-packaged skills directly from the local `./skills` directory into y
 
 ```bash
 # Copy mode (default); refuses conflicts unless --force is added
-npx skills install --mode copy --target ~/.agents/skills
+npx --no-install skills install --mode copy --target ~/.agents/skills
 
 # Symlink / junction mode; also refuses conflicts unless --force is added
-npx skills install --mode symlink --target ~/.agents/skills
+npx --no-install skills install --mode symlink --target ~/.agents/skills
 ```
 
 ### 2. `skills sync` (Maintainers Only)
@@ -115,11 +117,11 @@ Synchronizes the `./skills` directory from upstream source repositories listed i
 
 ```bash
 # Maintainer sync (local checkouts only by default)
-npx skills sync --mode copy
+npx --no-install skills sync --mode copy
 # or: make sync
 
 # Explicitly permit clone/fetch recovery when a local checkout or ref is missing
-npx skills sync --mode copy --allow-network
+npx --no-install skills sync --mode copy --allow-network
 ```
 
 `skills sync` does not clone or fetch by default. `--no-clone` remains a
@@ -164,5 +166,5 @@ For example, `code-review-2axis` uses `upstream_name: code-review`.
 
 ## Troubleshooting
 
-- **`skills: command not found`**: Run `npm install` before using the package's `skills` binary.
+- **`skills: command not found`**: Run `npm link` from this checkout, then use `npx --no-install skills`; `npm install` alone does not expose this package's bin to `npx`.
 - **Symlink mode on Windows**: If symlinks fail due to permissions, use `--mode copy` (default).

@@ -124,7 +124,7 @@ function resolveSourceRoot(entry, options) {
     throw new Error(
       `Maintainer sync error: Absolute source repository path does not exist: "${sourceRepo}". ` +
       `"sync" is for maintainers synchronizing from upstream source repositories. ` +
-      `To install skills into your environment, run "npx skills install --target <dir>" instead.`
+      `To install skills into your environment, run "npx --no-install skills install --target <dir>" instead.`
     );
   }
 
@@ -156,7 +156,7 @@ function resolveSourceRoot(entry, options) {
     `Maintainer sync error: Upstream source repository "${sourceRepo}" was not found (checked "${siblingCandidate}" and "${localCandidate}"). ` +
     cloneHint +
     `The "sync" command is intended for repository maintainers with local checkout of source repos. ` +
-    `For users and agents installing packaged skills, run "npx skills install --target <dir>" (or "make install-skills") instead.`
+    `For users and agents installing packaged skills, run "npx --no-install skills install --target <dir>" (or "make install-skills") instead.`
   );
 }
 
