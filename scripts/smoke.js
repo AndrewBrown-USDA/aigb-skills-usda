@@ -4,6 +4,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
 const { execFileSync, spawnSync } = require('node:child_process');
 const { parseFrontmatter } = require('./validate-skills');
 
@@ -29,6 +30,27 @@ function runNode(args) {
 
 function runNodeResult(args, env = process.env) {
   const result = spawnSync(process.execPath, args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    env
+  });
+  return {
+    status: result.status,
+    stdout: result.stdout || '',
+    stderr: result.stderr || ''
+  };
+}
+
+function runMake(args, env = process.env) {
+  return execFileSync('make', args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    env
+  });
+}
+
+function runMakeResult(args, env = process.env) {
+  const result = spawnSync('make', args, {
     cwd: repoRoot,
     encoding: 'utf8',
     env
@@ -271,6 +293,24 @@ function main() {
   assertSkillLayout(installTarget, lockfile.skills);
   assertSkillAttribution(installTarget);
 
+  const sentinelPath = path.join(installTarget, 'plan-first', 'sentinel.txt');
+  fs.writeFileSync(sentinelPath, 'preserve me');
+  const refusal = runNodeResult(['scripts/install.js', '--target', installTarget, '--skill', 'plan-first']);
+  assert.equal(refusal.status, 1);
+  assert.match(refusal.stderr, /Use --force to replace/);
+  assert.equal(fs.readFileSync(sentinelPath, 'utf8'), 'preserve me');
+  const forceResult = runNodeResult(['scripts/install.js', '--target', installTarget, '--skill', 'plan-first', '--force']);
+  assert.equal(forceResult.status, 0);
+  assert.ok(!fs.existsSync(sentinelPath));
+  fs.writeFileSync(path.join(installTarget, 'unrelated.txt'), 'keep');
+  const selectedTarget = path.join(scratchRoot, 'smoke-selected-force');
+  fs.mkdirSync(path.join(selectedTarget, 'plan-first'), { recursive: true });
+  fs.writeFileSync(path.join(selectedTarget, 'plan-first', 'sentinel'), 'replace');
+  fs.mkdirSync(path.join(selectedTarget, 'custom'), { recursive: true });
+  fs.writeFileSync(path.join(selectedTarget, 'custom', 'keep'), 'keep');
+  runNode(['scripts/install.js', '--target', selectedTarget, '--skill', 'plan-first', '--force']);
+  assert.ok(fs.existsSync(path.join(selectedTarget, 'custom', 'keep')));
+
   // 6b. Test CLI install command
   const cliInstallOutput = runNode([
     'bin/skills.js',
@@ -278,13 +318,37 @@ function main() {
     '--mode',
     'copy',
     '--target',
-    installTarget
+    installTarget,
+    '--force'
   ]).trim();
 
   assert.equal(
     cliInstallOutput,
     `Installed ${expectedCount} skills to ${installTarget} using copy mode.`
   );
+
+  // 6b. Verify Make forwards an explicit --force argument without making it the default.
+  const makeInstallDryRun = runMake(['-n', 'install-skills']);
+  assert.doesNotMatch(makeInstallDryRun, /--force/);
+  const makeForceInstallDryRun = runMake(['-n', 'install-skills', '--', '--force']);
+  assert.match(makeForceInstallDryRun, /--force/);
+  const makeSelectedInstallDryRun = runMake(['-n', 'install-skills', 'SKILLS=plan-first,dr-lexus']);
+  assert.match(makeSelectedInstallDryRun, /--skill "\$SKILLS"/);
+  const makeSingularInstallDryRun = runMake(['-n', 'install-skill', 'SKILL=plan-first']);
+  assert.match(makeSingularInstallDryRun, /SKILLS="\$SKILL"/);
+  const makeForceTargetDryRun = runMake(['-n', 'install-skills-force', 'SKILLS=plan-first,dr-lexus']);
+  assert.match(makeForceTargetDryRun, /--skill "\$SKILLS"/);
+  assert.match(makeForceTargetDryRun, /--force/);
+  const missingSingular = runMakeResult(['install-skill']);
+  assert.equal(missingSingular.status, 2);
+  assert.match(missingSingular.stderr, /requires SKILL=<name>/);
+  const hostileSkills = runMakeResult(
+    ['install-skills'],
+    { ...process.env, SKILLS: 'x"; echo INJECTED; #' }
+  );
+  assert.notEqual(hostileSkills.status, 0);
+  assert.match(hostileSkills.stderr, /Skill\(s\) not found/);
+  assert.doesNotMatch(hostileSkills.stdout + hostileSkills.stderr, /^INJECTED$/m);
 
   // 6c. Test single and comma-separated skill filtering
   const filterSingleTarget = path.join(scratchRoot, 'smoke-filter-single');
@@ -404,6 +468,114 @@ function main() {
     );
   }
 
+  // 8. Test install overlap rejection before mutation in both modes.
+  const overlapRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-install-overlap-'));
+  try {
+    const overlapSource = path.join(overlapRoot, 'source');
+    fs.mkdirSync(path.join(overlapSource, 'fixture'), { recursive: true });
+    fs.writeFileSync(path.join(overlapSource, 'fixture', 'SKILL.md'), 'name: fixture');
+    for (const mode of ['copy', 'symlink']) {
+      const fixtures = [
+        { source: overlapSource, target: overlapSource, marker: path.join(overlapSource, 'fixture', 'SKILL.md') },
+        {
+          source: path.join(overlapRoot, `${mode}-target-outer`, 'source'),
+          target: path.join(overlapRoot, `${mode}-target-outer`),
+          marker: path.join(overlapRoot, `${mode}-target-outer`, 'marker')
+        },
+        {
+          source: path.join(overlapRoot, `${mode}-source-outer`),
+          target: path.join(overlapRoot, `${mode}-source-outer`, 'target'),
+          marker: path.join(overlapRoot, `${mode}-source-outer`, 'marker')
+        }
+      ];
+      for (const { source, target, marker } of fixtures) {
+        fs.mkdirSync(path.join(source, 'fixture'), { recursive: true });
+        fs.writeFileSync(path.join(source, 'fixture', 'SKILL.md'), 'name: fixture');
+        fs.mkdirSync(target, { recursive: true });
+        fs.writeFileSync(marker, 'untouched');
+        const result = runNodeResult(['scripts/install.js', '--source', source, '--target', target, '--mode', mode]);
+        assert.equal(result.status, 1, `${mode} overlap must fail: ${source} -> ${target}`);
+        assert.match(result.stderr, /must not overlap/);
+        assert.equal(fs.readFileSync(marker, 'utf8'), 'untouched');
+      }
+    }
+  } finally {
+    fs.rmSync(overlapRoot, { recursive: true, force: true });
+  }
+
+  // 8a. Reject targets below a symlinked intermediate ancestor before mutation.
+  const ancestorSymlinkRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-install-ancestor-symlink-'));
+  try {
+    const ancestorSource = path.join(ancestorSymlinkRoot, 'source');
+    const symlinkParent = path.join(ancestorSymlinkRoot, 'alias');
+    fs.mkdirSync(path.join(ancestorSource, 'fixture'), { recursive: true });
+    fs.writeFileSync(path.join(ancestorSource, 'fixture', 'SKILL.md'), 'name: fixture');
+    fs.symlinkSync(ancestorSource, symlinkParent, process.platform === 'win32' ? 'junction' : 'dir');
+
+    for (const mode of ['copy', 'symlink']) {
+      const redirectedTarget = path.join(symlinkParent, `${mode}-new`, 'nested');
+      const result = runNodeResult([
+        'scripts/install.js',
+        '--source',
+        ancestorSource,
+        '--target',
+        redirectedTarget,
+        '--mode',
+        mode
+      ]);
+      assert.equal(result.status, 1, `${mode} must reject targets below symlinked ancestors`);
+      assert.match(result.stderr, /must not overlap/);
+      assert.equal(fs.existsSync(path.join(ancestorSource, `${mode}-new`)), false);
+    }
+  } finally {
+    fs.rmSync(ancestorSymlinkRoot, { recursive: true, force: true });
+  }
+
+  // 8b. Reject source symlink aliases under the target before force-mode mutation.
+  const sourceAliasRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-install-source-alias-'));
+  try {
+    const sourceAliasTarget = path.join(sourceAliasRoot, 'target');
+    const sourceAliasActual = path.join(sourceAliasRoot, 'actual');
+    const sourceAlias = path.join(sourceAliasTarget, 'fixture');
+    fs.mkdirSync(path.join(sourceAliasActual, 'fixture'), { recursive: true });
+    fs.writeFileSync(path.join(sourceAliasActual, 'fixture', 'SKILL.md'), 'name: fixture');
+    fs.mkdirSync(sourceAliasTarget, { recursive: true });
+    fs.symlinkSync(sourceAliasActual, sourceAlias, process.platform === 'win32' ? 'junction' : 'dir');
+    const aliasResult = runNodeResult([
+      'scripts/install.js',
+      '--source',
+      sourceAlias,
+      '--target',
+      sourceAliasTarget,
+      '--skill',
+      'fixture',
+      '--force'
+    ]);
+    assert.equal(aliasResult.status, 1);
+    assert.match(aliasResult.stderr, /must not overlap/);
+    assert.equal(fs.lstatSync(sourceAlias).isSymbolicLink(), true);
+  } finally {
+    fs.rmSync(sourceAliasRoot, { recursive: true, force: true });
+  }
+
+  // 8c. Report dangling target symlinks as invalid targets.
+  const danglingRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-install-dangling-target-'));
+  try {
+    const danglingTarget = path.join(danglingRoot, 'target');
+    fs.symlinkSync(path.join(danglingRoot, 'missing'), danglingTarget, process.platform === 'win32' ? 'junction' : 'dir');
+    const danglingResult = runNodeResult([
+      'scripts/install.js',
+      '--source',
+      path.join(repoRoot, 'skills'),
+      '--target',
+      danglingTarget
+    ]);
+    assert.equal(danglingResult.status, 1);
+    assert.match(danglingResult.stderr, /Target is not a directory/);
+  } finally {
+    fs.rmSync(danglingRoot, { recursive: true, force: true });
+  }
+
   // 8. Test symlink mode for install
   const installSymlinkTarget = path.join(scratchRoot, 'smoke-install-symlink');
   const installSymlinkOutput = runNode([
@@ -431,7 +603,8 @@ function main() {
     '--mode',
     'copy',
     '--target',
-    installTarget
+    installTarget,
+    '--force'
   ]);
 
   assert.ok(

@@ -4,7 +4,7 @@
 
 ## What is here
 
-- A ready-to-use npm package with the `skills` CLI (`npx skills`).
+- A ready-to-use npm package with the `skills` CLI (`npx --no-install skills` after `npm link` from a checkout).
 - Curated skill catalog defined in `catalog/skills.lock.json`
 - Materialized and linkable skills in `skills/`.
 - Permissive MIT License at the repository root, with explicit third-party attribution external skills.
@@ -12,12 +12,14 @@
 
 ## Quick Start (Installing Skills)
 
-To install packaged skills into your agent directory (works out-of-the-box on any machine):
+From a checkout containing the packaged `skills/` directory, install the local package link first, then use `npx` to invoke its CLI; Node.js 18 or newer is required:
 
 ```bash
-npm install
-npx skills install --target ~/.agents/skills
+npm link
+npx --no-install skills install --target ~/.agents/skills
 ```
+
+This copies packaged skills and never fetches skill sources. `npm link` makes this checkout's package available to `npx`; `--no-install` prevents `npx` from downloading an unrelated registry package. The install command requires source and target to be separate, non-overlapping directories. Existing same-named skills in the destination are left untouched: by default, installation refuses the conflicting install; pass `--force` to replace the matching destination skills.
 
 Or using `make`:
 
@@ -27,6 +29,19 @@ make install
 make install-skills
 make test
 ```
+
+`make install` installs npm dependencies. `make install-skills` invokes the checked-in CLI directly and copies skills into `~/.agents/skills`; if any same-named skills already exist, it refuses. To explicitly replace matching skills through Make, use `make install-skills -- --force`. `make test` is the broader maintainer smoke suite and can require sibling source checkouts; it is not needed to install packaged skills.
+
+To install selected skills, pass a comma-separated list or use the singular shorthand:
+
+```bash
+make install-skills SKILLS=plan-first,dr-lexus
+make install-skill SKILL=plan-first
+make install-skill SKILL=plan-first -- --force
+make install-skills-force SKILLS=plan-first,dr-lexus
+```
+
+The first two forms refuse conflicting skills by default. `install-skills-force` always replaces matching skills and accepts the optional `SKILLS` filter.
 
 ### CI Validation vs. Maintainer Sync
 
@@ -45,9 +60,13 @@ working on `skills sync`; it is not the packaged-only CI contract.
 
 ### Common Agent Install Targets
 
-- Copilot CLI / Universal Agents: `npx skills install --target ~/.agents/skills`
-- Claude Code: `npx skills install --target ~/.claude/skills`
-- Pi coding agent: `npx skills install --target ~/.pi/agent/skills`
+After running `npm link` in this checkout:
+
+- Copilot CLI / Universal Agents: `npx --no-install skills install --target ~/.agents/skills`
+- Claude Code: `npx --no-install skills install --target ~/.claude/skills`
+- Pi coding agent: `npx --no-install skills install --target ~/.pi/agent/skills`
+
+These commands copy the packaged skills from this checkout. Existing matching names cause installation to refuse; add `--force` only when you intend to replace those destination skills.
 
 ### Project-Directory & Skill-Specific Installs
 
@@ -55,41 +74,42 @@ You can install skills directly into a local repository/project directory:
 
 ```bash
 # Install all skills into a local project's agent or GitHub Copilot folder
-npx skills install --target ./.agents/skills
-# or: npx skills install --target ./.github/skills
+npx --no-install skills install --target ./.agents/skills
+# or: npx --no-install skills install --target ./.github/skills
 ```
 
 To install a specific skill or a subset of skills, use `--skill` or `--skills` with single or comma-separated names:
 
 ```bash
 # Install a single skill to Pi coding agent
-npx skills install --target ~/.pi/agent/skills --skill plan-first
+npx --no-install skills install --target ~/.pi/agent/skills --skill plan-first
 
 # Install multiple selected skills
-npx skills install --target ~/.pi/agent/skills --skills plan-first,dr-lexus,code-review-2axis
+npx --no-install skills install --target ~/.pi/agent/skills --skills plan-first,dr-lexus,code-review-2axis
 
 # Install selected skills into a project directory
-npx skills install --target ./.agents/skills --skills plan-first,web-source-bundler
+npx --no-install skills install --target ./.agents/skills --skills plan-first,web-source-bundler
 ```
 
-You can also use the bash helper in `skills/install-skills/scripts/install.sh`:
+For a safe local helper example, specify a temporary target rather than a real agent directory:
 
 ```bash
-# Install a single skill via bash script
-bash skills/install-skills/scripts/install.sh --target pi --skill plan-first
+bash skills/install-skills/scripts/install.sh --target-path ./.scratch/pi-skills --skill plan-first
 ```
+
+The helper writes to the custom path selected by `--target-path`; use a scratch directory for testing. Existing same-named skills at a destination are replaced by the helper.
 
 ## Install vs. Maintainer Sync
 
 ### 1. `skills install` (For Users & Agents)
-Installs pre-packaged skills directly from the local `./skills` directory into your agent directory without requiring external source repositories or network calls.
+Installs pre-packaged skills directly from the local `./skills` directory into your agent directory without requiring external source repositories or network calls. The source and target must be separate, non-overlapping directories. Existing same-named skills are preserved because installation refuses to proceed; `--force` opts into replacing those matching destination skills.
 
 ```bash
-# Copy mode (default)
-npx skills install --mode copy --target ~/.agents/skills
+# Copy mode (default); refuses conflicts unless --force is added
+npx --no-install skills install --mode copy --target ~/.agents/skills
 
-# Symlink / junction mode
-npx skills install --mode symlink --target ~/.agents/skills
+# Symlink / junction mode; also refuses conflicts unless --force is added
+npx --no-install skills install --mode symlink --target ~/.agents/skills
 ```
 
 ### 2. `skills sync` (Maintainers Only)
@@ -97,16 +117,16 @@ Synchronizes the `./skills` directory from upstream source repositories listed i
 
 ```bash
 # Maintainer sync (local checkouts only by default)
-npx skills sync --mode copy
+npx --no-install skills sync --mode copy
 # or: make sync
 
 # Explicitly permit clone/fetch recovery when a local checkout or ref is missing
-npx skills sync --mode copy --allow-network
+npx --no-install skills sync --mode copy --allow-network
+```
 
-`skills sync` never clones or fetches by default. `--no-clone` remains a
+`skills sync` does not clone or fetch by default. `--no-clone` remains a
 compatibility alias for this local-only behavior. Use `--allow-network` only
 when intentionally permitting maintainer network recovery.
-```
 
 ## Curated Skills & Attribution
 
@@ -146,5 +166,5 @@ For example, `code-review-2axis` uses `upstream_name: code-review`.
 
 ## Troubleshooting
 
-- **`skills: command not found`**: Run `npm install` first.
+- **`skills: command not found`**: Run `npm link` from this checkout, then use `npx --no-install skills`; `npm install` alone does not expose this package's bin to `npx`.
 - **Symlink mode on Windows**: If symlinks fail due to permissions, use `--mode copy` (default).

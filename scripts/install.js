@@ -10,7 +10,7 @@ const DEFAULT_SOURCE_DIR = path.join(REPO_ROOT, 'skills');
 function printHelp() {
   process.stdout.write([
     'Usage: node scripts/install.js [options]',
-    '   or: npx skills install [options]',
+    '   or: npx --no-install skills install [options]',
     '',
     'Description:',
     '  Installs pre-packaged skills directly from the local ./skills directory',
@@ -21,6 +21,8 @@ function printHelp() {
     '  --source <path>          Source skills directory (default: ./skills)',
     '  --skill, --skills <name> Single skill name or comma-separated list of skills',
     '  --mode <copy|symlink>    Materialization mode (default: copy)',
+    '  --force                  Replace matching skills; conflicts are refused by default',
+    '  Source and target directories must not overlap.',
     '  --help, -h               Show this help message',
     '',
     'Common target locations:',
@@ -45,6 +47,7 @@ function parseArgs(argv) {
     source: DEFAULT_SOURCE_DIR,
     target: null,
     skills: null,
+    force: false,
     help: false
   };
 
@@ -83,6 +86,9 @@ function parseArgs(argv) {
       }
       case '--lockfile':
         i += 1;
+        break;
+      case '--force':
+        options.force = true;
         break;
       case '--help':
       case '-h':
@@ -139,6 +145,31 @@ function copySkill(sourceDir, destDir) {
   });
 }
 
+function resolveCanonicalPath(targetPath) {
+  let currentPath = path.resolve(targetPath);
+  const suffix = [];
+
+  while (true) {
+    const exists = fs.existsSync(currentPath) || fs.lstatSync(currentPath, { throwIfNoEntry: false });
+    if (exists) {
+      try {
+        return path.join(fs.realpathSync(currentPath), ...suffix);
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
+    }
+
+    const parentPath = path.dirname(currentPath);
+    if (parentPath === currentPath) {
+      return path.join(currentPath, ...suffix);
+    }
+    suffix.unshift(path.basename(currentPath));
+    currentPath = parentPath;
+  }
+}
+
 function installSkills(options) {
   const sourceDir = options.source;
   const targetDir = options.target;
@@ -154,6 +185,21 @@ function installSkills(options) {
 
   if (!fs.existsSync(sourceDir) || !fs.statSync(sourceDir).isDirectory()) {
     throw new Error(`Source skills directory not found: ${sourceDir}`);
+  }
+
+  const resolvedSource = fs.realpathSync(sourceDir);
+  const absoluteSource = path.resolve(sourceDir);
+  const canonicalTarget = resolveCanonicalPath(targetDir);
+  const isWithin = (parent, child) => {
+    const relative = path.relative(parent, child);
+    return relative === '' || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative));
+  };
+  if (
+    isWithin(resolvedSource, canonicalTarget)
+    || isWithin(canonicalTarget, resolvedSource)
+    || isWithin(canonicalTarget, absoluteSource)
+  ) {
+    throw new Error(`Source and target directories must not overlap: ${resolvedSource} and ${canonicalTarget}`);
   }
 
   const entries = fs.readdirSync(sourceDir, { withFileTypes: true });
@@ -174,6 +220,28 @@ function installSkills(options) {
       throw new Error(`Skill(s) not found in ${sourceDir}: ${missing.join(', ')}`);
     }
     skillDirs = requested;
+  }
+
+  const targetEntry = fs.lstatSync(targetDir, { throwIfNoEntry: false });
+  if (targetEntry) {
+    let targetIsDirectory = false;
+    try {
+      targetIsDirectory = fs.statSync(targetDir).isDirectory();
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error;
+      }
+    }
+    if (!targetIsDirectory) {
+      throw new Error(`Target is not a directory: ${targetDir}`);
+    }
+  }
+  const conflicts = skillDirs.filter(skillName => {
+    const dest = path.join(targetDir, skillName);
+    return fs.existsSync(dest) || fs.lstatSync(dest, { throwIfNoEntry: false });
+  });
+  if (conflicts.length > 0 && !options.force) {
+    throw new Error(`Skill(s) already exist in target: ${conflicts.join(', ')}. Use --force to replace them.`);
   }
 
   if (!fs.existsSync(targetDir)) {
