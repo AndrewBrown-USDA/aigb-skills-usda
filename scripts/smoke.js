@@ -41,6 +41,13 @@ function runNodeResult(args, env = process.env) {
   };
 }
 
+function runMake(args) {
+  return execFileSync('make', args, {
+    cwd: repoRoot,
+    encoding: 'utf8'
+  });
+}
+
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
@@ -306,6 +313,19 @@ function main() {
     `Installed ${expectedCount} skills to ${installTarget} using copy mode.`
   );
 
+  // 6b. Verify Make forwards an explicit --force argument without making it the default.
+  const makeInstallDryRun = runMake(['-n', 'install-skills']);
+  assert.doesNotMatch(makeInstallDryRun, /--force/);
+  const makeForceInstallDryRun = runMake(['-n', 'install-skills', '--', '--force']);
+  assert.match(makeForceInstallDryRun, /--force/);
+  const makeSelectedInstallDryRun = runMake(['-n', 'install-skills', 'SKILLS=plan-first,dr-lexus']);
+  assert.match(makeSelectedInstallDryRun, /--skill "plan-first,dr-lexus"/);
+  const makeSingularInstallDryRun = runMake(['-n', 'install-skill', 'SKILL=plan-first']);
+  assert.match(makeSingularInstallDryRun, /--skill "plan-first"/);
+  const makeForceTargetDryRun = runMake(['-n', 'install-skills-force', 'SKILLS=plan-first,dr-lexus']);
+  assert.match(makeForceTargetDryRun, /--skill "plan-first,dr-lexus"/);
+  assert.match(makeForceTargetDryRun, /--force/);
+
   // 6c. Test single and comma-separated skill filtering
   const filterSingleTarget = path.join(scratchRoot, 'smoke-filter-single');
   const cliSingleOutput = runNode([
@@ -457,6 +477,34 @@ function main() {
     }
   } finally {
     fs.rmSync(overlapRoot, { recursive: true, force: true });
+  }
+
+  // 8a. Reject targets below a symlinked intermediate ancestor before mutation.
+  const ancestorSymlinkRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-install-ancestor-symlink-'));
+  try {
+    const ancestorSource = path.join(ancestorSymlinkRoot, 'source');
+    const symlinkParent = path.join(ancestorSymlinkRoot, 'alias');
+    fs.mkdirSync(path.join(ancestorSource, 'fixture'), { recursive: true });
+    fs.writeFileSync(path.join(ancestorSource, 'fixture', 'SKILL.md'), 'name: fixture');
+    fs.symlinkSync(ancestorSource, symlinkParent, process.platform === 'win32' ? 'junction' : 'dir');
+
+    for (const mode of ['copy', 'symlink']) {
+      const redirectedTarget = path.join(symlinkParent, `${mode}-new`, 'nested');
+      const result = runNodeResult([
+        'scripts/install.js',
+        '--source',
+        ancestorSource,
+        '--target',
+        redirectedTarget,
+        '--mode',
+        mode
+      ]);
+      assert.equal(result.status, 1, `${mode} must reject targets below symlinked ancestors`);
+      assert.match(result.stderr, /must not overlap/);
+      assert.equal(fs.existsSync(path.join(ancestorSource, `${mode}-new`)), false);
+    }
+  } finally {
+    fs.rmSync(ancestorSymlinkRoot, { recursive: true, force: true });
   }
 
   // 8. Test symlink mode for install

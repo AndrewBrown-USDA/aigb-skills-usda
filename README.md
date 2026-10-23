@@ -12,13 +12,14 @@
 
 ## Quick Start (Installing Skills)
 
-From a checkout containing the packaged `skills/` directory, install skills using the local CLI; Node.js 18 or newer is required. The checked-in CLI has no third-party runtime dependencies, so no npm install step is needed:
+From a checkout containing the packaged `skills/` directory, install the local package link first, then use `npx` to invoke its CLI; Node.js 18 or newer is required:
 
 ```bash
-npx skills install --target ~/.agents/skills
+npm link
+npx --no-install skills install --target ~/.agents/skills
 ```
 
-This copies packaged skills and never fetches skill sources. To invoke the installed npm command after installing the package dependencies, run `npm install` and then `./node_modules/.bin/skills install --target ~/.agents/skills` from the repository root. The install command requires source and target to be separate, non-overlapping directories. Existing same-named skills in the destination are left untouched: by default, installation refuses the conflicting install; pass `--force` to replace the matching destination skills.
+This copies packaged skills and never fetches skill sources. `npm link` makes this checkout's package available to `npx`; `--no-install` prevents `npx` from downloading an unrelated registry package. The install command requires source and target to be separate, non-overlapping directories. Existing same-named skills in the destination are left untouched: by default, installation refuses the conflicting install; pass `--force` to replace the matching destination skills.
 
 Or using `make`:
 
@@ -29,7 +30,18 @@ make install-skills
 make test
 ```
 
-`make install` installs npm dependencies. `make install-skills` invokes the checked-in CLI directly and copies skills into `~/.agents/skills`; if any same-named skills already exist, it refuses unless the command is explicitly run with `--force` (the Make target does not pass `--force`). `make test` is the broader maintainer smoke suite and can require sibling source checkouts; it is not needed to install packaged skills.
+`make install` installs npm dependencies. `make install-skills` invokes the checked-in CLI directly and copies skills into `~/.agents/skills`; if any same-named skills already exist, it refuses. To explicitly replace matching skills through Make, use `make install-skills -- --force`. `make test` is the broader maintainer smoke suite and can require sibling source checkouts; it is not needed to install packaged skills.
+
+To install selected skills, pass a comma-separated list or use the singular shorthand:
+
+```bash
+make install-skills SKILLS=plan-first,dr-lexus
+make install-skill SKILL=plan-first
+make install-skill SKILL=plan-first -- --force
+make install-skills-force SKILLS=plan-first,dr-lexus
+```
+
+The first two forms refuse conflicting skills by default. `install-skills-force` always replaces matching skills and accepts the optional `SKILLS` filter.
 
 ### CI Validation vs. Maintainer Sync
 

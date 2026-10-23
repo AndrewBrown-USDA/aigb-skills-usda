@@ -145,6 +145,31 @@ function copySkill(sourceDir, destDir) {
   });
 }
 
+function resolveCanonicalPath(targetPath) {
+  let currentPath = path.resolve(targetPath);
+  const suffix = [];
+
+  while (true) {
+    const exists = fs.existsSync(currentPath) || fs.lstatSync(currentPath, { throwIfNoEntry: false });
+    if (exists) {
+      try {
+        return path.join(fs.realpathSync(currentPath), ...suffix);
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
+    }
+
+    const parentPath = path.dirname(currentPath);
+    if (parentPath === currentPath) {
+      return path.join(currentPath, ...suffix);
+    }
+    suffix.unshift(path.basename(currentPath));
+    currentPath = parentPath;
+  }
+}
+
 function installSkills(options) {
   const sourceDir = options.source;
   const targetDir = options.target;
@@ -163,13 +188,7 @@ function installSkills(options) {
   }
 
   const resolvedSource = fs.realpathSync(sourceDir);
-  const resolvedTarget = path.resolve(targetDir);
-  const targetParent = path.dirname(resolvedTarget);
-  const targetExists = fs.existsSync(resolvedTarget) || fs.lstatSync(resolvedTarget, { throwIfNoEntry: false });
-  const resolvedTargetParent = fs.existsSync(targetParent) ? fs.realpathSync(targetParent) : targetParent;
-  const canonicalTarget = targetExists
-    ? fs.realpathSync(resolvedTarget)
-    : path.join(resolvedTargetParent, path.basename(resolvedTarget));
+  const canonicalTarget = resolveCanonicalPath(targetDir);
   const isWithin = (parent, child) => {
     const relative = path.relative(parent, child);
     return relative === '' || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative));

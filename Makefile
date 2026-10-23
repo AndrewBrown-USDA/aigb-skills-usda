@@ -1,4 +1,4 @@
-.PHONY: help install install-skills test smoke sync sync-symlink catalog clean
+.PHONY: help install install-skills install-skills-force install-skill test smoke sync sync-symlink catalog clean --force
 
 .DEFAULT_GOAL := help
 
@@ -9,7 +9,15 @@ install: ## Install npm package dependencies
 	npm install
 
 install-skills: ## Install pre-packaged skills into agent directory (~/.agents/skills)
-	node scripts/install.js --mode copy --target ~/.agents/skills --force
+	node scripts/install.js --mode copy --target ~/.agents/skills $(if $(SKILLS),--skill "$(SKILLS)",) $(if $(filter --force,$(MAKECMDGOALS)),--force,)
+
+install-skills-force: ## Force replacement of packaged skills; accepts optional SKILLS=<names>
+	node scripts/install.js --mode copy --target ~/.agents/skills $(if $(SKILLS),--skill "$(SKILLS)",) --force
+
+install-skill: ## Install one packaged skill; use SKILL=<name>
+	$(MAKE) install-skills SKILLS="$(SKILL)" $(if $(filter --force,$(MAKECMDGOALS)),-- --force,)
+
+--force:
 
 test: ## Run smoke test suite
 	npm test
