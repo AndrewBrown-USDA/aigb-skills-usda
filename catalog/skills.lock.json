@@ -59,6 +59,17 @@
       }
     },
     {
+      "name": "bull-in-a-china-shop",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/bull-in-a-china-shop/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
       "name": "caveman",
       "source_repo": "aigb-skills",
       "source_path": "skills/caveman/SKILL.md",
@@ -281,6 +292,18 @@
       "version": {
         "status": "missing",
         "value": null
+      }
+    },
+    {
+      "name": "r-package-testing-workflow",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/r-package-testing-workflow/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
       }
     },
     {
