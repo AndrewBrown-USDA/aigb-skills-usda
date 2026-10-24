@@ -16,7 +16,7 @@
 |---|---:|---|---|
 | 12.1.1 metadata-contract | 1 | done | baseline |
 | 12.2.1 resolution-semantics | 2 | done | 12.1.1 |
-| 12.3.1 surface-and-catalog | 3 | pending | 12.2.1 |
+| 12.3.1 surface-and-catalog | 3 | done | 12.2.1 |
 | 12.4.1 validation-and-measurement | 4 | pending | 12.1.1, 12.2.1, 12.3.1 |
 | 12.5.1 design-integration | 5 | pending | 12.3.1, 12.4.1 |
 
@@ -46,3 +46,17 @@
 - Cross-checked the metadata contract, installer selection behavior, metadata
   normalization, README install semantics, and maintainer sync boundary.
 - `npm run test:validate` passed: `Validator tests passed.` (exit code 0).
+
+## 12.3.1
+
+- Created `docs/design/skill-loadout-surfaces.md`.
+- Defined dependency-free API functions, deterministic diagnostics, and
+  resolution/install result contracts.
+- Specified compatible `install` selection syntax and preserved maintainer-only
+  `sync` behavior and network boundary.
+- Defined generated catalog fields, ownership, schema compatibility, and
+  frontmatter-first regeneration through `scripts/mine-history.js`.
+- Added migration guidance plus request/response, catalog, and diagnostic
+  examples aligned with the metadata and resolution contracts.
+- Cross-checked `src/cli.js`, `scripts/mine-history.js`, and `README.md`.
+- Targeted check: `npm run help` passed.
