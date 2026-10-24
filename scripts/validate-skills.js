@@ -143,6 +143,7 @@ function validateSkill(entry, skillsDir, results) {
   if (!metadataValidation.valid) {
     addResult(results, entry.name, 'metadata', 'failed', metadataValidation.errors.join('; '));
   }
+
   const skillDir = path.join(skillsDir, entry.name);
   const skillPath = path.join(skillDir, 'SKILL.md');
 
@@ -224,6 +225,24 @@ function validateSkill(entry, skillsDir, results) {
   const skillFailures = results.filter((result) => result.skill === entry.name && result.status === 'failed');
   if (skillFailures.length === 0) {
     addResult(results, entry.name, 'structure', 'passed', 'Packaged skill contract satisfied');
+  }
+}
+
+function validateDependencyReferences(entries, results) {
+  const names = new Set(entries.map((entry) => entry.name));
+  for (const entry of entries) {
+    const metadata = normalizeMetadata({
+      ...entry,
+      ...(entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {})
+    });
+    for (const [field, label] of [['dependencies', 'required'], ['optional_dependencies', 'optional']]) {
+      for (const dependency of metadata[field] || []) {
+        if (!names.has(dependency)) {
+          addResult(results, entry.name, 'metadata', 'failed',
+            `Unknown ${label} dependency reference: ${dependency}`);
+        }
+      }
+    }
   }
 }
 
@@ -347,6 +366,7 @@ function main(argv) {
   for (const entry of lockfile.skills) {
     validateSkill(entry, options.skillsDir, results);
   }
+  validateDependencyReferences(lockfile.skills, results);
   runDocumentContractChecks(options.skillsDir, results);
   runBehavioralChecks(options.skillsDir, results);
 
@@ -379,6 +399,7 @@ module.exports = {
   parseArgs,
   parseFrontmatter,
   findLocalReferences,
+  validateDependencyReferences,
   runBehavioralChecks,
   runDocumentContractChecks,
   selectPython

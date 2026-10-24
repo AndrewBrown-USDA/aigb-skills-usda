@@ -86,6 +86,21 @@ try {
     source_repo: 'repo',
     source_path: 'skills/example/SKILL.md'
   }).valid, true);
+  assert.equal(validateMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    version: { status: 'missing', value: null }
+  }).valid, true);
+  assert.equal(validateMetadata(normalizeMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    version: { status: 'missing', value: null }
+  })).valid, true);
+  assert.equal(validateMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    version: '   '
+  }).valid, false);
   assert.throws(
     () => resolveSourceRoot({
       source_repo: 'https://github.com/example/pinned-source.git',
