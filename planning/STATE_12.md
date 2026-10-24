@@ -26,7 +26,7 @@
 
 ## 12.1.1
 
-- Created `docs/design/skill-loadout-metadata.md`.
+- Created `docs/design/skill-loadouts/skill-loadout-metadata.md`.
 - Defined parser-compatible scalar fields for groups, loadouts, dependencies,
   optional dependencies, version, and canonical/upstream provenance.
 - Documented naming, normalization, duplicate, conflict, self-reference, and
@@ -38,7 +38,7 @@
 
 ## 12.2.1
 
-- Created `docs/design/skill-loadout-resolution.md`.
+- Created `docs/design/skill-loadouts/skill-loadout-resolution.md`.
 - Defined deterministic expansion, post-order traversal, deduplication, optional
   warning policy, override precedence, missing skills, cycles, versions, and
   canonical/upstream provenance.
@@ -49,7 +49,7 @@
 
 ## 12.3.1
 
-- Created `docs/design/skill-loadout-surfaces.md`.
+- Created `docs/design/skill-loadouts/skill-loadout-surfaces.md`.
 - Defined dependency-free API functions, deterministic diagnostics, and
   resolution/install result contracts.
 - Specified compatible `install` selection syntax and preserved maintainer-only
@@ -63,7 +63,7 @@
 
 ## 12.4.1
 
-- Created `docs/design/skill-loadout-acceptance.md`.
+- Created `docs/design/skill-loadouts/skill-loadout-acceptance.md`.
 - Added the complete metadata, resolution, API/CLI, catalog, documentation,
   fixture-isolation, and regression acceptance matrix.
 - Defined the serial full-smoke gate and recorded sibling-checkout/network
@@ -74,7 +74,7 @@
 
 ## 12.5.1
 
-- Created `docs/design/skill-loadouts.md` as the integrated implementation-ready specification.
+- Created `docs/design/skill-loadouts/skill-loadouts.md` as the integrated implementation-ready specification.
 - Reconciled metadata, resolution, API/CLI/catalog, compatibility, acceptance, and measurement contracts.
 - Added complete requirement/hazard traceability with Required, Deferred, and Environment-dependent classifications.
 - Documented architecture, parser-compatible scalar metadata, ownership boundaries, deterministic resolution, diagnostics, and migration.
