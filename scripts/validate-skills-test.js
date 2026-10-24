@@ -44,6 +44,13 @@ try {
   assert.equal(help.status, 0);
   assert.match(help.stdout, /--allow-network\s+Allow clone\/fetch recovery/);
   assert.match(help.stdout, /--no-clone\s+Compatibility alias for the local-only default/);
+  for (const option of ['--skill, --skills', '--include', '--exclude', '--mode <copy|symlink>', '--source <path>', '--force']) {
+    assert.match(help.stdout, new RegExp(option.replace(/[<>|]/g, '\\$&')));
+  }
+  const readme = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8');
+  assert.match(readme, /--include`\s+and\s+`--exclude/);
+  assert.match(readme, /Invalid selections produce deterministic\s+diagnostics/);
+  assert.match(readme, /`catalog\/skills\.lock\.json` is generated\s+compatibility/);
   assert.equal(deriveSourceUrl('aigb-skills'), 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
   assert.equal(deriveSourceUrl('unknown-repo'), null);
   assert.deepEqual(normalizeMetadata({
@@ -227,6 +234,47 @@ try {
     '---\nname: example-alias\ndescription: Example skill\nmetadata:\n  source_repo: example-repo\n  source_path: skills/example/SKILL.md\n  source_ref: v1.0.0\n  upstream: https://example.test/skills\n  upstream_name: example\n  version: 1.0\n---\n\n# Example\n',
     'utf8'
   );
+
+  const cliTarget = path.join(tempRoot, 'cli-target');
+  const cliSource = path.join(__dirname, '..', 'skills');
+  const cli = path.join(__dirname, '..', 'src', 'cli.js');
+  const runCli = (args) => spawnSync(process.execPath, [cli, 'install', '--source', cliSource, '--target', cliTarget, ...args], {
+    encoding: 'utf8'
+  });
+  const selected = runCli(['--skill', 'plan-first']);
+  assert.equal(selected.status, 0, selected.stderr);
+  assert.deepEqual(fs.readdirSync(cliTarget), ['plan-first']);
+  const aliases = runCli(['--skills', 'dr-lexus', '--mode', 'copy']);
+  assert.equal(aliases.status, 0, aliases.stderr);
+  assert.deepEqual(fs.readdirSync(cliTarget).sort(), ['dr-lexus', 'plan-first']);
+  const conflict = runCli(['--skill', 'plan-first']);
+  assert.equal(conflict.status, 1);
+  assert.match(conflict.stderr, /already exist.*--force/);
+  const forced = runCli(['--skill', 'plan-first', '--force']);
+  assert.equal(forced.status, 0, forced.stderr);
+  const invalid = runCli(['--skill', 'missing']);
+  assert.equal(invalid.status, 1);
+  assert.match(invalid.stderr, /^install: Skill\(s\) not found in .*skills: missing\n$/);
+  const deterministicInvalid = runCli(['--skill', 'missing']);
+  assert.equal(deterministicInvalid.stderr, invalid.stderr);
+  const sourceOnly = runCli([]);
+  assert.equal(sourceOnly.status, 1);
+  assert.match(sourceOnly.stderr, /already exist/);
+  assert.equal(fs.existsSync(path.join(cliTarget, 'missing')), false);
+  assert.deepEqual(require('./skill-loadouts').resolve('plan-first', require('./install').readCatalog()).diagnostics, []);
+  const catalogFixture = path.join(tempRoot, 'catalog-skills');
+  fs.mkdirSync(path.join(catalogFixture, 'owned'), { recursive: true });
+  fs.writeFileSync(path.join(catalogFixture, 'owned', 'SKILL.md'),
+    '---\nname: owned\nmetadata:\n  source_repo: example\n  source_path: skills/owned/SKILL.md\n---\n# Owned\n', 'utf8');
+  const generated = require('./mine-history').buildLockfile(catalogFixture);
+  assert.equal(generated.schema_version, 1);
+  assert.equal(generated.skills[0].source_path, 'skills/owned/SKILL.md');
+  const legacyCatalog = { schema_version: 1, skills: [{ name: 'owned', source_repo: 'example', source_path: 'skills/owned/SKILL.md' }] };
+  const loadedLegacy = require('./skill-loadouts').loadCatalog(legacyCatalog);
+  assert.equal(loadedLegacy.errors.length, 0);
+  assert.equal(loadedLegacy.skills.get('owned').source_repo, 'example');
+  const handEdited = { ...generated, skills: generated.skills.map((entry) => ({ ...entry, source_path: 'skills/other/SKILL.md' })) };
+  assert.notEqual(handEdited.skills[0].source_path, generated.skills[0].source_path);
   fs.writeFileSync(
     lockfile,
     JSON.stringify({
