@@ -6,6 +6,8 @@ const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_SOURCE_DIR = path.join(REPO_ROOT, 'skills');
+const DEFAULT_CATALOG_PATH = path.join(REPO_ROOT, 'catalog', 'skills.lock.json');
+const { loadCatalog, resolve: resolveLoadout } = require('./skill-loadouts');
 
 function printHelp() {
   process.stdout.write([
@@ -170,8 +172,38 @@ function resolveCanonicalPath(targetPath) {
   }
 }
 
-function installSkills(options) {
-  const sourceDir = options.source;
+function readCatalog(options = {}) {
+  const catalogPath = options.catalogPath || DEFAULT_CATALOG_PATH;
+  const sourceDir = path.resolve(options.sourceDir || DEFAULT_SOURCE_DIR);
+  let catalog;
+  try {
+    catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
+  } catch (error) {
+    throw new Error(`Unable to read catalog: ${error.message}`);
+  }
+  const loaded = loadCatalog(catalog);
+  if (loaded.errors.length) throw new Error(`Invalid catalog: ${loaded.errors.join('; ')}`);
+  for (const record of loaded.skills.values()) {
+    const expected = path.posix.join('skills', record.name, 'SKILL.md');
+    if (record.source_path !== expected) throw new Error(`Invalid packaged source path for ${record.name}`);
+  }
+  return { ...catalog, skills: [...loaded.skills.values()], sourceDir };
+}
+
+function buildCatalog(options = {}) {
+  return require('./mine-history').buildLockfile(options.skillsDir || DEFAULT_SOURCE_DIR);
+}
+
+function installResolved(result, options = {}) {
+  if (!result || result.ok !== true || !Array.isArray(result.skills)) {
+    throw new Error('Cannot install an unsuccessful resolution');
+  }
+  const sourceDir = path.resolve(options.sourceDir || DEFAULT_SOURCE_DIR);
+  const names = result.skills.map(record => record.name);
+  return installMaterialized(names, sourceDir, options);
+}
+
+function installMaterialized(skillDirs, sourceDir, options) {
   const targetDir = options.target;
   const mode = options.mode;
 
@@ -211,16 +243,9 @@ function installSkills(options) {
     throw new Error(`No skills with SKILL.md found in source directory: ${sourceDir}`);
   }
 
-  let skillDirs = availableSkillDirs;
-
-  if (options.skills && options.skills.length > 0) {
-    const requested = Array.from(new Set(options.skills));
-    const missing = requested.filter(s => !availableSkillDirs.includes(s));
-    if (missing.length > 0) {
-      throw new Error(`Skill(s) not found in ${sourceDir}: ${missing.join(', ')}`);
-    }
-    skillDirs = requested;
-  }
+  skillDirs = Array.from(new Set(skillDirs));
+  const missing = skillDirs.filter(s => !availableSkillDirs.includes(s));
+  if (missing.length > 0) throw new Error(`Skill(s) not found in ${sourceDir}: ${missing.join(', ')}`);
 
   const targetEntry = fs.lstatSync(targetDir, { throwIfNoEntry: false });
   if (targetEntry) {
@@ -268,6 +293,36 @@ function installSkills(options) {
   };
 }
 
+function installSkills(options) {
+  const catalog = readCatalog({ sourceDir: options.source });
+  const result = options.skills && options.skills.length
+    ? resolveLoadout(options.skills, catalog, {
+      include: options.include,
+      exclude: options.exclude,
+      force: options.forceNames,
+      constraints: options.constraints
+    })
+    : { ok: true, skills: catalog.skills, diagnostics: [] };
+  if (!result.ok) {
+    const diagnostics = result.diagnostics || [];
+    const plainSelectionFallback = diagnostics.length > 0
+      && diagnostics.every(d => d.code === 'missing-root')
+      && Array.isArray(options.skills)
+      && options.skills.every(token => typeof token === 'string' && !token.includes(':'));
+    if (plainSelectionFallback) {
+      return installMaterialized(options.skills, catalog.sourceDir, options);
+    }
+    const legacyNotFound = diagnostics.length > 0
+      && diagnostics.every(d => d.code === 'missing-root' || d.code === 'invalid-selection');
+    if (legacyNotFound) {
+      const missing = diagnostics.map(d => d.subject).filter(Boolean);
+      throw new Error(`Skill(s) not found in ${catalog.sourceDir}: ${missing.join(', ')}`);
+    }
+    throw new Error(diagnostics.map(d => `${d.code}: ${d.detail || d.subject}`).join('; '));
+  }
+  return installResolved(result, { ...options, sourceDir: options.source });
+}
+
 function main(argv) {
   try {
     const options = parseArgs(argv);
@@ -281,7 +336,12 @@ function main(argv) {
     process.stdout.write(`Installed ${result.count} skills to ${result.targetDir} using ${result.mode} mode.\n`);
     return 0;
   } catch (error) {
-    process.stderr.write(`install: ${error.message}\n`);
+    const message = String(error && error.message ? error.message : error);
+    if (message.includes('invalid skill selection:')) {
+      process.stderr.write('install: Skill(s) not found\n');
+      return 1;
+    }
+    process.stderr.write(`install: ${message}\n`);
     return 1;
   }
 }
@@ -293,6 +353,10 @@ if (require.main === module) {
 module.exports = {
   main,
   parseArgs,
+  readCatalog,
+  resolveLoadout,
+  installResolved,
+  buildCatalog,
   installSkills,
   printHelp
 };

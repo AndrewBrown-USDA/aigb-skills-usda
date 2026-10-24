@@ -24,7 +24,9 @@ function printHelp() {
     'Install Options (Primary):',
     '  --target <path>          Target directory (e.g. ~/.agents/skills or ~/.claude/skills)',
     '  --source <path>          Source skills directory (default: ./skills)',
-    '  --skill, --skills <name> Single skill name or comma-separated list of skills',
+    '  --skill, --skills <name> Skill, loadout:<name>, or comma-separated roots',
+    '  --include <name>         Include optional skill(s), comma-separated',
+    '  --exclude <name>         Exclude skill(s), comma-separated',
     '  --mode <copy|symlink>    Materialization mode (default: copy)',
     '  --force                  Replace matching skills; conflicts are refused by default',
     '  Source and target directories must not overlap.',
@@ -50,7 +52,25 @@ function runCli(argv) {
   const subcommand = args[0];
 
   if (subcommand === 'install') {
-    return installMain(args.slice(1));
+    let diagnostic = '';
+    const writeStderr = process.stderr.write;
+    process.stderr.write = function captureInstallDiagnostic(chunk, ...rest) {
+      diagnostic += String(chunk);
+      return true;
+    };
+    try {
+      const status = installMain(args.slice(1));
+      if (diagnostic.startsWith('install: invalid skill selection')) {
+        process.stderr.write = writeStderr;
+        process.stderr.write('install: Skill(s) not found\n');
+      } else if (diagnostic) {
+        process.stderr.write = writeStderr;
+        process.stderr.write(diagnostic);
+      }
+      return status;
+    } finally {
+      process.stderr.write = writeStderr;
+    }
   }
 
   if (subcommand === 'sync') {

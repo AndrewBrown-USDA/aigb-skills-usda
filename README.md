@@ -91,6 +91,21 @@ npx --no-install skills install --target ~/.pi/agent/skills --skills plan-first,
 npx --no-install skills install --target ./.agents/skills --skills plan-first,web-source-bundler
 ```
 
+Selection roots may also name a catalog loadout with the `loadout:` prefix.
+Use `--include` and `--exclude` for optional selections and explicit
+overrides; repeated options and comma-separated values are accepted:
+
+```bash
+npx --no-install skills install --target ~/.agents/skills --skill loadout:research
+npx --no-install skills install --target ~/.agents/skills --include tdd --exclude plan-first
+```
+
+Omitting `--skill`/`--skills` preserves the compatibility behavior of
+installing every packaged skill. Invalid selections produce deterministic
+diagnostics and install nothing. `--source`, `--mode`, and `--force` apply to
+the install command only; `sync` remains the maintainer-only command for
+upstream repositories and lockfiles.
+
 For a safe local helper example, specify a temporary target rather than a real agent directory:
 
 ```bash
