@@ -1,13 +1,13 @@
 ---
 id: "0006"
 title: "Resolve Skill Loadouts Deterministically from Packaged Metadata"
-status: "Proposed"
+status: "Accepted"
 date: 2026-10-24
 authors:
   - "Andrew G. Brown"
 supersedes: null
 superseded_by: null
-source_context: "EXECUTION_PLAN_12 / docs/design/skill-loadouts"
+source_context: "EXECUTION_PLAN_13 / docs/design/skill-loadouts"
 ---
 
 # 6. Resolve Skill Loadouts Deterministically from Packaged Metadata
@@ -60,7 +60,11 @@ provenance remain metadata constraints; installation always uses packaged
 
 ## Validation & Compliance
 
-Acceptance requires focused ordering, deduplication, override, missing-skill,
-cycle, version, and provenance fixtures. Resolution never invokes
-maintainer synchronization, preserving ADRs 0002 and 0004; canonical and
-upstream metadata remain distinct under ADR 0003.
+Validation completed with focused ordering, deduplication, override,
+missing-skill, cycle, version, provenance, packaged-source, and atomic-failure
+fixtures. The resolver rejects unsupported version-constraint syntax rather
+than interpreting an unapproved grammar. `npm run help`, `npm run
+validate:skills`, `npm run test:validate`, and the serial `npm test` wave
+boundary gate passed. Resolution never invokes maintainer synchronization,
+preserving ADRs 0002 and 0004; canonical and upstream metadata remain
+distinct under ADR 0003.

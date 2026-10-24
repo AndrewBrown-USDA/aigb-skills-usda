@@ -14,5 +14,5 @@ Records are maintained in accordance with the [adr-distillation](../../skills/ad
 | [0003](0003-package-and-upstream-identity.md) | Keep Package Identity Separate from Upstream History | Accepted | 2026-10-14 | - | - | v0.3 Metadata Contract |
 | [0004](0004-install-sync-boundary.md) | Keep Upstream Synchronization Out of User Installation | Accepted | 2026-10-14 | - | - | v0.3 Synchronization |
 | [0005](0005-frontmatter-canonical-metadata.md) | Use YAML Frontmatter as the Canonical Skill Metadata Source | Accepted | 2026-10-24 | - | - | EXECUTION_PLAN_12 |
-| [0006](0006-deterministic-packaged-loadout-resolution.md) | Resolve Skill Loadouts Deterministically from Packaged Metadata | Proposed | 2026-10-24 | - | - | EXECUTION_PLAN_12 |
-| [0007](0007-derived-loadout-surfaces-and-measured-context.md) | Expose Loadouts Through Derived Catalog, CLI, and Reusable API | Proposed | 2026-10-24 | - | - | EXECUTION_PLAN_12 |
+| [0006](0006-deterministic-packaged-loadout-resolution.md) | Resolve Skill Loadouts Deterministically from Packaged Metadata | Accepted | 2026-10-24 | - | - | EXECUTION_PLAN_13 |
+| [0007](0007-derived-loadout-surfaces-and-measured-context.md) | Expose Loadouts Through Derived Catalog, CLI, and Reusable API | Proposed | 2026-10-24 | - | - | EXECUTION_PLAN_13 |

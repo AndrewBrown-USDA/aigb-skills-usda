@@ -7,7 +7,7 @@ authors:
   - "Andrew G. Brown"
 supersedes: null
 superseded_by: null
-source_context: "EXECUTION_PLAN_12 / docs/design/skill-loadouts"
+source_context: "EXECUTION_PLAN_13 / docs/design/skill-loadouts"
 ---
 
 # 7. Expose Loadouts Through Derived Catalog, CLI, and Reusable API
@@ -60,8 +60,12 @@ measurements are stored as JSON and summarized in Markdown.
 
 ## Validation & Compliance
 
-Required evidence includes catalog regeneration determinism, CLI/API
-diagnostics, packaged-only installation, documentation alignment, existing
-validation, and the serial maintainer smoke suite. Environment-dependent
-network recovery and tokenizer checks must be recorded as limitations rather
-than converted into passing evidence. ADRs 0002 and 0004 remain in force.
+Catalog regeneration determinism, CLI/API diagnostics, packaged-only
+installation, documentation alignment, existing validation, and the serial
+maintainer smoke suite passed. The checked-out repository does not contain the
+disposable `.scratch/loadout-measurement/` artifact, so context-reduction
+evidence is not independently reviewable here; no percentage or token result
+is claimed. Tokenizer/model checks and environment-dependent network recovery
+remain limitations rather than passing evidence. ADRs 0002 and 0004 remain in
+force, so this ADR remains Proposed until the measurement artifact is retained
+and reviewed.
