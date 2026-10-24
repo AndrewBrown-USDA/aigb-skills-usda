@@ -19,14 +19,48 @@
 | 13.2.2 resolver-core | 2 | done | 13.1.1 |
 | 13.3.1 install-api | 3 | done | 13.2.1, 13.2.2 |
 | 13.3.2 cli-surface | 3 | done | 13.2.1, 13.2.2 |
-| 13.4.1 resolver-install-acceptance | 4 | pending | 13.3.1, 13.3.2 |
-| 13.4.2 cli-catalog-acceptance | 4 | pending | 13.3.1, 13.3.2 |
-| 13.4.3 measurement-tooling | 4 | pending | 13.3.1, 13.3.2 |
+| 13.4.1 resolver-install-acceptance | 4 | done | 13.3.1, 13.3.2 |
+| 13.4.2 cli-catalog-acceptance | 4 | done | 13.3.1, 13.3.2 |
+| 13.4.3 measurement-tooling | 4 | done | 13.3.1, 13.3.2 |
 | 13.5.1 docs-and-adr-acceptance | 5 | pending | 13.4.1, 13.4.2, 13.4.3 |
 
 ## Task reports
 
 <!-- Worker reports are appended here during execution. -->
+
+## 13.4.3
+- Added dependency-free packaged-context byte measurement harness and generated
+  disposable evidence under `.scratch/loadout-measurement/`.
+- Evidence records pinned commit `e284d90f90e65f2660f9f923e658df9a9cf07a83`,
+  UTF-8 serialization, manifests, diagnostics, environment, five serial raw
+  samples per scenario, and byte reduction metrics. Token metrics are null and
+  explicitly unavailable.
+- `node scripts/measure-skill-loadouts.js --help` — PASS.
+- The current catalog has no loadout/optional metadata, so deterministic
+  catalog-order fallbacks were recorded rather than inventing metadata.
+
+## 13.4.2
+- Extended `scripts/validate-skills-test.js` with isolated CLI selection, alias,
+  mode, source, force/conflict, omitted-selection, invalid-request, and
+  deterministic-diagnostic coverage.
+- Added help/README alignment assertions and isolated catalog generation,
+  schema-version compatibility, derived ownership, and hand-edit divergence
+  checks. Existing validator, behavioral, report, metadata, and document
+  contract assertions remain covered.
+- Temporary fixtures are rooted at `.scratch/10.2.1/` and cleaned in
+  `finally`; no runtime, packaged skills, generated catalog, README, ADR, or
+  design files were changed.
+- `npm run help` — PASS (exit 0).
+- `npm run test:validate` — PASS: `Validator tests passed.` (exit 0).
+
+## 13.4.1
+- Extended `scripts/skill-loadouts-test.js` with isolated fixture assertions for deterministic post-order resolution, deduplication, loadout expansion, optional inclusion, override precedence, missing roots, cycles, packaged source paths, and unsupported constraints.
+- Extended `scripts/install-loadouts-test.js` with packaged-source copy/symlink, conflict/force, overlap safety, source-path/provenance non-use, invalid catalog, and atomic failed-resolution coverage.
+- All fixtures are under `.scratch/loadout-tests/` and cleaned with `try/finally`; runtime, catalog, packaged skills, CLI, metadata, and docs were unchanged.
+- `node scripts/skill-loadouts-test.js` — PASS (`Skill loadout tests passed.`).
+- `node scripts/install-loadouts-test.js` — PASS (`Install loadout tests passed.`).
+- Suites were run independently and serially after one initial parallel diagnostic run; final exact serial results are both passing.
+- Deviations: none from approved file scope or acceptance intent.
 
 ## 13.3.2
 - Updated the public CLI help for skill/loadout roots, include/exclude
