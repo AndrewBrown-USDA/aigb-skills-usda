@@ -15,7 +15,7 @@
 | Task | Wave | Status | Depends on |
 |---|---:|---|---|
 | 12.1.1 metadata-contract | 1 | done | baseline |
-| 12.2.1 resolution-semantics | 2 | pending | 12.1.1 |
+| 12.2.1 resolution-semantics | 2 | done | 12.1.1 |
 | 12.3.1 surface-and-catalog | 3 | pending | 12.2.1 |
 | 12.4.1 validation-and-measurement | 4 | pending | 12.1.1, 12.2.1, 12.3.1 |
 | 12.5.1 design-integration | 5 | pending | 12.3.1, 12.4.1 |
@@ -35,3 +35,14 @@
   structures beyond the existing parser contract.
 - Specified compatibility and migration behavior for legacy provenance aliases.
 - `npm run validate:skills` passed (34 skills, 39 checks).
+
+## 12.2.1
+
+- Created `docs/design/skill-loadout-resolution.md`.
+- Defined deterministic expansion, post-order traversal, deduplication, optional
+  warning policy, override precedence, missing skills, cycles, versions, and
+  canonical/upstream provenance.
+- Added language-neutral pseudocode and an edge-case matrix.
+- Cross-checked the metadata contract, installer selection behavior, metadata
+  normalization, README install semantics, and maintainer sync boundary.
+- `npm run test:validate` passed: `Validator tests passed.` (exit code 0).
