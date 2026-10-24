@@ -17,8 +17,8 @@
 | 13.1.1 metadata-contract | 1 | done | baseline |
 | 13.2.1 catalog-generation | 2 | done | 13.1.1 |
 | 13.2.2 resolver-core | 2 | done | 13.1.1 |
-| 13.3.1 install-api | 3 | pending | 13.2.1, 13.2.2 |
-| 13.3.2 cli-surface | 3 | pending | 13.2.1, 13.2.2 |
+| 13.3.1 install-api | 3 | done | 13.2.1, 13.2.2 |
+| 13.3.2 cli-surface | 3 | done | 13.2.1, 13.2.2 |
 | 13.4.1 resolver-install-acceptance | 4 | pending | 13.3.1, 13.3.2 |
 | 13.4.2 cli-catalog-acceptance | 4 | pending | 13.3.1, 13.3.2 |
 | 13.4.3 measurement-tooling | 4 | pending | 13.3.1, 13.3.2 |
@@ -27,6 +27,26 @@
 ## Task reports
 
 <!-- Worker reports are appended here during execution. -->
+
+## 13.3.2
+- Updated the public CLI help for skill/loadout roots, include/exclude
+  overrides, source, mode, force, and the install/sync boundary.
+- Documented `loadout:<name>`, omitted-selection compatibility, deterministic
+  diagnostics, and the packaged-install versus maintainer-sync boundary.
+- `npm run help` passed.
+- `npm run test:validate` passed.
+- Deviation: translated only `install: invalid skill selection` to the
+  established `Skill(s) not found` compatibility diagnostic in `src/cli.js`;
+  loadout resolution behavior remains unchanged. One retry of `npm test` was
+  permitted by the wave verification instructions.
+
+## 13.3.1
+- Integrated catalog loading and deterministic resolver results with the existing offline installer.
+- Exported `readCatalog`, `resolveLoadout`, `installResolved`, and `buildCatalog` while preserving materialization, overlap, conflict, force, and target safety checks.
+- Added `scripts/install-loadouts-test.js` covering API exports, dependency ordering, copy installation, and atomic no-target-on-resolution-failure behavior.
+- `node scripts/install-loadouts-test.js` passed: `Install loadout tests passed.`
+- Escalation deviation (wave-three verification): restored legacy invalid-selection compatibility in `scripts/install.js` for direct script invocation by emitting `Skill(s) not found in ...` for unresolved plain-root selections while preserving resolver-driven loadout behavior and diagnostics for loadout tokens.
+- Verification rerun after deviation: `node scripts/install-loadouts-test.js`, `npm run help`, `npm run test:validate`, and `npm test` all passed.
 
 ## 13.2.2
 - Implemented offline catalog loading, normalization, packaged source-path validation, deterministic loadout expansion, dependency traversal, override precedence, cycle diagnostics, and explicit constraint rejection.
