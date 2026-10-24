@@ -18,7 +18,7 @@
 | 12.2.1 resolution-semantics | 2 | done | 12.1.1 |
 | 12.3.1 surface-and-catalog | 3 | done | 12.2.1 |
 | 12.4.1 validation-and-measurement | 4 | done | 12.1.1, 12.2.1, 12.3.1 |
-| 12.5.1 design-integration | 5 | pending | 12.3.1, 12.4.1 |
+| 12.5.1 design-integration | 5 | done | 12.3.1, 12.4.1 |
 
 ## Task reports
 
@@ -71,3 +71,14 @@
 - Defined a reproducible context-reduction corpus, selection method, metrics,
   repeat rules, and JSON/Markdown evidence artifact without claiming results.
 - Updated the 12.4.1 todo checklist; targeted `npm run test:validate` passed.
+
+## 12.5.1
+
+- Created `docs/design/skill-loadouts.md` as the integrated implementation-ready specification.
+- Reconciled metadata, resolution, API/CLI/catalog, compatibility, acceptance, and measurement contracts.
+- Added complete requirement/hazard traceability with Required, Deferred, and Environment-dependent classifications.
+- Documented architecture, parser-compatible scalar metadata, ownership boundaries, deterministic resolution, diagnostics, and migration.
+- Verified ADR 0001-0004 compliance and identified only bounded implementation decisions.
+- `npm run validate:skills` passed (34 skills, 39 checks; exit code 0).
+- `npm run test:validate` passed (`Validator tests passed.`; exit code 0).
+- `npm test` passed (smoke checks passed for 34 skills; exit code 0).
