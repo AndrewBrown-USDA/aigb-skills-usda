@@ -22,11 +22,25 @@
 | 13.4.1 resolver-install-acceptance | 4 | done | 13.3.1, 13.3.2 |
 | 13.4.2 cli-catalog-acceptance | 4 | done | 13.3.1, 13.3.2 |
 | 13.4.3 measurement-tooling | 4 | done | 13.3.1, 13.3.2 |
-| 13.5.1 docs-and-adr-acceptance | 5 | pending | 13.4.1, 13.4.2, 13.4.3 |
+| 13.5.1 docs-and-adr-acceptance | 5 | done | 13.4.1, 13.4.2, 13.4.3 |
 
 ## Task reports
 
 <!-- Worker reports are appended here during execution. -->
+
+## 13.5.1
+- Reviewed implementation, focused acceptance evidence, design contracts, and
+  measurement availability.
+- Updated README catalog count from 32 to the implemented 34 skills.
+- Accepted ADR 0006: deterministic packaged resolution is implemented and
+  covered by focused suites plus the passing serial smoke gate.
+- Retained ADR 0007 as Proposed because `.scratch/loadout-measurement/` is not
+  present in this checkout; no context-reduction percentage or token metric is
+  claimed.
+- Targeted checks after edits: `npm run help`, `npm run validate:skills`, and
+  `npm run test:validate` passed. The orchestrator-provided serial `npm test`
+  gate passed with `Smoke checks passed for 34 skills`; no environment
+  limitation was reported.
 
 ## 13.4.3
 - Added dependency-free packaged-context byte measurement harness and generated
