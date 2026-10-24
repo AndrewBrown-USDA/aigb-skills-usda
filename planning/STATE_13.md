@@ -15,8 +15,8 @@
 | Task | Wave | Status | Depends on |
 |---|---:|---|---|
 | 13.1.1 metadata-contract | 1 | done | baseline |
-| 13.2.1 catalog-generation | 2 | pending | 13.1.1 |
-| 13.2.2 resolver-core | 2 | pending | 13.1.1 |
+| 13.2.1 catalog-generation | 2 | done | 13.1.1 |
+| 13.2.2 resolver-core | 2 | done | 13.1.1 |
 | 13.3.1 install-api | 3 | pending | 13.2.1, 13.2.2 |
 | 13.3.2 cli-surface | 3 | pending | 13.2.1, 13.2.2 |
 | 13.4.1 resolver-install-acceptance | 4 | pending | 13.3.1, 13.3.2 |
@@ -27,6 +27,18 @@
 ## Task reports
 
 <!-- Worker reports are appended here during execution. -->
+
+## 13.2.2
+- Implemented offline catalog loading, normalization, packaged source-path validation, deterministic loadout expansion, dependency traversal, override precedence, cycle diagnostics, and explicit constraint rejection.
+- Added focused resolver tests.
+- `node scripts/skill-loadouts-test.js` passed: Skill loadout tests passed.
+
+## 13.2.1
+- Catalog generation completed using the approved metadata contract and generated ownership/order rules.
+- `catalog/skills.lock.json` regenerated exclusively with `npm run catalog:mine`.
+- `npm run catalog:mine` passed.
+- `npm run validate:skills` passed: 34 packaged skills, 39 checks.
+- No deviations from the approved plan; no additional smoke assertions were needed.
 
 ## 13.1.1
 - Implemented scalar normalization for group, loadout, dependencies, optional dependencies, and version.
