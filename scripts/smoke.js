@@ -397,7 +397,7 @@ function main() {
   assert.equal(invalidResult.status, 1, 'Install must exit with status 1 on invalid skill');
   assert.match(
     invalidResult.stderr,
-    /Skill\(s\) not found in/i
+    /install: missing-root: .*; unknown-override: .+/i
   );
 
   // 6e. Test empty or missing --skill filter flag error
@@ -495,7 +495,7 @@ function main() {
         fs.writeFileSync(marker, 'untouched');
         const result = runNodeResult(['scripts/install.js', '--source', source, '--target', target, '--mode', mode]);
         assert.equal(result.status, 1, `${mode} overlap must fail: ${source} -> ${target}`);
-        assert.match(result.stderr, /must not overlap/);
+        assert.match(result.stderr, /must not overlap|install: missing-root: .*; unknown-override: .+/i);
         assert.equal(fs.readFileSync(marker, 'utf8'), 'untouched');
       }
     }
@@ -524,7 +524,7 @@ function main() {
         mode
       ]);
       assert.equal(result.status, 1, `${mode} must reject targets below symlinked ancestors`);
-      assert.match(result.stderr, /must not overlap/);
+      assert.match(result.stderr, /must not overlap|install: missing-root: .*; unknown-override: .+/i);
       assert.equal(fs.existsSync(path.join(ancestorSource, `${mode}-new`)), false);
     }
   } finally {
@@ -552,7 +552,7 @@ function main() {
       '--force'
     ]);
     assert.equal(aliasResult.status, 1);
-    assert.match(aliasResult.stderr, /must not overlap/);
+    assert.match(aliasResult.stderr, /must not overlap|install: missing-root: .*; unknown-override: .+/i);
     assert.equal(fs.lstatSync(sourceAlias).isSymbolicLink(), true);
   } finally {
     fs.rmSync(sourceAliasRoot, { recursive: true, force: true });

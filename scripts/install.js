@@ -50,6 +50,8 @@ function parseArgs(argv) {
     target: null,
     skills: null,
     force: false,
+    include: null,
+    exclude: null,
     help: false
   };
 
@@ -84,6 +86,18 @@ function parseArgs(argv) {
           options.skills = [];
         }
         options.skills.push(...parsed);
+        break;
+      }
+      case '--include':
+      case '--exclude': {
+        const val = argv[i + 1];
+        i += 1;
+        if (!val || typeof val !== 'string' || val.trim().length === 0) {
+          throw new Error(`${arg} requires a non-empty skill name or comma-separated list`);
+        }
+        const key = arg.slice(2);
+        if (!options[key]) options[key] = [];
+        options[key].push(...val.split(',').map(s => s.trim()).filter(Boolean));
         break;
       }
       case '--lockfile':
@@ -299,19 +313,12 @@ function installSkills(options) {
     ? resolveLoadout(options.skills, catalog, {
       include: options.include,
       exclude: options.exclude,
-      force: options.forceNames,
+      force: options.skills.filter(name => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name)),
       constraints: options.constraints
     })
     : { ok: true, skills: catalog.skills, diagnostics: [] };
   if (!result.ok) {
     const diagnostics = result.diagnostics || [];
-    const plainSelectionFallback = diagnostics.length > 0
-      && diagnostics.every(d => d.code === 'missing-root')
-      && Array.isArray(options.skills)
-      && options.skills.every(token => typeof token === 'string' && !token.includes(':'));
-    if (plainSelectionFallback) {
-      return installMaterialized(options.skills, catalog.sourceDir, options);
-    }
     const legacyNotFound = diagnostics.length > 0
       && diagnostics.every(d => d.code === 'missing-root' || d.code === 'invalid-selection');
     if (legacyNotFound) {

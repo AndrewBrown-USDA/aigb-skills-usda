@@ -254,7 +254,7 @@ try {
   assert.equal(forced.status, 0, forced.stderr);
   const invalid = runCli(['--skill', 'missing']);
   assert.equal(invalid.status, 1);
-  assert.match(invalid.stderr, /^install: Skill\(s\) not found in .*skills: missing\n$/);
+  assert.equal(invalid.stderr, 'install: missing-root: missing; unknown-override: missing\n');
   const deterministicInvalid = runCli(['--skill', 'missing']);
   assert.equal(deterministicInvalid.stderr, invalid.stderr);
   const sourceOnly = runCli([]);

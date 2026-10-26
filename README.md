@@ -93,7 +93,8 @@ npx --no-install skills install --target ./.agents/skills --skills plan-first,we
 
 Selection roots may also name a catalog loadout with the `loadout:` prefix.
 Use `--include` and `--exclude` for optional selections and explicit
-overrides; repeated options and comma-separated values are accepted:
+overrides; repeated options and comma-separated values are accepted. Explicit
+skill roots remain selected when an exclude also names them:
 
 ```bash
 npx --no-install skills install --target ~/.agents/skills --skill loadout:research
@@ -102,9 +103,9 @@ npx --no-install skills install --target ~/.agents/skills --include tdd --exclud
 
 Omitting `--skill`/`--skills` preserves the compatibility behavior of
 installing every packaged skill. Invalid selections produce deterministic
-diagnostics and install nothing. `--source`, `--mode`, and `--force` apply to
-the install command only; `sync` remains the maintainer-only command for
-upstream repositories and lockfiles.
+diagnostics and install nothing (the destination is unchanged). `--source`,
+`--mode`, and `--force` apply to the install command only; `sync` remains the
+maintainer-only command for upstream repositories and lockfiles.
 
 For a safe local helper example, specify a temporary target rather than a real agent directory:
 

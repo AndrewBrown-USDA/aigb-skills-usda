@@ -2,6 +2,7 @@
 const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 const installer = require('./install');
 const scratch = path.join(__dirname, '..', '.scratch', 'loadout-tests');
 fs.mkdirSync(scratch, { recursive: true });
@@ -25,10 +26,42 @@ try {
   assert.ok(fs.existsSync(path.join(target, 'c', 'SKILL.md')));
   assert.ok(fs.existsSync(path.join(target, 'a', 'extra.txt')));
   assert.throws(() => installer.installResolved(result, { sourceDir: source, target, mode: 'copy' }), /already exist/);
-  installer.installResolved(result, { sourceDir: source, target, mode: 'copy', force: true });
   const symlinkTarget = path.join(root, 'links');
   installer.installResolved(result, { sourceDir: source, target: symlinkTarget, mode: 'symlink' });
   assert.ok(fs.lstatSync(path.join(symlinkTarget, 'a')).isSymbolicLink() || process.platform === 'win32');
+  const cli = path.join(__dirname, 'install.js');
+  const packaged = installer.readCatalog();
+  const rootName = packaged.skills[0].name;
+  const runCli = (...args) => spawnSync(process.execPath, [cli, ...args], {
+    encoding: 'utf8'
+  });
+  const selectedTarget = path.join(root, 'selected');
+  let cliResult = runCli('--target', selectedTarget, '--skill', rootName, '--include', rootName, '--include', rootName, '--exclude', rootName);
+  assert.equal(cliResult.status, 0, cliResult.stderr);
+  assert.deepStrictEqual(fs.readdirSync(selectedTarget).sort(), [rootName]);
+  const forcedTarget = path.join(root, 'forced');
+  cliResult = runCli('--target', forcedTarget, '--skill', rootName, '--exclude', rootName, '--exclude', rootName);
+  assert.equal(cliResult.status, 0, cliResult.stderr);
+  assert.deepStrictEqual(fs.readdirSync(forcedTarget).sort(), [rootName]);
+  fs.writeFileSync(path.join(forcedTarget, rootName, 'changed.txt'), 'old');
+  cliResult = runCli('--target', forcedTarget, '--skill', rootName, '--force');
+  assert.equal(cliResult.status, 0, cliResult.stderr);
+  assert.ok(!fs.existsSync(path.join(forcedTarget, rootName, 'changed.txt')));
+  const missingTarget = path.join(root, 'missing-target');
+  const missing = runCli('--target', missingTarget, '--skill', 'missing');
+  assert.equal(missing.status, 1);
+  assert.equal(missing.stderr, 'install: missing-root: missing; unknown-override: missing\n');
+  assert.ok(!fs.existsSync(missingTarget));
+  const sentinelTarget = path.join(root, 'sentinel');
+  fs.mkdirSync(sentinelTarget);
+  fs.writeFileSync(path.join(sentinelTarget, 'sentinel.txt'), 'keep');
+  const invalid = runCli('--target', sentinelTarget, '--skill', 'missing');
+  assert.equal(invalid.status, 1);
+  assert.equal(fs.readFileSync(path.join(sentinelTarget, 'sentinel.txt'), 'utf8'), 'keep');
+  const omittedTarget = path.join(root, 'omitted');
+  cliResult = runCli('--target', omittedTarget);
+  assert.equal(cliResult.status, 0, cliResult.stderr);
+  assert.deepStrictEqual(fs.readdirSync(omittedTarget).sort(), packaged.skills.map(skill => skill.name).sort());
   assert.throws(() => installer.installResolved(result, { sourceDir: source, target: source, mode: 'copy' }), /overlap/);
   assert.throws(() => installer.installResolved(installer.resolveLoadout(['missing'], catalog), {
     sourceDir: source, target: path.join(root, 'failed')
