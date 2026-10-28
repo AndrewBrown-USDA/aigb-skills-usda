@@ -98,6 +98,18 @@
       }
     },
     {
+      "name": "code-review-subtractive",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/code-review-subtractive/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
       "name": "conventional-commits",
       "author": "Andrew G. Brown (https://github.com/brownag)",
       "license": "MIT",
