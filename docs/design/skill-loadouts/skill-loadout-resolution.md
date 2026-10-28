@@ -1,8 +1,8 @@
 # Skill Loadout Resolution Semantics
 
-Status: design contract for task 12.2.1. This document defines deterministic
-resolution for the metadata in `skill-loadout-metadata.md`; it does not change
-the current CLI, parser, validator, or catalog.
+Status: implemented design contract. This document defines deterministic
+resolution for the metadata in `skill-loadout-metadata.md` and reflects the
+focused resolver and installer regressions.
 
 ## Inputs and outputs
 
@@ -23,9 +23,10 @@ whose normalized `loadout` equals that name, sorted by skill name. Empty
 requests are valid and resolve to an empty result.
 
 The result is either a successful ordered list of unique skill records and
-diagnostics, or a failed result with no installable partial result. Diagnostics
-are stable tuples `(code, subject, path, detail)` sorted by discovery order,
-then code and subject. The install source is always the packaged
+diagnostics, or a failed result with `skills: []` and no installable partial
+result. Diagnostics add stable `severity`, `message`, array `path`, and
+string `legacyPath` fields to the original `code`, `subject`, and `detail`
+shape. They are sorted by path, then code and subject. The install source is always the packaged
 `source_path` under `./skills`; resolution never fetches `source_url` or an
 upstream repository.
 
@@ -51,24 +52,27 @@ edge, except that its missing target is a warning (see below).
 Overrides use comma-separated names, matching the parser's scalar convention.
 Precedence, from strongest to weakest, is:
 
-1. `force` includes a name and all of its transitive dependencies, even when
-   it is also excluded.
+1. `force` retains an explicitly requested skill root when it is also excluded
+   and permits replacement of matching destination entries.
 2. `exclude` suppresses an optional edge and its subtree unless forced.
 3. `include` selects an optional edge; it does not override an exclusion.
 4. Metadata declarations provide the default required/optional graph.
 
 Direct requests are roots and cannot be silently removed: excluding a directly
-requested skill is a deterministic conflict error. `force` resolves that
-conflict and wins. Excluding a required dependency is also an error because it
-would violate the required graph; forcing it is redundant and succeeds.
+requested skill is a deterministic `excluded-root` error. `force` resolves
+that direct-root conflict and wins. Excluding a required dependency is also an
+error because it would violate the required graph.
 Excluding an unrequested optional dependency is harmless and produces no
 diagnostic. An override naming an unknown skill is an error, even if it would
-otherwise be unused. Override names are deduplicated while preserving their
-first appearance.
+otherwise be unused. `include` and `exclude` without an explicit skill or
+loadout root fail with `roots-required`. Override names are deduplicated while
+preserving their first appearance.
 
 ## Missing skills and failures
 
-- A missing direct skill or loadout member is an error.
+- A missing direct skill is an error.
+- A syntactically valid `loadout:<name>` with no packaged members is a
+  `missing-loadout` error, not an empty successful expansion.
 - A missing required dependency is an error.
 - A selected missing optional dependency is a warning and is omitted; it does
   not fail resolution. The warning includes the parent and edge path.
@@ -93,12 +97,12 @@ traversed and therefore cannot cause a resolution cycle.
 ## Versions and provenance
 
 Identity is the normalized skill `name`; version does not create another node.
-If a request or future API supplies a version constraint, it must be checked
-against the selected record's `version`; absent versions satisfy only an
-unconstrained request. Unsupported or malformed constraints are errors.
-Conflicting constraints for the same identity are errors; compatible
-constraints are all required to pass. This contract does not prescribe a
-version-range syntax beyond requiring deterministic parser support.
+If the API supplies a version constraint, it is an exact non-empty version
+string checked against the selected record's resolved `version`; absent
+versions satisfy only an unconstrained request. Whitespace, comparison
+operators, ranges, wildcards, and other unsupported syntax are
+`version-constraint` errors. A constraint naming an unknown skill is an
+`unknown-constraint` error.
 
 `source_repo` and `source_path` identify the installable artifact. `source_url`
 may be derived from the canonical repository map. `upstream_repo`,
@@ -112,8 +116,10 @@ through the metadata contract's normalization rules.
 ```text
 resolve(request, catalog, include, exclude, force):
   normalize and deduplicate all names; reject unknown override names
+  reject include/exclude overrides when request has no explicit roots
   roots = expand request names and loadout:<name> members (catalog-name order)
-  reject missing roots and direct roots excluded without force
+  reject missing skills, loadouts with no members, and direct roots excluded
+  without force
   state = unseen; output = []; diagnostics = []
   visit(name, edge_kind, path):
     if name is excluded and not forced:
@@ -138,27 +144,30 @@ resolve(request, catalog, include, exclude, force):
 
 | Case | Result |
 | --- | --- |
-| Empty request | Success, empty output |
+| Empty request without overrides | Success, empty output |
+| Include/exclude without roots | Failure (`roots-required`) |
 | Duplicate roots/members | One entry at first occurrence |
 | Nested required edges | Post-order, declaration order |
 | Unselected optional edge | Omitted, no resolution diagnostic |
 | Included optional edge | Traversed; missing target warns |
 | Direct missing name | Failure |
+| Unknown/mistyped loadout | Failure (`missing-loadout`) |
 | Missing required edge | Failure |
 | Missing optional edge | Warning only when selected |
 | Direct exclusion | Conflict failure unless forced |
-| Required exclusion | Failure; force is redundant |
+| Required exclusion | Failure |
 | Optional exclusion | Omitted unless forced |
 | Unknown override name | Failure |
 | Required or selected-optional cycle | Failure, closed path diagnostic |
 | Unselected optional cycle | Not traversed |
-| Conflicting version constraints | Failure |
+| Unsupported range/wildcard constraint | Failure; exact strings only |
 | Missing version under constraint | Failure |
-| Duplicate compatible version request | One identity, all constraints checked |
+| Exact version mismatch | Failure |
+| Constraint on unknown skill | Failure |
 | Canonical/upstream disagreement | Metadata validation failure |
 | Provenance-only difference | Same identity/source; provenance retained |
 | Group-only match | No expansion |
-| Loadout with no members | Success, empty expansion |
+| Loadout with no members | Failure |
 
 These rules preserve direct packaged installation and the maintainer-only
 `sync` boundary: resolution selects already materialized skills and never

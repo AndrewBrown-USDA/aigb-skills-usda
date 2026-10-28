@@ -1,9 +1,9 @@
 # Skill Loadout Acceptance and Measurement Plan
 
-Status: design contract for task 12.4.1. This document defines evidence
-required for a later implementation of the metadata, resolver, catalog, CLI,
-API, and documentation contracts. It records no implementation result and
-does not change the current package.
+Status: implemented acceptance contract. This document maps the metadata,
+resolver, installer, API, CLI, documentation, and measurement requirements to
+their focused regression suites. Real curated-loadout measurement evidence is
+still blocked on orchestration 14.
 
 ## 1. Acceptance classification
 
@@ -14,16 +14,15 @@ does not change the current package.
 | Environment-dependent | Required when the environment supports it; otherwise record the command, limitation, and observable evidence without weakening the requirement. |
 
 The current green baseline is `npm run help`, `npm run validate:skills`
-(34 skills, 39 checks), `npm run test:validate`, and the recorded smoke result
-of `npm test` / `node scripts/smoke.js` for 34 skills. The task-specific
-targeted check is `npm run test:validate`. It must be run after this document
-is created. This task does not run the full/global suites.
+(34 skills, 39 checks), `npm run test:validate`, the focused loadout suites,
+the measurement protocol suite, and the recorded serial `npm test` result for
+34 skills.
 
 ## 2. Focused acceptance matrix
 
-Each row names the implementation fixture or evidence artifact that a later
-worker must produce. Fixtures are isolated under a test-owned temporary
-directory (never the packaged `skills/` tree or generated catalog).
+Each row names the focused suite or evidence artifact that verifies it.
+Fixtures are isolated under a test-owned scratch directory (never the packaged
+`skills/` tree or generated catalog).
 
 | Requirement | Focused test/evidence | Expected assertion | Class |
 | --- | --- | --- | --- |
@@ -34,19 +33,21 @@ directory (never the packaged `skills/` tree or generated catalog).
 | Self-reference fails | `metadata-self-reference` fixture | Direct and optional self-edges are rejected before catalog generation | Required |
 | Provenance rules hold | `metadata-provenance` fixture | Canonical/legacy aliases agree when both exist; canonical identity remains distinct from upstream provenance | Required |
 | Legacy records remain readable | `metadata-legacy-record` fixture | A record without loadout fields, and a record using legacy provenance aliases, remains compatible | Required |
-| Direct ordering is preserved | `resolution-order` fixture | Requested roots retain order; dependencies emit post-order in declaration order | Required |
-| Deduplication is idempotent | `resolution-deduplication` fixture | Repeated roots, loadout members, and shared dependencies emit once at first completion | Required |
-| Required dependencies resolve transitively | `resolution-required-transitive` fixture | All required descendants are included or resolution fails without a partial plan | Required |
-| Optional dependencies are opt-in | `resolution-optional` fixture | Unselected optional edges are omitted; included edges traverse normally | Required |
-| Overrides have fixed precedence | `resolution-overrides` fixture | `force` beats `exclude`, `exclude` beats `include`, and metadata defaults are weakest | Required |
-| Missing skills are classified | `resolution-missing` fixture | Missing direct/required names fail; selected missing optional names warn and are omitted | Required |
-| Cycles are deterministic | `resolution-cycles` fixture | Required or selected-optional cycles fail with a closed, stable path; unselected optional cycles are not visited | Required |
-| Version behavior is explicit | `resolution-versions` fixture | Identity is name-based; constraints are checked deterministically; conflicts and missing constrained versions fail | Required |
-| Provenance does not change install source | `resolution-provenance` fixture | Output retains provenance but installation uses packaged `source_path` only | Required |
-| CLI selection syntax works | CLI fixture invoking `--skill`, `--skills`, comma lists, and `loadout:<name>` | Aliases and compatibility syntax produce the same normalized request | Required |
-| CLI diagnostics are actionable | CLI failure fixtures | Unknown names/options, cycles, exclusions, and conflicts exit 1 with stable codes and no partial install | Required |
+| Direct ordering is preserved | `scripts/skill-loadouts-test.js` | Requested roots retain order; dependencies emit post-order in declaration order | Required |
+| Deduplication is idempotent | `scripts/skill-loadouts-test.js` | Repeated roots, loadout members, and shared dependencies emit once at first completion | Required |
+| Required dependencies resolve transitively | `scripts/skill-loadouts-test.js` | All required descendants are included or resolution fails without a partial plan | Required |
+| Optional dependencies are opt-in | `scripts/skill-loadouts-test.js` | Unselected optional edges are omitted; included edges traverse normally | Required |
+| Overrides have fixed precedence | `scripts/skill-loadouts-test.js`; `scripts/install-loadouts-test.js` | Direct exclusion fails unless forced; optional include/exclude and required edges follow the documented rules | Required |
+| Missing skills are classified | `scripts/skill-loadouts-test.js`; `scripts/install-loadouts-test.js` | Missing direct/required names fail; selected missing optional names warn and are omitted | Required |
+| Unknown loadouts fail closed | `scripts/skill-loadouts-test.js`; `scripts/install-loadouts-test.js` | A mistyped `loadout:<name>` returns `missing-loadout`, no skills, and no target creation | Required |
+| Rootless overrides fail | `scripts/skill-loadouts-test.js`; `scripts/install-loadouts-test.js` | `include`/`exclude` without an explicit root return `roots-required` and do not install | Required |
+| Cycles are deterministic | `scripts/skill-loadouts-test.js` | Required or selected-optional cycles fail with a closed, stable path; unselected optional cycles are not visited | Required |
+| Version behavior is explicit | `scripts/skill-loadouts-test.js` | Exact strings pass; mismatches, ranges, missing versions, malformed constraints, and unknown constrained skills fail | Required |
+| Provenance does not change install source | `scripts/skill-loadouts-test.js`; `scripts/install-loadouts-test.js` | Output retains provenance but installation uses packaged `source_path` only | Required |
+| CLI selection syntax works | `scripts/install-loadouts-test.js` | `--skill`, `--skills`, comma lists, and `loadout:<name>` produce the normalized request | Required |
+| CLI diagnostics are actionable | `scripts/install-loadouts-test.js` | Unknown names/loadouts, rootless overrides, missing values, exclusions, and conflicts exit 1 without stack traces or partial install | Required |
 | Help documents the surface | `npm run help` plus help snapshot/assertions | Selection, override, mode, and install/sync boundary are described without claiming network access | Required |
-| API contracts are stable | API fixture tests for read, resolve, install, and catalog functions | Inputs, successful output, diagnostics, and failure shape match the surface design | Required |
+| API contracts are stable | `scripts/skill-loadouts-test.js`; `scripts/install-loadouts-test.js` | Result fields, additive diagnostic fields, install aliases, and empty failure skills match the surface design | Required |
 | Install behavior remains packaged-only | Install fixture with provenance URLs and local packaged source | No network or upstream fetch occurs; source/target overlap and conflict rules remain enforced | Required |
 | Sync boundary is unchanged | Existing sync regression assertions | Sync retains local-only default and explicit network recovery; install does not invoke sync | Required |
 | Frontmatter owns catalog values | Catalog regeneration fixture | Editing frontmatter changes derived fields; editing the old JSON does not survive regeneration | Required |
@@ -55,7 +56,8 @@ directory (never the packaged `skills/` tree or generated catalog).
 | Catalog schema is compatible | Legacy catalog fixture and new-field fixture | Schema-1 records without loadout fields remain readable; incompatible schema fails explicitly | Required |
 | Documentation is complete | Documentation contract checks | Metadata, resolution, surfaces, and acceptance documents agree on names, precedence, diagnostics, and boundaries | Required |
 | README/help alignment is maintained | Text assertions or review checklist | User-facing examples do not contradict the design or imply unsupported behavior | Required |
-| Context reduction is measured | Measurement artifact described in section 5 | Baseline and selected-loadout measurements are reproducible and report inputs and metrics | Required |
+| Measurement protocol is verified | `scripts/measure-skill-loadouts-test.js` | Five independent serial executions, raw evidence, hashes, metadata, aggregates, and overwrite refusal are verified | Required |
+| Real curated context reduction is measured | Orchestration 14 evidence artifact | Baseline and real curated-loadout measurements report pinned inputs and metrics without overwriting prior runs | Deferred |
 
 ## 3. Focused-test discipline
 
@@ -81,13 +83,16 @@ when run serially with the validator tests.
 
 ## 4. Catalog, documentation, and regression gate
 
-The implementation gate is serial:
+The focused implementation gate is serial:
 
-1. Focused loadout tests: all rows marked Required in sections 2 and 3.
-2. `npm run test:validate` (task-targeted check; required and must pass).
-3. `npm run help` and `npm run validate:skills` (required regression checks
-   when CLI or metadata/catalog code changes).
-4. `npm test` (`node scripts/smoke.js`) as the full maintainer smoke gate.
+1. `npm run test:validate` for metadata validation regressions.
+2. `node scripts/skill-loadouts-test.js` for resolver and API shapes.
+3. `node scripts/install-loadouts-test.js` for CLI, installation, missing
+   values, and atomic failure.
+4. `node scripts/measure-skill-loadouts-test.js` for the measurement protocol.
+5. `npm run help` and `npm run validate:skills` for public/documentation and
+   packaged validation.
+6. `npm test` (`node scripts/smoke.js`) as the serial maintainer smoke gate.
 
 No parallel execution is permitted for the smoke gate because it mutates
 `.scratch/` and exercises shared package paths. The smoke gate must include
@@ -128,8 +133,8 @@ Use one fixed serialization/encoding and one fixed context assembly procedure
 for baseline and target. Measure the exact bytes and, where the harness
 supports it, tokenizer count of the assembled context. Warm-up behavior,
 cache state, model/tokenizer version, and command arguments must be recorded.
-Run each scenario at least five times in a clean serial process; report every
-sample plus median, minimum, maximum, and spread. If a tokenizer or model
+Run each scenario five times, each in a distinct serial Node.js child process;
+retain every raw sample and report median, minimum, maximum, and spread. If a tokenizer or model
 service is unavailable, byte counts remain valid evidence and token metrics
 are marked environment-dependent rather than estimated.
 
@@ -142,10 +147,12 @@ For each scenario record:
 `absolute_reduction_tokens`, `reduction_ratio_tokens`, resolved names,
 diagnostics, environment, and source commit.
 
-Write a machine-readable JSON artifact under `.scratch/` (or the CI artifact
-store) and a short Markdown summary that links the corpus manifest, commands,
-raw samples, and calculation script. Do not overwrite prior evidence. A result
-is repeatable only when the pinned corpus, procedure, and environment fields
+Write each run to a newly created directory under `.scratch/` (or the CI
+artifact store). Retain raw per-scenario JSON, SHA-256 corpus and selection
+manifests, serialization and cache declarations, command/environment metadata,
+and aggregate JSON. Existing run directories are refused rather than deleted
+or overwritten. Tokenizer/model metrics remain `null` when unavailable. A
+result is repeatable only when pinned corpus, procedure, and environment fields
 match; otherwise report it as a new run.
 
 ## 6. Deferred and environment-dependent items
@@ -157,16 +164,19 @@ match; otherwise report it as a new run.
 | Token counts requiring a tokenizer/model service | Environment-dependent | Record unavailable tooling and use byte evidence only |
 | Full maintainer smoke requiring sibling checkouts | Environment-dependent | Run when available; otherwise preserve the not-evidenced record |
 | Network recovery paths in sync | Environment-dependent | Test only with explicit opt-in and controlled local remote fixtures; never require network for packaged install |
-| Performance targets or percentage reduction | Deferred until measured | Publish no target result without the corpus and repeatability artifact |
+| Real curated-loadout evidence and performance claims | Deferred to orchestration 14 | Publish no result without the pinned corpus and non-overwriting repeatability artifact |
 
 ## 7. Traceability and sign-off
 
-The matrix covers every decision and hazard in `EXECUTION_PLAN_12.md`:
+The matrix covers every decision and hazard in `EXECUTION_PLAN_12.md` and the
+hardening work recorded in `planning/STATE_16.md`:
 frontmatter authority, generated catalog ownership, transitive resolution,
 overrides, cycles, missing and optional skills, version/provenance separation,
 dependency-free surfaces, packaged install versus maintainer sync, parser
-limits, deterministic ordering, and context-reduction evidence. A reviewer
+limits, deterministic ordering, additive API shapes, atomic failure, and the
+non-overwriting measurement protocol. A reviewer
 signs off only when each Required row has a named test or artifact, each
 Deferred row has an owner/trigger in the implementation plan, and each
 Environment-dependent row has either successful evidence or a precise
-limitation record.
+limitation record. Protocol verification is complete; real curated-loadout
+evidence and any context-reduction claim remain blocked on orchestration 14.

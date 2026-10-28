@@ -40,15 +40,19 @@ resolution through a reusable local API and `skills install`, and measure
 context reduction from pinned artifacts**.
 
 Catalog generation remains deterministic and frontmatter-driven. The API
-separates catalog reading, resolution, installation, and regeneration.
-`skills install` accepts named skills, `loadout:<name>`, optional inclusion,
-exclusion, force, source, target, and materialization mode. `skills sync`
-remains maintainer-only and local by default; neither resolution nor install
-follows provenance URLs.
+separates catalog reading, resolution, installation, and regeneration while
+adding structured diagnostic and install-result fields without removing the
+legacy-compatible fields. `skills install` accepts named skills,
+`loadout:<name>`, optional inclusion, exclusion, force, source, target, and
+materialization mode. Invalid selections and missing values fail before target
+mutation. `skills sync` remains maintainer-only and local by default; neither
+resolution nor install follows provenance URLs.
 
 Context reduction is not a design claim until a pinned corpus, environment,
-selection manifest, repeated byte measurements, and optional tokenizer
-measurements are stored as JSON and summarized in Markdown.
+selection manifest, five independent serial child-process byte measurements,
+and optional tokenizer measurements are retained. Each run uses a new
+directory, preserves raw samples and hashes, records serialization/cache and
+environment metadata, and refuses to overwrite existing evidence.
 
 ### Consequences
 
@@ -60,12 +64,12 @@ measurements are stored as JSON and summarized in Markdown.
 
 ## Validation & Compliance
 
-Catalog regeneration determinism, CLI/API diagnostics, packaged-only
-installation, documentation alignment, existing validation, and the serial
-maintainer smoke suite passed. The checked-out repository does not contain the
-disposable `.scratch/loadout-measurement/` artifact, so context-reduction
-evidence is not independently reviewable here; no percentage or token result
-is claimed. Tokenizer/model checks and environment-dependent network recovery
-remain limitations rather than passing evidence. ADRs 0002 and 0004 remain in
-force, so this ADR remains Proposed until the measurement artifact is retained
-and reviewed.
+Focused resolver and installer suites verify fail-closed CLI/API diagnostics,
+additive result shapes, missing option values, packaged-only installation, and
+atomic failure. `scripts/measure-skill-loadouts-test.js` verifies five distinct
+child executions, retained raw samples, corpus hashes, manifests, environment
+and cache declarations, aggregate metrics, null tokenizer/model metrics, and
+overwrite refusal. This proves the protocol, not context reduction. No real
+curated-loadout evidence or percentage/token result is claimed; that evidence
+remains blocked on orchestration 14. ADRs 0002 and 0004 remain in force, and
+this ADR remains Proposed until the real retained artifact is reviewed.

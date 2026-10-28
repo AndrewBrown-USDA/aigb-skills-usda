@@ -93,19 +93,29 @@ npx --no-install skills install --target ./.agents/skills --skills plan-first,we
 
 Selection roots may also name a catalog loadout with the `loadout:` prefix.
 Use `--include` and `--exclude` for optional selections and explicit
-overrides; repeated options and comma-separated values are accepted. Explicit
-skill roots remain selected when an exclude also names them:
+overrides; repeated options and comma-separated values are accepted. Both
+override options require at least one explicit `--skill`/`--skills` root.
+Excluding a direct root is an error unless `--force` is also supplied:
 
 ```bash
 npx --no-install skills install --target ~/.agents/skills --skill loadout:research
-npx --no-install skills install --target ~/.agents/skills --include tdd --exclude plan-first
+npx --no-install skills install --target ~/.agents/skills --skill plan-first --include tdd
+npx --no-install skills install --target ~/.agents/skills --skill plan-first --exclude plan-first --force
 ```
 
 Omitting `--skill`/`--skills` preserves the compatibility behavior of
-installing every packaged skill. Invalid selections produce deterministic
-diagnostics and install nothing (the destination is unchanged). `--source`,
-`--mode`, and `--force` apply to the install command only; `sync` remains the
-maintainer-only command for upstream repositories and lockfiles.
+installing every packaged skill. A mistyped or unknown loadout fails closed:
+
+```text
+$ npx --no-install skills install --target ./.agents/skills --skill loadout:reserach
+install: missing-loadout: loadout has no packaged members: reserach
+```
+
+Invalid selections produce deterministic diagnostics. Rootless overrides,
+excluded direct roots, and options missing their required values also exit
+unsuccessfully and install nothing; an existing destination remains unchanged.
+`--source`, `--mode`, and `--force` apply to the install command only; `sync`
+remains the maintainer-only command for upstream repositories and lockfiles.
 
 For a safe local helper example, specify a temporary target rather than a real agent directory:
 

@@ -1,8 +1,7 @@
 # Skill Loadout API, CLI, and Catalog Surfaces
 
-Status: design contract for task 12.3.1. This document defines dependency-free
-integration surfaces for the metadata and resolution contracts. It does not
-change runtime code, packaged skills, or generated catalog output.
+Status: implemented design contract. This document defines the dependency-free
+integration surfaces exercised by the focused resolver and installer suites.
 
 ## 1. Contract boundaries
 
@@ -20,8 +19,9 @@ client is required.
 
 ## 2. Reusable API
 
-The later implementation should expose a small module (for example,
-`scripts/skill-loadouts.js`) with these pure or filesystem-local functions:
+The implementation exposes dependency-free resolver functions in
+`scripts/skill-loadouts.js` and installer/catalog functions in
+`scripts/install.js`:
 
 ### `readCatalog(options?)`
 
@@ -51,7 +51,9 @@ identity or install path.
 {
   ok: true,
   skills: [{ name, source_path, source_repo, source_url, version, ... }],
-  diagnostics: [{ code, severity, subject, path, detail }]
+  diagnostics: [{
+    code, severity, message, subject, path, detail, legacyPath
+  }]
 }
 ```
 
@@ -60,17 +62,22 @@ lists use the resolution contract's trim/deduplicate rules. Roots preserve
 request order; loadout members are name-sorted; dependencies are emitted
 post-order. `source_path` is always the packaged install path. Required and
 selected optional missing nodes, cycles, exclusions, and invalid constraints
-are errors; selected optional missing nodes are warnings as specified by the
-resolution contract. Diagnostics are deterministic and never contain a
-partial install plan.
+are errors; a loadout with no packaged members and include/exclude overrides
+without roots are also errors. Selected optional missing nodes are warnings as
+specified by the resolution contract. Version constraints accept exact strings
+only. Diagnostics are deterministic and never contain a partial install plan.
+`message`, array `path`, and string `legacyPath` are additive compatibility
+fields.
 
 ### `installResolved(result, options?)`
 
 **Input:** a successful resolution result and the existing install options:
 `{ sourceDir?, targetDir, mode?: 'copy'|'symlink', force?: boolean }`.
 It delegates materialization to the same copy/symlink and non-overlap rules as
-`skills install`. It returns `{ installed: string[], skipped: string[] }` or
-throws a stable operational error. It must not download, interpret upstream
+`skills install`. It returns the existing `{ skills, target, mode }` fields
+plus additive `{ installed: string[], skipped: string[] }` fields, or throws a
+stable operational error. It rejects unsuccessful resolution results before
+creating or changing the target. It must not download, interpret upstream
 URLs, or mutate the catalog.
 
 ### `buildCatalog(options?)`
@@ -85,10 +92,11 @@ network.
 
 Errors should expose a stable `code`, human-readable `message`, and optional
 `subject`/`path`; CLI formatting may add context but must not change the code.
-Recommended codes are `CATALOG_READ`, `CATALOG_SCHEMA`, `UNKNOWN_SKILL`,
-`UNKNOWN_OVERRIDE`, `MISSING_REQUIRED`, `MISSING_OPTIONAL`, `EXCLUDED_ROOT`,
-`EXCLUDED_REQUIRED`, `CYCLE`, `VERSION_CONSTRAINT`, `SOURCE_PATH`, and
-`INSTALL_CONFLICT`. API callers can branch on codes without parsing text.
+Implemented diagnostic codes include `invalid-catalog`, `missing-root`,
+`missing-loadout`, `missing-skill`, `missing-optional`, `unknown-override`,
+`roots-required`, `excluded-root`, `excluded-required`, `cycle`,
+`version-constraint`, and `unknown-constraint`. API callers can branch on
+codes without parsing text.
 
 ## 3. CLI surface
 
@@ -100,19 +108,20 @@ skills install [options]
   --target <path>          Target directory
   --source <path>          Packaged skills directory (default: ./skills)
   --skill, --skills <list> Names or loadout:<name> tokens, comma-separated
-  --include <list>         Include optional dependencies
-  --exclude <list>         Exclude optional dependencies
-  --force                  Replace matching skills; force resolution overrides
-                            exclusions and force-install replaces conflicts
+  --include <list>         Include optional dependencies; requires a root
+  --exclude <list>         Exclude optional dependencies; requires a root
+  --force                  Retain an excluded direct root and replace conflicts
   --mode <copy|symlink>    Materialization mode (default: copy)
 ```
 
 For compatibility, `--skill` and `--skills` remain aliases, comma-separated
 names remain valid, and an omitted selection still means all packaged skills.
 `loadout:<name>` is the only loadout syntax; a bare name remains a skill name.
-Unknown options, malformed lists, resolution errors, and install conflicts
-print one concise diagnostic to stderr and exit 1. Success exits 0. `--help`
-continues to exit 0 and includes the new options.
+Unknown options, missing option values, malformed lists, rootless overrides,
+unknown/mistyped loadouts, resolution errors, and install conflicts print one
+concise diagnostic to stderr and exit 1. Resolution completes before target
+creation or replacement, so every such failure is atomic. Success exits 0.
+`--help` continues to exit 0 and includes the selection options.
 
 No new public `sync` selection semantics are required. If a maintainer needs
 to materialize a selected loadout after synchronization, they run `sync`
@@ -126,6 +135,7 @@ Representative commands:
 skills install --target ~/.agents/skills --skills loadout:field-ops
 skills install --target ./.agents/skills --skill plan-first,dr-lexus \
   --include web-source-bundler
+skills install --target ./.agents/skills --skill loadout:fied-ops # fails
 skills install --help
 skills sync --mode copy --no-clone
 ```
@@ -201,7 +211,11 @@ Successful resolution:
 ```json
 {
   "ok": true,
-  "skills": ["dr-lexus", "worker-validation", "field-reporting"],
+  "skills": [
+    { "name": "dr-lexus" },
+    { "name": "worker-validation" },
+    { "name": "field-reporting" }
+  ],
   "diagnostics": []
 }
 ```
@@ -213,11 +227,13 @@ Selected optional dependency missing:
   "ok": true,
   "skills": ["dr-lexus", "field-reporting"],
   "diagnostics": [{
-    "code": "MISSING_OPTIONAL",
+    "code": "missing-optional",
     "severity": "warning",
+    "message": "Selected optional dependency is not packaged.",
     "subject": "web-source-bundler",
     "path": ["field-reporting", "web-source-bundler"],
-    "detail": "Selected optional dependency is not packaged."
+    "detail": "Selected optional dependency is not packaged.",
+    "legacyPath": "field-reporting -> web-source-bundler"
   }]
 }
 ```
@@ -225,8 +241,8 @@ Selected optional dependency missing:
 Cycle or required exclusion:
 
 ```text
-skills: CYCLE: field-reporting -> dr-lexus -> field-reporting
-skills: EXCLUDED_REQUIRED: field-reporting requires dr-lexus
+install: cycle: field-reporting -> dr-lexus -> field-reporting
+install: excluded-required: field-reporting requires dr-lexus
 ```
 
 Diagnostics must identify the actionable skill and edge path, preserve stable
@@ -239,8 +255,7 @@ access or context-reduction results.
 The contract matches `runCli`'s command-dispatch/help style, extends
 `scanCuratedSkills`/`buildLockfile` without changing frontmatter authority,
 and follows README language distinguishing packaged install from maintainer
-sync. No implementation ambiguity remains for API outputs, CLI selection,
-catalog ownership, compatibility, or diagnostics. Version constraint syntax
-remains intentionally deferred to the resolver implementation, which must
-choose and document one deterministic syntax before exposing
-`constraints`; the initial CLI need not expose version constraints.
+sync. Focused tests now lock API outputs, CLI selection, catalog ownership,
+compatibility, diagnostics, missing values, and atomic failure. The reusable
+API exposes exact-only version constraints; the CLI does not expose a version
+constraint option.
