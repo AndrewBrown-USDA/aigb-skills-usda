@@ -8,6 +8,12 @@ function deriveSourceUrl(sourceRepo) {
   return CANONICAL_REPOSITORIES[sourceRepo] || null;
 }
 
+function splitList(value) {
+  return typeof value === 'string'
+    ? value.split(',').map((token) => token.trim())
+    : value;
+}
+
 function normalizeMetadata(input = {}) {
   const metadata = { ...input };
   const sourceRepo = metadata.source_repo;
@@ -17,7 +23,7 @@ function normalizeMetadata(input = {}) {
   const upstreamRepo = metadata.upstream_repo || metadata.upstream || null;
   const upstreamRef = metadata.upstream_ref || metadata.source_ref || null;
   const list = (value) => typeof value === 'string'
-    ? [...new Set(value.split(',').map((token) => token.trim()))]
+    ? [...new Set(splitList(value))]
     : value;
   const upstreamPath = metadata.upstream_path || null;
   const version = metadata.version && typeof metadata.version === 'object' && 'value' in metadata.version
@@ -68,11 +74,12 @@ function validateMetadata(input) {
     }
   }
   for (const field of ['dependencies', 'optional_dependencies']) {
+    const tokens = splitList(input[field]);
     if (metadata[field] !== undefined && (!Array.isArray(metadata[field]) ||
       metadata[field].some((token) => typeof token !== 'string' || !identifier.test(token)))) {
       errors.push(`${field} contains an invalid identifier or empty token`);
     }
-    if (Array.isArray(metadata[field]) && new Set(metadata[field]).size !== metadata[field].length) {
+    if (Array.isArray(tokens) && new Set(tokens).size !== tokens.length) {
       errors.push(`${field} contains duplicate dependencies`);
     }
   }

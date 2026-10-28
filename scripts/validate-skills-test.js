@@ -108,6 +108,53 @@ try {
     source_path: 'skills/example/SKILL.md',
     version: '   '
   }).valid, false);
+  assert.deepEqual(normalizeMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    dependencies: 'second-skill, first-skill, second-skill',
+    optional_dependencies: 'third-skill, fourth-skill'
+  }).dependencies, ['second-skill', 'first-skill']);
+  assert.deepEqual(normalizeMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    dependencies: 'second-skill, first-skill',
+    optional_dependencies: 'third-skill, fourth-skill'
+  }).optional_dependencies, ['third-skill', 'fourth-skill']);
+  for (const [field, value] of [
+    ['dependencies', 'first-skill, first-skill'],
+    ['optional_dependencies', 'second-skill, second-skill'],
+    ['dependencies', ['first-skill', 'first-skill']],
+    ['optional_dependencies', ['second-skill', 'second-skill']]
+  ]) {
+    const validation = validateMetadata({
+      name: 'example',
+      source_repo: 'repo',
+      source_path: 'skills/example/SKILL.md',
+      [field]: value
+    });
+    assert.equal(validation.valid, false);
+    assert.deepEqual(validation.errors, [`${field} contains duplicate dependencies`]);
+  }
+  assert.deepEqual(validateMetadata({
+    name: 'example',
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    dependencies: 'first-skill,',
+    optional_dependencies: 'first-skill'
+  }).errors, [
+    'dependencies contains an invalid identifier or empty token',
+    'dependencies overlap optional_dependencies: first-skill'
+  ]);
+  assert.deepEqual(validateMetadata({
+    name: 'example',
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    dependencies: 'example',
+    optional_dependencies: 'Bad_Name'
+  }).errors, [
+    'optional_dependencies contains an invalid identifier or empty token',
+    'dependencies cannot reference the skill itself'
+  ]);
   assert.throws(
     () => resolveSourceRoot({
       source_repo: 'https://github.com/example/pinned-source.git',
@@ -254,7 +301,7 @@ try {
   assert.equal(forced.status, 0, forced.stderr);
   const invalid = runCli(['--skill', 'missing']);
   assert.equal(invalid.status, 1);
-  assert.equal(invalid.stderr, 'install: missing-root: missing; unknown-override: missing\n');
+  assert.equal(invalid.stderr, `install: Skill(s) not found in ${cliSource}: missing\n`);
   const deterministicInvalid = runCli(['--skill', 'missing']);
   assert.equal(deterministicInvalid.stderr, invalid.stderr);
   const sourceOnly = runCli([]);
@@ -303,6 +350,25 @@ try {
   assert.equal(passing.status, 0, passing.stderr);
   const passingReport = JSON.parse(fs.readFileSync(report, 'utf8'));
   assert.ok(passingReport.checks.some((check) => check.status === 'passed'));
+
+  for (const [field, value] of [
+    ['dependencies', 'duplicate-skill, duplicate-skill'],
+    ['optional_dependencies', 'duplicate-skill, duplicate-skill']
+  ]) {
+    const duplicateEntry = JSON.parse(fs.readFileSync(lockfile, 'utf8'));
+    duplicateEntry.skills[0][field] = value;
+    fs.writeFileSync(lockfile, JSON.stringify(duplicateEntry), 'utf8');
+    const duplicateResult = spawnSync(process.execPath, [
+      validator, '--lockfile', lockfile, '--skills-dir', skillsDir
+    ], { encoding: 'utf8' });
+    assert.equal(duplicateResult.status, 1);
+    assert.match(
+      duplicateResult.stdout + duplicateResult.stderr,
+      new RegExp(`${field} contains duplicate dependencies`)
+    );
+    delete duplicateEntry.skills[0][field];
+    fs.writeFileSync(lockfile, JSON.stringify(duplicateEntry), 'utf8');
+  }
 
   fs.writeFileSync(
     path.join(skillDir, 'SKILL.md'),
