@@ -1,6 +1,6 @@
 ---
 name: code-review-subtractive
-description: Performs a read-only, evidence-gated review of a code repository to identify code that can likely be deleted or simplified without changing supported behavior. Use when the user requests a subtractive review, deletion review, dead-code review, legacy-path review, unused-parameter review, or repository minimization analysis.
+description: Performs a read-only review of a code repository to find code that can likely be deleted or simplified without changing supported behavior. Use for subtractive, deletion, dead-code, legacy-path, unused-parameter, or repository minimization reviews.
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
@@ -11,22 +11,22 @@ metadata:
 
 # Subtractive Code Review
 
-Identify concrete opportunities to delete unnecessary code while preserving supported behavior.
+Find code that can be removed while preserving supported behavior.
 
-Perform analysis only. Do not modify files, apply patches, delete code, install tools, or execute potentially mutating project commands unless the user explicitly requests that work in a separate follow-up.
+Analyze only. Do not modify files, install tools, or run commands that may write files unless the user asks in a separate follow-up.
 
-## Core standard
+## Review standard
 
 A finding must identify:
 
-1. one specific deletion or net-subtractive change;
-2. the invariant that would make the change behavior-preserving;
-3. repository evidence supporting that invariant; and
-4. any unresolved assumptions that prevent certainty.
+1. one deletion or net-subtractive change;
+2. the invariant that preserves behavior;
+3. repository evidence for that invariant; and
+4. unresolved assumptions.
 
-Treat complexity scores, coverage gaps, compiler warnings, linter output, and dead-code reports as navigation signals rather than sufficient proof.
+Use complexity scores, coverage gaps, warnings, linter output, and dead-code reports to find candidates, not to prove safety.
 
-Do not describe code as safe to delete merely because it appears unnecessary.
+Do not call code safe to delete because it looks unused.
 
 ## Establish scope
 
@@ -35,14 +35,14 @@ Before reviewing:
 1. Identify the repository root and user-specified target.
 2. Restrict analysis to that target unless dependency tracing requires examining related files.
 3. State the effective review scope in the report.
-4. Note relevant limitations, such as unavailable tools, incomplete source, missing generated files, or lack of support-policy documentation.
+4. Note limits such as unavailable tools, incomplete source, missing generated files, or missing support policy.
 5. Exclude vendored dependencies, generated code, build artifacts, fixtures, and snapshots unless the user explicitly includes them.
 
-If the requested scope is materially ambiguous, ask the user to clarify it.
+If scope is unclear, ask the user to clarify it.
 
 ## Preserve read-only operation
 
-Use read-only inspection methods such as:
+Use read-only methods:
 
 - repository text search;
 - symbol and reference search;
@@ -60,7 +60,7 @@ Do not:
 - create new coverage or analysis artifacts; or
 - change the working tree, index, environment, or repository configuration.
 
-If stronger evidence requires a potentially mutating command, describe the command and ask the user for permission instead of running it.
+If stronger evidence needs a command that may write files, describe it and ask before running it.
 
 ## Candidate classes
 

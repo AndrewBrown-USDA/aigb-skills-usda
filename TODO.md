@@ -34,9 +34,9 @@ Add and register the `code-review-subtractive` skill in this repository and prop
 - [x] Review the final diffs and confirm only the requested skill, registration, and propagation changes are present.
 
 ### 5. Commit and revise with `dr-lexus`
-- [ ] Commit the validated first draft without amending or rewriting existing commits.
-- [ ] Apply the `dr-lexus` skill to the new skill draft and make only the resulting requested revision.
-- [ ] Validate the revised draft and commit it as a second commit.
+- [x] Commit the validated first draft without amending or rewriting existing commits.
+- [x] Apply the `dr-lexus` skill to the new skill draft and make only the resulting requested revision.
+- [x] Validate the revised draft and commit it as a second commit.
 
 ## Notes
 - Propagation means adding the skill to the sibling source tree and then synchronizing/materializing its packaged copy.
