@@ -1,28 +1,56 @@
 #!/usr/bin/env node
 'use strict';
 
+const crypto = require('node:crypto');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const cp = require('node:child_process');
 const { loadCatalog, resolve } = require('./skill-loadouts');
 
 const root = path.resolve(__dirname, '..');
-const source = path.join(root, 'skills');
-const catalogPath = path.join(root, 'catalog', 'skills.lock.json');
-const outDir = path.join(root, '.scratch', 'loadout-measurement');
-const samples = 5;
+const defaults = {
+  source: path.join(root, 'skills'),
+  catalog: path.join(root, 'catalog', 'skills.lock.json'),
+  outRoot: path.join(root, '.scratch', 'loadout-measurement', '16.2.2'),
+  samples: 5
+};
+const serialization = 'sorted files; UTF-8 relative path, NUL, raw file bytes, NUL';
 
 function help() {
   console.log(`Usage: node scripts/measure-skill-loadouts.js [--help]
 
 Measures packaged skill contexts with deterministic UTF-8 byte counts.
-Writes JSON, Markdown, manifest, and raw samples to .scratch/loadout-measurement/.
-Token/model metrics are intentionally unavailable unless pinned tooling is added.`);
+Writes a unique, non-overwriting run beneath .scratch/loadout-measurement/16.2.2/.
+Token/model metrics remain unavailable unless measured with pinned tooling.`);
 }
 
-function commit() {
-  try { return cp.execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(); }
-  catch { return 'unavailable'; }
+function parseArgs(argv) {
+  const options = { ...defaults, runId: null, sample: null };
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
+    if (arg === '--help' || arg === '-h') options.help = true;
+    else if (['--source', '--catalog', '--out-root', '--run-id', '--sample'].includes(arg)) {
+      if (index + 1 >= argv.length) throw new Error(`${arg} requires a value`);
+      const value = argv[++index];
+      if (arg === '--source') options.source = path.resolve(value);
+      else if (arg === '--catalog') options.catalog = path.resolve(value);
+      else if (arg === '--out-root') options.outRoot = path.resolve(value);
+      else if (arg === '--run-id') options.runId = value;
+      else options.sample = value;
+    } else {
+      throw new Error(`unknown option: ${arg}`);
+    }
+  }
+  return options;
+}
+
+function commit(cwd) {
+  try {
+    return cp.execFileSync('git', ['rev-parse', 'HEAD'], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch {
+    return 'unavailable';
+  }
 }
 
 function files(dir) {
@@ -38,12 +66,11 @@ function files(dir) {
   return result;
 }
 
-function context(names) {
+function context(source, repositoryRoot, names) {
   const chunks = [];
   for (const name of names) {
-    const dir = path.join(source, name);
-    for (const file of files(dir)) {
-      const relative = path.relative(root, file).split(path.sep).join('/');
+    for (const file of files(path.join(source, name))) {
+      const relative = path.relative(repositoryRoot, file).split(path.sep).join('/');
       chunks.push(Buffer.from(`${relative}\0`, 'utf8'), fs.readFileSync(file), Buffer.from('\0', 'utf8'));
     }
   }
@@ -52,70 +79,157 @@ function context(names) {
 
 function median(values) {
   const sorted = [...values].sort((a, b) => a - b);
-  return sorted[Math.floor(sorted.length / 2)];
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
 }
 
-function measure(name, request, options, baseline) {
-  const result = resolve(request, catalogPath, options);
+function sample(payload) {
+  const result = resolve(payload.request, payload.catalog, payload.options);
   const names = result.skills.map(skill => skill.name);
-  const bytes = context(names).length;
-  const raw = Array.from({ length: samples }, () => bytes);
-  const target = median(raw);
+  const bytes = context(payload.source, payload.repositoryRoot, names).length;
   return {
-    name, roots: request, include: options.include || [], exclude: options.exclude || [],
-    resolved_names: names, omitted: [...loaded.skills.keys()].filter(skill => !names.includes(skill)),
-    diagnostics: result.diagnostics, raw_samples_bytes: raw,
-    median_bytes: target, minimum_bytes: Math.min(...raw), maximum_bytes: Math.max(...raw),
-    spread_bytes: Math.max(...raw) - Math.min(...raw),
-    baseline_bytes: baseline, target_bytes: target,
-    absolute_reduction_bytes: baseline - target,
-    reduction_ratio: baseline ? (baseline - target) / baseline : 0,
-    baseline_tokens: null, target_tokens: null, absolute_reduction_tokens: null,
-    reduction_ratio_tokens: null
+    execution_id: payload.executionId,
+    process_id: process.pid,
+    started_at: new Date().toISOString(),
+    bytes,
+    resolved_names: names,
+    diagnostics: result.diagnostics
   };
 }
 
-if (process.argv.includes('--help') || process.argv.includes('-h')) {
-  help();
-  process.exit(0);
+function runSample(payload) {
+  const encoded = Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
+  const result = cp.spawnSync(process.execPath, [__filename, '--sample', encoded], {
+    encoding: 'utf8',
+    windowsHide: true
+  });
+  if (result.status !== 0) throw new Error(result.stderr.trim() || `sample process exited ${result.status}`);
+  return JSON.parse(result.stdout);
 }
 
-fs.rmSync(outDir, { recursive: true, force: true });
-fs.mkdirSync(outDir, { recursive: true });
-const loaded = loadCatalog(catalogPath);
-if (loaded.errors.length) throw new Error(loaded.errors.join('; '));
-const all = [...loaded.skills.keys()];
-const baseline = context(all).length;
-const loadout = [...new Set([...loaded.skills.values()].map(s => s.loadout).filter(Boolean))].sort()[0];
-const members = loadout ? all.filter(name => loaded.skills.get(name).loadout === loadout).sort() : all.slice(0, Math.min(3, all.length));
-const optional = members.flatMap(name => loaded.skills.get(name).optional_dependencies || []).find(name => loaded.skills.has(name));
-const direct = members[0];
-const scenarios = [
-  { name: 'full-corpus', request: all, options: {} },
-  { name: 'representative-loadout', request: loadout ? [`loadout:${loadout}`] : members, options: {} },
-  { name: 'loadout-with-optional', request: loadout ? [`loadout:${loadout}`] : members, options: optional ? { include: [optional] } : {} },
-  { name: 'minimal-direct-selection', request: [direct], options: {} }
-];
-const results = scenarios.map(s => measure(s.name, s.request, s.options, baseline));
-for (const result of results) fs.writeFileSync(path.join(outDir, `${result.name}.raw.json`), JSON.stringify(result.raw_samples_bytes) + '\n');
-const manifest = {
-  protocol: 'packaged-skill-context-bytes-v1', encoding: 'utf8',
-  assembly: 'sorted packaged files; each record is skills/<name>/<file> NUL content NUL',
-  corpus: all, source_commit: commit(), catalog: path.relative(root, catalogPath).replaceAll(path.sep, '/'),
-  scenarios: results.map(({ name, roots, include, exclude, resolved_names, omitted, diagnostics }) =>
-    ({ name, roots, include, exclude, resolved_names, omitted, diagnostics }))
-};
-fs.writeFileSync(path.join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
-const evidence = { ...manifest, command: 'node scripts/measure-skill-loadouts.js', environment: { node: process.version, platform: process.platform, arch: process.arch, locale: process.env.LC_ALL || process.env.LANG || 'default' }, samples_per_scenario: samples, results };
-fs.writeFileSync(path.join(outDir, 'measurement.json'), JSON.stringify(evidence, null, 2) + '\n');
-fs.writeFileSync(path.join(outDir, 'README.md'), `# Loadout measurement
+function safeRunId(value) {
+  if (value && !/^[A-Za-z0-9._-]+$/.test(value)) throw new Error('run identifier contains unsupported characters');
+  return value || `${new Date().toISOString().replace(/[:.]/g, '-')}-${crypto.randomBytes(4).toString('hex')}`;
+}
 
-Generated by \`node scripts/measure-skill-loadouts.js\` at commit \`${manifest.source_commit}\`.
-Contexts use deterministic sorted packaged files and UTF-8 byte lengths. Five serial
-samples are retained in each \`*.raw.json\` file. Tokenizer/model metrics are
-unavailable and are recorded as null; no token estimates are made.
+function writeJson(file, value) {
+  fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
+}
 
-- [Machine-readable evidence](measurement.json)
-- [Selection manifest](manifest.json)
-- [Calculation procedure](../../scripts/measure-skill-loadouts.js)
-`);
+function main(argv) {
+  const options = parseArgs(argv);
+  if (options.help) {
+    help();
+    return 0;
+  }
+  if (options.sample) {
+    const payload = JSON.parse(Buffer.from(options.sample, 'base64url').toString('utf8'));
+    process.stdout.write(`${JSON.stringify(sample(payload))}\n`);
+    return 0;
+  }
+
+  const loaded = loadCatalog(options.catalog);
+  if (loaded.errors.length) throw new Error(loaded.errors.join('; '));
+  const all = [...loaded.skills.keys()];
+  if (all.length === 0) throw new Error('catalog contains no measurable skills');
+  const repositoryRoot = path.dirname(options.source);
+  const loadout = [...new Set([...loaded.skills.values()].map(skill => skill.loadout).filter(Boolean))].sort()[0];
+  const members = loadout
+    ? all.filter(name => loaded.skills.get(name).loadout === loadout).sort()
+    : all.slice(0, Math.min(3, all.length));
+  const optional = members.flatMap(name => loaded.skills.get(name).optional_dependencies || [])
+    .find(name => loaded.skills.has(name));
+  const scenarios = [
+    { name: 'full-corpus', request: all, options: {} },
+    { name: 'representative-selection', request: loadout ? [`loadout:${loadout}`] : members, options: {} },
+    { name: 'selection-with-optional', request: loadout ? [`loadout:${loadout}`] : members, options: optional ? { include: [optional] } : {} },
+    { name: 'minimal-direct-selection', request: [members[0]], options: {} }
+  ];
+
+  const runId = safeRunId(options.runId);
+  fs.mkdirSync(options.outRoot, { recursive: true });
+  const runDir = path.join(options.outRoot, runId);
+  fs.mkdirSync(runDir);
+
+  const corpusFiles = files(options.source).map(file => ({
+    path: path.relative(repositoryRoot, file).split(path.sep).join('/'),
+    bytes: fs.statSync(file).size,
+    sha256: crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')
+  }));
+  const results = [];
+  for (const scenario of scenarios) {
+    const rawSamples = [];
+    for (let index = 0; index < options.samples; index += 1) {
+      rawSamples.push(runSample({
+        source: options.source,
+        catalog: options.catalog,
+        repositoryRoot,
+        request: scenario.request,
+        options: scenario.options,
+        executionId: `${scenario.name}-${index + 1}`
+      }));
+    }
+    writeJson(path.join(runDir, `${scenario.name}.raw.json`), rawSamples);
+    const values = rawSamples.map(entry => entry.bytes);
+    results.push({
+      ...scenario,
+      resolved_names: rawSamples[0].resolved_names,
+      diagnostics: rawSamples[0].diagnostics,
+      raw_sample_file: `${scenario.name}.raw.json`,
+      sample_count: values.length,
+      median_bytes: median(values),
+      minimum_bytes: Math.min(...values),
+      maximum_bytes: Math.max(...values),
+      spread_bytes: Math.max(...values) - Math.min(...values),
+      tokenizer_model_metrics: null
+    });
+  }
+
+  const manifest = {
+    protocol: 'packaged-skill-context-bytes-v2',
+    run_id: runId,
+    encoding: 'utf8',
+    serialization,
+    cache_state: {
+      policy: 'no application cache',
+      declaration: 'Each sample is a fresh serial Node.js child process reading files from the operating-system filesystem.'
+    },
+    source_commit: commit(repositoryRoot),
+    catalog: path.relative(repositoryRoot, options.catalog).split(path.sep).join('/'),
+    corpus: all,
+    corpus_files: corpusFiles,
+    scenarios: results.map(({ name, request, options: scenarioOptions, resolved_names, diagnostics }) => ({
+      name, roots: request, include: scenarioOptions.include || [], exclude: scenarioOptions.exclude || [],
+      resolved_names, omitted: all.filter(skill => !resolved_names.includes(skill)), diagnostics
+    }))
+  };
+  writeJson(path.join(runDir, 'manifest.json'), manifest);
+  writeJson(path.join(runDir, 'measurement.json'), {
+    ...manifest,
+    command: 'node scripts/measure-skill-loadouts.js',
+    environment: {
+      node: process.version,
+      platform: process.platform,
+      release: os.release(),
+      arch: process.arch,
+      cpus: os.cpus().length,
+      locale: process.env.LC_ALL || process.env.LANG || Intl.DateTimeFormat().resolvedOptions().locale || 'default'
+    },
+    samples_per_scenario: options.samples,
+    tokenizer_model_metrics: null,
+    results
+  });
+  process.stdout.write(`${runDir}\n`);
+  return 0;
+}
+
+if (require.main === module) {
+  try {
+    process.exitCode = main(process.argv.slice(2));
+  } catch (error) {
+    process.stderr.write(`${error.message}\n`);
+    process.exitCode = 1;
+  }
+}
+
+module.exports = { main, median };
