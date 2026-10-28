@@ -54,26 +54,33 @@ function parseArgs(argv) {
     exclude: null,
     help: false
   };
+  const optionValue = (arg, index, description) => {
+    const value = argv[index + 1];
+    if (typeof value !== 'string' || value.length === 0 || value.startsWith('--')) {
+      throw new Error(`${arg} requires ${description}`);
+    }
+    return value;
+  };
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
 
     switch (arg) {
       case '--mode':
-        options.mode = argv[i + 1];
+        options.mode = optionValue(arg, i, 'copy or symlink');
         i += 1;
         break;
       case '--source':
-        options.source = path.resolve(process.cwd(), expandHomeDir(argv[i + 1]));
+        options.source = path.resolve(process.cwd(), expandHomeDir(optionValue(arg, i, 'a path')));
         i += 1;
         break;
       case '--target':
-        options.target = path.resolve(process.cwd(), expandHomeDir(argv[i + 1]));
+        options.target = path.resolve(process.cwd(), expandHomeDir(optionValue(arg, i, 'a path')));
         i += 1;
         break;
       case '--skill':
       case '--skills': {
-        const val = argv[i + 1];
+        const val = optionValue(arg, i, 'a non-empty skill name or comma-separated list');
         i += 1;
         if (!val || typeof val !== 'string' || val.trim().length === 0) {
           throw new Error(`${arg} requires a non-empty skill name or comma-separated list`);
@@ -90,7 +97,7 @@ function parseArgs(argv) {
       }
       case '--include':
       case '--exclude': {
-        const val = argv[i + 1];
+        const val = optionValue(arg, i, 'a non-empty skill name or comma-separated list');
         i += 1;
         if (!val || typeof val !== 'string' || val.trim().length === 0) {
           throw new Error(`${arg} requires a non-empty skill name or comma-separated list`);
@@ -101,6 +108,7 @@ function parseArgs(argv) {
         break;
       }
       case '--lockfile':
+        optionValue(arg, i, 'a path');
         i += 1;
         break;
       case '--force':
@@ -214,7 +222,8 @@ function installResolved(result, options = {}) {
   }
   const sourceDir = path.resolve(options.sourceDir || DEFAULT_SOURCE_DIR);
   const names = result.skills.map(record => record.name);
-  return installMaterialized(names, sourceDir, options);
+  const installed = installMaterialized(names, sourceDir, options);
+  return { ...installed, installed: [...installed.skills], skipped: [] };
 }
 
 function installMaterialized(skillDirs, sourceDir, options) {
@@ -309,11 +318,17 @@ function installMaterialized(skillDirs, sourceDir, options) {
 
 function installSkills(options) {
   const catalog = readCatalog({ sourceDir: options.source });
+  if ((!options.skills || options.skills.length === 0) &&
+      ((options.include && options.include.length) || (options.exclude && options.exclude.length))) {
+    throw new Error('roots-required: --include and --exclude require --skill or --skills');
+  }
   const result = options.skills && options.skills.length
     ? resolveLoadout(options.skills, catalog, {
       include: options.include,
       exclude: options.exclude,
-      force: options.skills.filter(name => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name)),
+      force: options.force
+        ? options.skills.filter(name => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name))
+        : [],
       constraints: options.constraints
     })
     : { ok: true, skills: catalog.skills, diagnostics: [] };
@@ -325,7 +340,7 @@ function installSkills(options) {
       const missing = diagnostics.map(d => d.subject).filter(Boolean);
       throw new Error(`Skill(s) not found in ${catalog.sourceDir}: ${missing.join(', ')}`);
     }
-    throw new Error(diagnostics.map(d => `${d.code}: ${d.detail || d.subject}`).join('; '));
+    throw new Error(diagnostics.map(d => `${d.code}: ${d.message || d.detail || d.subject}`).join('; '));
   }
   return installResolved(result, { ...options, sourceDir: options.source });
 }

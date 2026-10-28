@@ -397,7 +397,7 @@ function main() {
   assert.equal(invalidResult.status, 1, 'Install must exit with status 1 on invalid skill');
   assert.match(
     invalidResult.stderr,
-    /install: missing-root: .*; unknown-override: .+/i
+    /install: Skill\(s\) not found in .+: non-existent-skill-xyz/i
   );
 
   // 6e. Test empty or missing --skill filter flag error

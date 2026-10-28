@@ -22,20 +22,30 @@ try {
   assert.deepStrictEqual(names(resolve(['opt'], catalog, { include: ['c'] })), ['c', 'opt']);
   assert.deepStrictEqual(names(resolve(['a'], catalog, { include: ['c'], exclude: ['c'], force: ['c'] })), ['c', 'a']);
   assert.strictEqual(resolve(['a'], catalog, { exclude: ['a'] }).ok, false);
+  assert.strictEqual(resolve(['a'], catalog, { exclude: ['a'], force: ['a'] }).ok, true);
+  assert.strictEqual(resolve(['loadout:not-real'], catalog).diagnostics[0].code, 'missing-loadout');
+  assert.strictEqual(resolve([], catalog, { include: ['c'] }).diagnostics[0].code, 'roots-required');
   assert.deepStrictEqual(resolve(['opt'], catalog, { include: ['gone'] }).diagnostics.map(d => [d.code, d.subject]), [
     ['unknown-override', 'gone']
   ]);
   assert.strictEqual(resolve(['missing'], catalog).diagnostics[0].code, 'missing-root');
   assert.deepStrictEqual(resolve(['missing'], catalog).diagnostics.map(d => [d.code, d.subject, d.path]), [
-    ['missing-root', 'missing', '']
+    ['missing-root', 'missing', []]
   ]);
+  const shaped = resolve(['missing'], catalog).diagnostics[0];
+  assert.strictEqual(shaped.severity, 'error');
+  assert.strictEqual(typeof shaped.message, 'string');
+  assert.ok(Array.isArray(shaped.path));
   assert.throws(() => resolve(['invalid name'], catalog), /invalid skill selection/);
-  assert.throws(() => resolve(['versioned'], catalog, { constraints: { versioned: '>=1' } }), /unsupported version constraint/);
+  assert.strictEqual(resolve(['versioned'], catalog, { constraints: { versioned: '1.0.0' } }).ok, true);
+  assert.match(resolve(['versioned'], catalog, { constraints: { versioned: '2.0.0' } }).diagnostics[0].message, /does not match/);
+  assert.match(resolve(['versioned'], catalog, { constraints: { versioned: '>=1' } }).diagnostics[0].message, /exact version strings only/);
+  assert.match(resolve(['a'], catalog, { constraints: { a: '1.0.0' } }).diagnostics[0].message, /no resolved version/);
   assert.strictEqual(resolve(['versioned'], catalog, { constraints: { absent: '1.0' } }).diagnostics[0].code, 'unknown-constraint');
   const cycle = { skills: [s('x', { dependencies: ['y'] }), s('y', { dependencies: ['x'] })] };
   const cycleResult = resolve(['x'], cycle);
   assert.strictEqual(cycleResult.ok, false);
-  assert.deepStrictEqual(cycleResult.diagnostics.map(d => [d.code, d.subject, d.path]), [['cycle', 'x', 'x -> y -> x']]);
+  assert.deepStrictEqual(cycleResult.diagnostics.map(d => [d.code, d.subject, d.path]), [['cycle', 'x', ['x', 'y', 'x']]]);
   const unsafe = { skills: [s('x', { source_path: '../x/SKILL.md' })] };
   const unsafeResult = resolve(['x'], unsafe);
   assert.strictEqual(unsafeResult.ok, false);
