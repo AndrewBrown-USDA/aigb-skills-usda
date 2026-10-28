@@ -353,21 +353,26 @@ try {
 
   for (const [field, value] of [
     ['dependencies', 'duplicate-skill, duplicate-skill'],
-    ['optional_dependencies', 'duplicate-skill, duplicate-skill']
+    ['optional_dependencies', 'duplicate-skill, duplicate-skill'],
+    ['dependencies', ['duplicate-skill', 'duplicate-skill']],
+    ['optional_dependencies', ['duplicate-skill', 'duplicate-skill']]
   ]) {
     const duplicateEntry = JSON.parse(fs.readFileSync(lockfile, 'utf8'));
     duplicateEntry.skills[0][field] = value;
-    fs.writeFileSync(lockfile, JSON.stringify(duplicateEntry), 'utf8');
-    const duplicateResult = spawnSync(process.execPath, [
-      validator, '--lockfile', lockfile, '--skills-dir', skillsDir
-    ], { encoding: 'utf8' });
-    assert.equal(duplicateResult.status, 1);
-    assert.match(
-      duplicateResult.stdout + duplicateResult.stderr,
-      new RegExp(`${field} contains duplicate dependencies`)
-    );
-    delete duplicateEntry.skills[0][field];
-    fs.writeFileSync(lockfile, JSON.stringify(duplicateEntry), 'utf8');
+    try {
+      fs.writeFileSync(lockfile, JSON.stringify(duplicateEntry), 'utf8');
+      const duplicateResult = spawnSync(process.execPath, [
+        validator, '--lockfile', lockfile, '--skills-dir', skillsDir
+      ], { encoding: 'utf8' });
+      assert.equal(duplicateResult.status, 1);
+      assert.match(
+        duplicateResult.stdout + duplicateResult.stderr,
+        new RegExp(`${field} contains duplicate dependencies`)
+      );
+    } finally {
+      delete duplicateEntry.skills[0][field];
+      fs.writeFileSync(lockfile, JSON.stringify(duplicateEntry), 'utf8');
+    }
   }
 
   fs.writeFileSync(

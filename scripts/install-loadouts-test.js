@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const installer = require('./install');
-const scratch = path.join(__dirname, '..', '.scratch', 'loadout-tests');
+const scratch = path.join(__dirname, '..', '.scratch', 'loadout-tests', '16.2.1', 'installer');
 fs.mkdirSync(scratch, { recursive: true });
 const root = fs.mkdtempSync(path.join(scratch, 'skills-install-'));
 try {
@@ -23,8 +23,15 @@ try {
   assert.ok(installer.readCatalog && installer.installResolved && installer.buildCatalog);
   const target = path.join(root, 'target');
   const installedResult = installer.installResolved(result, { sourceDir: source, target, mode: 'copy' });
-  assert.deepStrictEqual(installedResult.installed, ['c', 'a']);
-  assert.deepStrictEqual(installedResult.skipped, []);
+  assert.deepStrictEqual(installedResult, {
+    mode: 'copy',
+    sourceDir: source,
+    targetDir: target,
+    count: 2,
+    skills: ['c', 'a'],
+    installed: ['c', 'a'],
+    skipped: []
+  });
   assert.ok(fs.existsSync(path.join(target, 'c', 'SKILL.md')));
   assert.ok(fs.existsSync(path.join(target, 'a', 'extra.txt')));
   assert.throws(() => installer.installResolved(result, { sourceDir: source, target, mode: 'copy' }), /already exist/);
@@ -37,18 +44,23 @@ try {
   const runCli = (...args) => spawnSync(process.execPath, [cli, ...args], {
     encoding: 'utf8'
   });
+  const assertCliFailure = (cliResult, expected, targetPath) => {
+    assert.equal(cliResult.status, 1);
+    assert.equal(cliResult.stdout, '');
+    assert.match(cliResult.stderr, expected);
+    assert.doesNotMatch(cliResult.stderr, /(TypeError|ReferenceError|at\s+\S+\s+\(|node:internal)/);
+    if (targetPath) assert.ok(!fs.existsSync(targetPath));
+  };
   const selectedTarget = path.join(root, 'selected');
   let cliResult = runCli('--target', selectedTarget, '--skill', rootName, '--include', rootName, '--include', rootName, '--exclude', rootName);
-  assert.equal(cliResult.status, 1);
-  assert.match(cliResult.stderr, /excluded-root/);
-  assert.ok(!fs.existsSync(selectedTarget));
+  assertCliFailure(cliResult, /excluded-root/, selectedTarget);
   const forcedTarget = path.join(root, 'forced');
   cliResult = runCli('--target', forcedTarget, '--skill', rootName, '--exclude', rootName, '--exclude', rootName);
-  assert.equal(cliResult.status, 1);
-  assert.match(cliResult.stderr, /excluded-root/);
-  assert.ok(!fs.existsSync(forcedTarget));
+  assertCliFailure(cliResult, /excluded-root/, forcedTarget);
   cliResult = runCli('--target', forcedTarget, '--skill', rootName, '--exclude', rootName, '--force');
   assert.equal(cliResult.status, 0, cliResult.stderr);
+  assert.equal(cliResult.stdout, `Installed 1 skills to ${forcedTarget} using copy mode.\n`);
+  assert.equal(cliResult.stderr, '');
   assert.deepStrictEqual(fs.readdirSync(forcedTarget).sort(), [rootName]);
   fs.writeFileSync(path.join(forcedTarget, rootName, 'changed.txt'), 'old');
   cliResult = runCli('--target', forcedTarget, '--skill', rootName, '--force');
@@ -56,15 +68,16 @@ try {
   assert.ok(!fs.existsSync(path.join(forcedTarget, rootName, 'changed.txt')));
   const missingTarget = path.join(root, 'missing-target');
   const missing = runCli('--target', missingTarget, '--skill', 'missing');
-  assert.equal(missing.status, 1);
-  assert.match(missing.stderr, /Skill\(s\) not found/);
-  assert.ok(!fs.existsSync(missingTarget));
+  assertCliFailure(missing, /Skill\(s\) not found/, missingTarget);
   const sentinelTarget = path.join(root, 'sentinel');
   fs.mkdirSync(sentinelTarget);
   fs.writeFileSync(path.join(sentinelTarget, 'sentinel.txt'), 'keep');
   const invalid = runCli('--target', sentinelTarget, '--skill', 'missing');
   assert.equal(invalid.status, 1);
+  assert.equal(invalid.stdout, '');
+  assert.match(invalid.stderr, /Skill\(s\) not found/);
   assert.equal(fs.readFileSync(path.join(sentinelTarget, 'sentinel.txt'), 'utf8'), 'keep');
+  assert.deepStrictEqual(fs.readdirSync(sentinelTarget), ['sentinel.txt']);
   const omittedTarget = path.join(root, 'omitted');
   cliResult = runCli('--target', omittedTarget);
   assert.equal(cliResult.status, 0, cliResult.stderr);
@@ -76,25 +89,23 @@ try {
   assert.ok(!fs.existsSync(path.join(root, 'failed')));
   const missingLoadoutTarget = path.join(root, 'missing-loadout');
   cliResult = runCli('--target', missingLoadoutTarget, '--skill', 'loadout:not-real');
-  assert.equal(cliResult.status, 1);
-  assert.match(cliResult.stderr, /missing-loadout/);
-  assert.ok(!fs.existsSync(missingLoadoutTarget));
-  const rootlessTarget = path.join(root, 'rootless');
-  cliResult = runCli('--target', rootlessTarget, '--include', rootName);
-  assert.equal(cliResult.status, 1);
-  assert.match(cliResult.stderr, /roots-required/);
-  assert.ok(!fs.existsSync(rootlessTarget));
+  assertCliFailure(cliResult, /missing-loadout/, missingLoadoutTarget);
+  for (const option of ['--include', '--exclude']) {
+    const rootlessTarget = path.join(root, `rootless-${option.slice(2)}`);
+    cliResult = runCli('--target', rootlessTarget, option, 'missing');
+    assertCliFailure(cliResult, /roots-required/, rootlessTarget);
+  }
   for (const [option, expected] of [
     ['--target', /--target requires a path/],
     ['--source', /--source requires a path/],
-    ['--skill', /--skill requires a non-empty skill name/],
-    ['--include', /--include requires a non-empty skill name/],
-    ['--exclude', /--exclude requires a non-empty skill name/],
+    ['--skill', /--skill requires a non-empty skill name or comma-separated list/],
+    ['--skills', /--skills requires a non-empty skill name or comma-separated list/],
+    ['--include', /--include requires a non-empty skill name or comma-separated list/],
+    ['--exclude', /--exclude requires a non-empty skill name or comma-separated list/],
     ['--mode', /--mode requires copy or symlink/]
   ]) {
     cliResult = runCli(option);
-    assert.equal(cliResult.status, 1);
-    assert.match(cliResult.stderr, expected);
+    assertCliFailure(cliResult, expected);
   }
   const invalidCatalog = path.join(root, 'catalog.json');
   fs.writeFileSync(invalidCatalog, JSON.stringify({ skills: [{ name: 'a', source_path: 'https://example.invalid/a' }] }));
@@ -103,5 +114,5 @@ try {
   console.log('Install loadout tests passed.');
 } finally {
   fs.rmSync(root, { recursive: true, force: true });
-  fs.rmSync(scratch, { recursive: true, force: true });
+  fs.rmSync(path.join(__dirname, '..', '.scratch', 'loadout-tests', '16.2.1'), { recursive: true, force: true });
 }

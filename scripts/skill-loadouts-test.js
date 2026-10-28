@@ -5,6 +5,22 @@ const path = require('path');
 const { resolve } = require('./skill-loadouts');
 const s = (name, extra = {}) => ({ name, source_repo: 'aigb-skills', source_path: `skills/${name}/SKILL.md`, ...extra });
 const names = result => result.skills.map(x => x.name);
+const assertFailure = (result, code, subject = '') => {
+  assert.strictEqual(result.ok, false);
+  assert.deepStrictEqual(result.skills, []);
+  assert.strictEqual(result.diagnostics.length, 1);
+  assert.deepStrictEqual(Object.keys(result.diagnostics[0]).sort(), [
+    'code', 'detail', 'legacyPath', 'message', 'path', 'severity', 'subject'
+  ]);
+  assert.strictEqual(result.diagnostics[0].code, code);
+  assert.strictEqual(result.diagnostics[0].severity, 'error');
+  assert.strictEqual(result.diagnostics[0].subject, subject);
+  assert.strictEqual(typeof result.diagnostics[0].message, 'string');
+  assert.strictEqual(typeof result.diagnostics[0].detail, 'string');
+  assert.strictEqual(typeof result.diagnostics[0].legacyPath, 'string');
+  assert.ok(Array.isArray(result.diagnostics[0].path));
+  return result.diagnostics[0];
+};
 const catalog = { skills: [
   s('a', { loadout: 'base', dependencies: ['c'] }),
   s('b', { loadout: 'base', dependencies: ['c'] }),
@@ -13,7 +29,7 @@ const catalog = { skills: [
   s('bad-opt', { optional_dependencies: ['gone'] }),
   s('versioned', { version: '1.0.0' })
 ] };
-const scratch = path.join(__dirname, '..', '.scratch', 'loadout-tests');
+const scratch = path.join(__dirname, '..', '.scratch', 'loadout-tests', '16.2.1', 'resolver');
 fs.mkdirSync(scratch, { recursive: true });
 try {
   assert.deepStrictEqual(names(resolve(['loadout:base'], catalog)), ['c', 'a', 'b']);
@@ -21,27 +37,57 @@ try {
   assert.deepStrictEqual(names(resolve(['opt'], catalog)), ['opt']);
   assert.deepStrictEqual(names(resolve(['opt'], catalog, { include: ['c'] })), ['c', 'opt']);
   assert.deepStrictEqual(names(resolve(['a'], catalog, { include: ['c'], exclude: ['c'], force: ['c'] })), ['c', 'a']);
-  assert.strictEqual(resolve(['a'], catalog, { exclude: ['a'] }).ok, false);
-  assert.strictEqual(resolve(['a'], catalog, { exclude: ['a'], force: ['a'] }).ok, true);
-  assert.strictEqual(resolve(['loadout:not-real'], catalog).diagnostics[0].code, 'missing-loadout');
-  assert.strictEqual(resolve([], catalog, { include: ['c'] }).diagnostics[0].code, 'roots-required');
+  const excludedRoot = assertFailure(resolve(['a'], catalog, { exclude: ['a'] }), 'excluded-root', 'a');
+  assert.strictEqual(excludedRoot.message, 'a');
+  const forcedRoot = resolve(['a'], catalog, { exclude: ['a'], force: ['a'] });
+  assert.strictEqual(forcedRoot.ok, true);
+  assert.deepStrictEqual(names(forcedRoot), ['c', 'a']);
+  assert.deepStrictEqual(forcedRoot.diagnostics, []);
+  const missingLoadout = assertFailure(resolve(['loadout:not-real'], catalog), 'missing-loadout', 'not-real');
+  assert.match(missingLoadout.message, /no packaged members/);
+  for (const options of [{ include: ['c'] }, { exclude: ['c'] }]) {
+    const rootless = assertFailure(resolve([], catalog, options), 'roots-required');
+    assert.match(rootless.message, /require at least one explicit skill or loadout root/);
+  }
   assert.deepStrictEqual(resolve(['opt'], catalog, { include: ['gone'] }).diagnostics.map(d => [d.code, d.subject]), [
     ['unknown-override', 'gone']
   ]);
-  assert.strictEqual(resolve(['missing'], catalog).diagnostics[0].code, 'missing-root');
-  assert.deepStrictEqual(resolve(['missing'], catalog).diagnostics.map(d => [d.code, d.subject, d.path]), [
-    ['missing-root', 'missing', []]
-  ]);
-  const shaped = resolve(['missing'], catalog).diagnostics[0];
-  assert.strictEqual(shaped.severity, 'error');
-  assert.strictEqual(typeof shaped.message, 'string');
-  assert.ok(Array.isArray(shaped.path));
+  const shaped = assertFailure(resolve(['missing'], catalog), 'missing-root', 'missing');
+  assert.deepStrictEqual(shaped.path, []);
+  assert.strictEqual(shaped.legacyPath, '');
   assert.throws(() => resolve(['invalid name'], catalog), /invalid skill selection/);
-  assert.strictEqual(resolve(['versioned'], catalog, { constraints: { versioned: '1.0.0' } }).ok, true);
-  assert.match(resolve(['versioned'], catalog, { constraints: { versioned: '2.0.0' } }).diagnostics[0].message, /does not match/);
-  assert.match(resolve(['versioned'], catalog, { constraints: { versioned: '>=1' } }).diagnostics[0].message, /exact version strings only/);
-  assert.match(resolve(['a'], catalog, { constraints: { a: '1.0.0' } }).diagnostics[0].message, /no resolved version/);
-  assert.strictEqual(resolve(['versioned'], catalog, { constraints: { absent: '1.0' } }).diagnostics[0].code, 'unknown-constraint');
+  const exactVersion = resolve(['versioned'], catalog, { constraints: { versioned: '1.0.0' } });
+  assert.strictEqual(exactVersion.ok, true);
+  assert.deepStrictEqual(exactVersion.diagnostics, []);
+  assert.deepStrictEqual(exactVersion.skills[0], {
+    name: 'versioned',
+    source_repo: 'aigb-skills',
+    source_path: 'skills/versioned/SKILL.md',
+    version: '1.0.0',
+    source_url: 'https://github.com/AndrewBrown-USDA/aigb-skills.git',
+    upstream_repo: null,
+    upstream_ref: null
+  });
+  assert.match(assertFailure(
+    resolve(['versioned'], catalog, { constraints: { versioned: '2.0.0' } }),
+    'version-constraint',
+    'versioned'
+  ).message, /does not match/);
+  assert.match(assertFailure(
+    resolve(['versioned'], catalog, { constraints: { versioned: '>=1' } }),
+    'version-constraint',
+    'versioned'
+  ).message, /exact version strings only/);
+  assert.match(assertFailure(
+    resolve(['a'], catalog, { constraints: { a: '1.0.0' } }),
+    'version-constraint',
+    'a'
+  ).message, /no resolved version/);
+  assert.match(assertFailure(
+    resolve(['versioned'], catalog, { constraints: { absent: '1.0' } }),
+    'unknown-constraint',
+    'absent'
+  ).message, /unknown skill/);
   const cycle = { skills: [s('x', { dependencies: ['y'] }), s('y', { dependencies: ['x'] })] };
   const cycleResult = resolve(['x'], cycle);
   assert.strictEqual(cycleResult.ok, false);
@@ -55,5 +101,5 @@ try {
   assert.deepStrictEqual(resolve(['a', 'a'], catalog).skills.map(x => x.name), ['c', 'a']);
   console.log('Skill loadout tests passed.');
 } finally {
-  fs.rmSync(scratch, { recursive: true, force: true });
+  fs.rmSync(path.join(__dirname, '..', '.scratch', 'loadout-tests', '16.2.1'), { recursive: true, force: true });
 }
