@@ -12,18 +12,18 @@ metadata:
 
 # Git Workflow
 
-Create focused local commits while preserving user control over branches, history, and remotes.
+Make focused local commits. Keep control of branches, history, and remotes with the user.
 
-## Core rules
+## Rules
 
 - Treat all pre-existing changes as user-owned.
-- Work on a dedicated task branch, not the repository's default or base branch.
-- Commit only when the user or standing task instructions authorize it.
-- Make one commit per independently reviewable and revertible change.
-- Never push, create a pull request, or otherwise modify a remote.
-- Never discard, stash, reset, or overwrite user changes without explicit approval.
-- Do not amend, rebase, or rewrite existing commits unless explicitly requested.
-- Follow repository-specific instructions and commit conventions when they exist.
+- Work on a task branch, not the default or base branch.
+- Commit only when the user or standing task instructions allow it.
+- Make one commit per reviewable, revertible change.
+- Never push, open a pull request, or change a remote.
+- Never discard, stash, reset, or overwrite user changes without approval.
+- Do not amend, rebase, or rewrite commits unless requested.
+- Follow repository instructions and commit conventions.
 
 ## Inspect repository state
 
@@ -35,77 +35,65 @@ git diff
 git diff --staged
 ```
 
-Check for:
+Check the branch, detached `HEAD`, tracked and untracked files, staged changes, and changes outside the task.
 
-- the current branch, including a detached `HEAD`;
-- tracked and untracked changes;
-- pre-existing staged changes;
-- changes outside the task's scope.
+A clean tree is not required. Leave unrelated changes alone.
 
-A clean working tree is not required. Leave unrelated changes untouched.
+Ask before proceeding when:
 
-Pause and ask the user before proceeding when:
-
-- the current branch is the default or base branch;
-- unrelated changes are already staged;
-- existing changes overlap files or hunks needed for the task;
+- the branch is the default or base branch;
+- unrelated changes are staged;
+- existing changes overlap the files or hunks you need;
 - the task requires files outside its stated scope;
-- preserving user work is uncertain.
+- you cannot protect the user's work.
 
-Do not automatically stash or discard changes to obtain a clean tree.
+Do not stash or discard changes to clean the tree.
 
 ## Branches
 
-Use one dedicated branch per task or feature. Let the user choose the branch name unless repository guidance defines a convention.
+Use one task branch per feature. Let the user choose its name unless repository guidance sets one.
 
-Do not switch branches when doing so could overwrite or conflict with existing work. Ask the user how to proceed instead.
+Do not switch branches if doing so could overwrite or conflict with existing work. Ask how to proceed.
 
-## Build logical commits
+## Build commits
 
-A logical commit should be understandable, reviewable, and revertible on its own.
-
-- Group implementation with its directly related tests and documentation.
-- Do not split commits by workflow phase, file type, or arbitrary step.
-- Do not combine unrelated fixes or refactors.
-- If one file contains unrelated edits, stage only the relevant hunks.
+- Keep implementation, related tests, and docs together.
+- Do not split commits by phase, file type, or arbitrary step.
+- Do not combine unrelated fixes.
+- If a file has unrelated edits, stage only the needed hunks.
 
 ## Validate changes
 
 Before committing:
 
-1. Run relevant tests, linters, formatters, or build checks.
+1. Run relevant tests, linters, formatters, or builds.
 2. Run `git diff --check`.
 3. Stage only the intended files or hunks.
 4. Review the exact staged content with `git diff --staged`.
 5. Confirm that no user-owned or out-of-scope changes are staged.
 
-Prefer explicit paths or interactive staging. Avoid blanket staging commands such as `git add .` when unrelated changes are present.
+Prefer explicit paths or interactive staging. Avoid `git add .` when unrelated changes exist.
 
-Do not bypass repository hooks with `--no-verify`. If validation or a hook fails, fix the issue when it is in scope; otherwise stop and report it.
+Do not use `--no-verify`. If validation or a hook fails, fix an in-scope problem or stop and report it.
 
 ## Commit messages
 
-Follow the repository's established format. If none exists, use Conventional Commits:
+Follow the repository's format. If it has none, use Conventional Commits:
 
 ```text
 type(scope): description
 ```
 
-Rules:
+- Use a suitable type, such as `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `build`, `ci`, `perf`, or `revert`.
+- Omit a scope when it adds no value. Prefer a component, package, or subsystem when one is clear.
+- Use an imperative description with no period.
+- Keep the header short, preferably under 72 characters.
+- Add a body when it explains rationale, constraints, or non-obvious behavior.
+- Mark breaking changes using the repository's convention.
 
-- Use an appropriate type, commonly `feat`, `fix`, `refactor`, `docs`,
-  `test`, `chore`, `build`, `ci`, `perf`, or `revert`.
-- Omit the scope when it adds no useful information.
-- Prefer a component, package, or subsystem as the scope.
-- Write the description in imperative mood and without a trailing period.
-- Keep the complete header concise, preferably no more than 72 characters.
-- Add a body when it helps explain rationale, constraints, or non-obvious
-  behavior.
-- Mark breaking changes according to the repository's convention.
+Do not put phases, waves, or task steps in commit messages.
 
-Do not include temporary workflow labels such as phases, waves, or task steps.
-
-### Good examples
+### Examples
 
 ```text
 feat(api): add rate-limiting middleware
@@ -114,7 +102,7 @@ refactor(cli): extract option validation
 docs: clarify installation steps
 ```
 
-### Avoid
+Avoid:
 
 ```text
 wave-2: refactor authentication
@@ -122,9 +110,6 @@ task-3: update parser
 feat(auth): add OIDC support to wave-2 refactor
 add OIDC, improve logging, and fix parser edge case
 ```
-
-The first three depend on temporary planning context. The last combines
-unrelated changes.
 
 ## After committing
 
@@ -135,11 +120,6 @@ git status --short --branch
 git show --stat --oneline --decorate HEAD
 ```
 
-Report:
+Report the commit hash and message, validation results, remaining changes, and any issue needing user action.
 
-- the commit hash and message;
-- the validation performed and its result;
-- any remaining or pre-existing changes;
-- any issue that requires user action.
-
-If useful, provide a push command for the user to review and execute. Do not execute it.
+If useful, give the user a push command. Do not run it.
