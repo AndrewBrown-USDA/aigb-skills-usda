@@ -86,27 +86,33 @@ Ask whether to write or update `planning/GOALS.md` and hand the Circled Goal to 
 
 ```markdown
 # Project Goals (`planning/GOALS.md`)
+
 Last Updated: YYYY-MM-DD
 Source State: STATE_N.md (if applicable)
 
 ## Circled Goal (Active)
+
 - **[G1]** <present-tense goal>
   - Why now: <unblocking leverage>
   - Exit criteria: <observable evidence>
   - First action: <single concrete action>
 
 ## Sequenced Goals (Dependency DAG)
+
 - **[G2]** <goal>
   - Depends on: G1
 
 ## Independent Backlog
+
 - **[G3]** <goal>
 
 ## Deferred
+
 - **[G4]** <goal>
   - Trigger: <condition for reconsideration>
 
 ## Blocked / Pruned
+
 - **[G5]** <goal>
   - Status: Blocked / Pruned
   - Reason: <one-line rationale>
