@@ -12,15 +12,15 @@ metadata:
 
 # Git Workflow
 
-Make focused local commits. Keep control of branches, history, and remotes with the user.
+Make focused local commits. Keep control of branches, history, and remotes with the user. Use `conventional-commits` when drafting or reviewing the commit message; this skill owns repository-state safety, staging, commit timing, and remote boundaries.
 
 ## Rules
 
 - Treat all pre-existing changes as user-owned.
 - Work on a task branch, not the default or base branch.
-- Commit only when the user or standing task instructions allow it.
+- When the user or standing task instructions authorize commits, make them after logical, reviewable, revertible chunks rather than waiting for the entire task.
 - Make one commit per reviewable, revertible change.
-- Never push, open a pull request, or change a remote.
+- Never push, pull, fetch, open a pull request, change a remote, or perform any other remote action unless the user explicitly instructs you to do so.
 - Never discard, stash, reset, or overwrite user changes without approval.
 - Do not amend, rebase, or rewrite commits unless requested.
 - Follow repository instructions and commit conventions.
@@ -78,7 +78,7 @@ Do not use `--no-verify`. If validation or a hook fails, fix an in-scope problem
 
 ## Commit messages
 
-Follow the repository's format. If it has none, use Conventional Commits:
+Follow the repository's format. Use the `conventional-commits` skill to draft or review the message, then apply it here after the staged diff is validated. If the repository has no format, use Conventional Commits:
 
 ```text
 type(scope): description

@@ -12,7 +12,7 @@ metadata:
 
 # Conventional Commits
 
-Use this skill to draft or review one commit message. Apply Conventional Commits v1.0.0 first, then report repository-specific style concerns separately.
+Use this skill to draft or review one commit message. Apply Conventional Commits v1.0.0 first, then report repository-specific style concerns separately. For repository-state inspection, staging, commit timing, and local-versus-remote Git boundaries, use `git-workflow-standards`.
 
 ## When to Use
 
@@ -130,6 +130,8 @@ Do not claim that `Fixes`, `Refs`, `Closes`, or other issue-reference tokens are
 7. Ask for clarification instead of inventing technical details.
 
 Prefer a single-sentence subject. Do not put orchestration, wave, or phase numbers in the subject; record those in planning artifacts instead.
+
+When `git-workflow-standards` authorizes a local commit after a logical, reviewable chunk, use this skill to draft or validate that commit's message. This skill does not authorize pushing, pulling, fetching, changing remotes, opening pull requests, or other remote actions.
 
 ## Review Workflow
 
