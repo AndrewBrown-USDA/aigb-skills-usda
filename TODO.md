@@ -24,8 +24,8 @@ Clarify the integration between `git-workflow-standards` and `conventional-commi
 - [x] Review diffs to confirm only the requested integration and remote-action policy changes are included.
 
 ### 5. Commit locally
-- [ ] Stage only the requested files in each repository and create focused local Conventional Commits.
-- [ ] Verify post-commit status and commit summaries without pushing, fetching, changing remotes, or opening pull requests.
+- [x] Stage only the requested files in each repository and create focused local Conventional Commits.
+- [x] Verify post-commit status and commit summaries without pushing, fetching, changing remotes, or opening pull requests.
 
 ## Notes
 - Preserve unrelated user changes in both repositories.
