@@ -1,42 +1,38 @@
 # TODO
 
 ## Goal
-Clarify the integration between `git-workflow-standards` and `conventional-commits` so agents may make focused local commits while never pushing or performing remote Git actions without explicit instruction.
+Add the issue #16 `magic-wand` skill to this package, commit it, propagate it to `D:\workspace\aigb-skills`, review and revise it with `dr-lexus`, then propagate and commit the reviewed version.
 
 ## Tasks
 
-### 1. Update Git workflow guidance
-- [x] Revise `skills/git-workflow-standards/SKILL.md` to explicitly authorize local commits after logical, reviewable chunks when task instructions permit.
-- [x] State clearly that push, pull, fetch, remote changes, pull requests, and other remote actions require explicit user instruction.
-- [x] Add a direct cross-reference to `conventional-commits` for message drafting and validation, while keeping local commit safety and staging guidance in `git-workflow-standards`.
+### 1. Add the packaged skill
+- [x] Create `skills\magic-wand\SKILL.md` from issue #16 with repository-compatible frontmatter and content.
+- [x] Regenerate `catalog\skills.lock.json` from the skill frontmatter if required by the repository workflow.
+- [x] Run the focused packaged-skill validation and inspect the resulting diff.
+- [ ] Commit the new skill and any required derived catalog change in `aigb-skills-usda`.
 
-### 2. Update Conventional Commits integration
-- [x] Add guidance in `skills/conventional-commits/SKILL.md` describing its complementary role with `git-workflow-standards`.
-- [x] Preserve the existing Conventional Commits syntax, taxonomy, and repository-boundary guidance.
+### 2. Propagate the initial skill upstream
+- [ ] Apply the new `magic-wand` skill to `D:\workspace\aigb-skills` using that repository's supported workflow.
+- [ ] Validate the upstream source and packaged copies.
+- [ ] Commit the initial `magic-wand` addition in `D:\workspace\aigb-skills`.
 
-### 3. Propagate source and packaged copies
-- [x] Apply the corresponding skill changes to the sibling source repository at `..\aigb-skills`.
-- [x] Run the sibling repository's supported materialization workflow and verify both source and packaged copies contain the changes.
+### 3. Review and revise with dr-lexus
+- [ ] Run the `dr-lexus` skill against `skills\magic-wand\SKILL.md`.
+- [ ] Apply only necessary review-driven revisions to the packaged skill and any directly dependent derived metadata.
+- [ ] Re-run focused validation and inspect the review diff.
 
-### 4. Validate and review
-- [x] Run the smallest applicable packaged-skill validation in this repository.
-- [x] Run the smallest applicable validation in the sibling repository.
-- [x] Review diffs to confirm only the requested integration and remote-action policy changes are included.
+### 4. Propagate the reviewed skill upstream
+- [ ] Apply the reviewed `magic-wand` skill to `D:\workspace\aigb-skills` using the supported workflow.
+- [ ] Validate that the upstream source and packaged copies match the reviewed version.
+- [ ] Commit the reviewed update in `D:\workspace\aigb-skills`.
 
-### 5. Commit locally
-- [x] Stage only the requested files in each repository and create focused local Conventional Commits.
-- [x] Verify post-commit status and commit summaries without pushing, fetching, changing remotes, or opening pull requests.
+### 5. Final verification
+- [ ] Verify clean or explicitly understood post-commit status in both repositories.
+- [ ] Confirm no remote actions were performed and summarize the resulting commits.
 
 ## Notes
-- Preserve unrelated user changes in both repositories.
-- Do not amend, rebase, reset, stash, discard, or rewrite existing commits.
-- `skills/*/SKILL.md` frontmatter remains authoritative; regenerate derived catalog data only if the workflow requires it.
-- The sibling repository propagation is in scope, but no remote action is authorized.
-
-## Discovered Tasks
-
-### 6. Restore unintended local materialization changes
-- [x] Restore the broad packaged-skill changes caused by running the sibling materialization command from this checkout, preserving the requested two skill edits and `TODO.md`.
-- [x] Re-run materialization from `..\aigb-skills` with the correct working directory and verify only the requested sibling/package changes remain.
-
-All tasks in TODO.md are complete.
+- Issue source: `AndrewBrown-USDA/aigb-skills-usda#16`.
+- The upstream checkout path is `D:\workspace\aigb-skills`.
+- “Run dr-lexus” means review and revise `magic-wand` before the second upstream sync.
+- Preserve unrelated user changes; do not amend, rebase, reset, stash, discard, or rewrite existing commits.
+- No push, fetch, pull, remote modification, or pull request is authorized.
