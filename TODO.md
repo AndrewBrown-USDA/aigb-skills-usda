@@ -1,35 +1,34 @@
 # TODO
 
 ## Goal
-Review every commit on `v041` since it diverged from `v040` and identify edited packaged skills whose `metadata.version` was not bumped, with recommended patch-level version values.
+Improve `skills/skill-research` using the findings in `planning\skill-research-improvements-research-report.md`, while keeping the main skill concise and adding focused, progressive-disclosure references.
 
 ## Tasks
 
-### 1. Establish the reviewed commit range
-- [x] Determine the exact `v040..v041` commit range and enumerate files changed in each commit.
-- [x] Filter the changes to packaged skill files under `skills/*/SKILL.md`.
+### 1. Define the revised skill workflow
+- [x] Rewrite `skills/skill-research/SKILL.md` to add explicit research modes, scope and stopping criteria, discovery failure handling, evidence/provenance requirements, candidate-gap validation, boundary checks, maintenance checks, evaluation guidance, and the standard delivery report shape.
+- [x] Add a reference-loading section to `skills/skill-research/SKILL.md` with direct one-level links and phase-specific loading conditions.
+- [x] Keep the main skill within the repository's practical progressive-disclosure target and preserve clear boundaries with `research`, `web-source-bundler`, and `install-skills`.
 
-### 2. Compare skill edits with version metadata
-- [x] Inspect each changed skill's version before and after the relevant commits.
-- [x] Identify skills whose content changed without a corresponding version change.
-- [x] Determine the existing version format for each affected skill.
+### 2. Add focused reference material
+- [x] Create `skills/skill-research/references/agentskills-spec.md` covering normative frontmatter, naming, metadata, progressive-disclosure, and relative-path rules.
+- [x] Create `skills/skill-research/references/authoring-best-practices.md` covering task-driven design, gotchas, defaults, validation loops, and deterministic helpers.
+- [x] Create `skills/skill-research/references/research-evidence.md` defining source hierarchy, claim classifications, evidence-table fields, immutable references, and confidence handling.
+- [x] Create `skills/skill-research/references/trigger-evaluation.md` defining positive/negative prompts, train/validation separation, repeated runs, and held-out retesting.
+- [x] Create `skills/skill-research/references/skill-evaluation.md` defining baseline comparisons, realistic cases, objective assertions, qualitative review, and quality/token/duration tracking.
+- [x] Create `skills/skill-research/references/validation-tools.md` documenting `skills-ref` commands and their boundary relative to repository validation.
 
-### 3. Produce the findings
-- [x] Report each affected skill, the relevant commits, the observed version transition, and a recommended patch-level version.
-- [x] Confirm that documentation-only and generated-file changes are excluded from the skill findings.
+### 3. Validate the packaged skill
+- [x] Run `npm run validate:skills`.
+- [x] Run `npm run test:validate`.
+- [x] Review the final diff to confirm only `skill-research` and its new focused references changed.
 
-### 4. Propagate approved version bumps
-- [x] Apply the recommended version bumps to matching skill files in `..\aigb-skills`.
-- [x] Verify the upstream skill files match the reviewed `v041` versions and report the resulting diff.
+### 4. Version and synchronize the skill
+- [x] Bump `skills/skill-research/SKILL.md` `metadata.version` from `1.1` to the next patch version after the content changes.
+- [x] Synchronize the completed `skill-research` package to `..\aigb-skills` using the repository's maintainer workflow, preserving the same version and reference files.
+- [x] Verify both repositories contain matching `skill-research` content and that generated/catalog changes are limited to the required synchronization results.
 
 ## Notes
-- Review scope: all commits in `v040..v041`.
-- Output scope: recommend version bumps, then propagate those changes to `..\aigb-skills`.
-- Preserve the pre-existing unrelated modification in `bin\skills.js`.
-
-## Discovered Tasks
-
-### 5. Sync and commit propagated changes
-- [x] Run the repository's defined sync or validation workflow for the propagated skill metadata.
-- [x] Review the resulting diffs in both repositories and confirm only intended files are included.
-- [x] Commit the approved changes in the appropriate repository or repositories without altering unrelated user changes.
+- The requested report path was absent; the confirmed source is `planning\skill-research-improvements-research-report.md`.
+- Scope excludes `evals/evals.json`, validator changes, and new automated evaluation infrastructure.
+- Bump the skill version and synchronize the final skill to `..\aigb-skills`; do not hand-edit generated catalog entries.
