@@ -110,6 +110,19 @@
       }
     },
     {
+      "name": "complexity-map",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "inspired_by": "Ryon Morrison (idea shared with GitHub Copilot CoP)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/complexity-map/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
       "name": "conventional-commits",
       "author": "Andrew G. Brown (https://github.com/brownag)",
       "license": "MIT",

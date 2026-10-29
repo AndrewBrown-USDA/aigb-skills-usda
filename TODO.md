@@ -1,38 +1,38 @@
 # TODO
 
 ## Goal
-Add the issue #16 `magic-wand` skill to this package, commit it, propagate it to `D:\workspace\aigb-skills`, review and revise it with `dr-lexus`, then propagate and commit the reviewed version.
+Add issue #14 `complexity-map` as a packaged skill, record Ryon Morrison as the idea source without claiming authorship, sync it to `aigb-skills` in two commits, and revise it with `dr-lexus` between syncs.
 
 ## Tasks
 
 ### 1. Add the packaged skill
-- [x] Create `skills\magic-wand\SKILL.md` from issue #16 with repository-compatible frontmatter and content.
-- [x] Regenerate `catalog\skills.lock.json` from the skill frontmatter if required by the repository workflow.
-- [x] Run the focused packaged-skill validation and inspect the resulting diff.
-- [x] Commit the new skill and any required derived catalog change in `aigb-skills-usda`.
+- [x] Create `skills\complexity-map\SKILL.md` from issue #14 with repository-compatible frontmatter and content.
+- [x] Add `inspired_by: Ryon Morrison (idea shared with GitHub Copilot CoP)` to the supported metadata contract, validator, catalog generation, and documentation if needed.
+- [x] Regenerate `catalog\skills.lock.json`.
+- [x] Run focused packaged-skill validation and inspect the diff.
+- [ ] Commit the initial skill and required metadata/catalog changes in `aigb-skills-usda`.
 
 ### 2. Propagate the initial skill upstream
-- [x] Apply the new `magic-wand` skill to `D:\workspace\aigb-skills` using that repository's supported workflow.
-- [x] Validate the upstream source and packaged copies.
-- [x] Commit the initial `magic-wand` addition in `D:\workspace\aigb-skills`.
+- [ ] Apply `skills\complexity-map\SKILL.md` to `D:\workspace\aigb-skills\skills\complexity-map\SKILL.md`.
+- [ ] Validate the upstream source and commit the initial skill addition in `D:\workspace\aigb-skills`.
 
 ### 3. Review and revise with dr-lexus
-- [x] Run the `dr-lexus` skill against `skills\magic-wand\SKILL.md`.
-- [x] Apply only necessary review-driven revisions to the packaged skill and any directly dependent derived metadata.
-- [x] Re-run focused validation and inspect the review diff.
+- [ ] Review `skills\complexity-map\SKILL.md` with `dr-lexus`.
+- [ ] Apply only necessary review-driven revisions and regenerate directly dependent catalog data.
+- [ ] Re-run focused validation and inspect the review diff.
 
 ### 4. Propagate the reviewed skill upstream
-- [x] Apply the reviewed `magic-wand` skill to `D:\workspace\aigb-skills` using the supported workflow.
-- [x] Validate that the upstream source and packaged copies match the reviewed version.
-- [x] Commit the reviewed update in `D:\workspace\aigb-skills`.
+- [ ] Apply the reviewed skill to `D:\workspace\aigb-skills\skills\complexity-map\SKILL.md`.
+- [ ] Validate that the upstream and packaged copies match.
+- [ ] Commit the reviewed update in `D:\workspace\aigb-skills`.
 
 ### 5. Final verification
-- [x] Verify clean or explicitly understood post-commit status in both repositories.
-- [x] Confirm no remote actions were performed and summarize the resulting commits.
+- [ ] Verify post-commit status in both repositories.
+- [ ] Confirm no remote actions were performed and report the resulting commits.
 
 ## Notes
-- Issue source: `AndrewBrown-USDA/aigb-skills-usda#16`.
-- The upstream checkout path is `D:\workspace\aigb-skills`.
-- “Run dr-lexus” means review and revise `magic-wand` before the second upstream sync.
-- Preserve unrelated user changes; do not amend, rebase, reset, stash, discard, or rewrite existing commits.
+- Issue source: `AndrewBrown-USDA/aigb-skills-usda#14`.
+- The upstream skill path is `D:\workspace\aigb-skills\skills\complexity-map\SKILL.md`.
+- `inspired_by` records idea provenance; `author` remains the skill author.
+- Preserve unrelated user changes. Do not amend, rebase, reset, stash, discard, or rewrite existing commits.
 - No push, fetch, pull, remote modification, or pull request is authorized.

@@ -44,6 +44,7 @@ function normalizeMetadata(input = {}) {
     ...(metadata.upstream_name ? { upstream_name: metadata.upstream_name } : {}),
     ...(metadata.author ? { author: metadata.author } : {}),
     ...(metadata.authors ? { authors: metadata.authors } : {}),
+    ...(metadata.inspired_by ? { inspired_by: metadata.inspired_by } : {}),
     ...(version !== undefined ? { version } : {})
   };
 }

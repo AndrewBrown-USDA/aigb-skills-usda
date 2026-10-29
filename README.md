@@ -168,6 +168,8 @@ The catalog includes 34 curated skills:
   `upstream_ref` and `upstream_repo`. Known canonical repositories derive a
   GitHub URL; unknown repositories leave `source_url` unset rather than
   fabricating one.
+- Optional `metadata.inspired_by` records the source of an idea without
+  treating that person as the skill author.
 - **Authority and catalog:** `skills/*/SKILL.md` frontmatter is authoritative.
   `catalog/skills.lock.json` is generated compatibility and index data derived
   from that frontmatter; edit the skill metadata rather than hand-editing the

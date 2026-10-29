@@ -89,6 +89,7 @@ function scanCuratedSkills(skillsDir = SKILLS_DIR) {
     const entryObj = {
       name,
       ...(author ? { author } : {}),
+      ...(normalized.inspired_by ? { inspired_by: normalized.inspired_by } : {}),
       ...(license ? { license } : {}),
       source_repo: normalized.source_repo,
       source_path: normalized.source_path,

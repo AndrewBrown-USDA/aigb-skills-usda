@@ -180,7 +180,7 @@ function validateSkill(entry, skillsDir, results) {
     addResult(results, entry.name, 'metadata', 'failed', `Custom top-level metadata keys are not allowed: ${customTopLevel.join(', ')}`);
   }
   const normalizedEntry = normalizeMetadata(entry);
-  const metadataFields = ['author', 'authors', 'source_repo', 'source_path', 'source_url', 'source_ref', 'upstream', 'upstream_name', 'upstream_repo', 'upstream_ref', 'upstream_path'];
+  const metadataFields = ['author', 'authors', 'inspired_by', 'source_repo', 'source_path', 'source_url', 'source_ref', 'upstream', 'upstream_name', 'upstream_repo', 'upstream_ref', 'upstream_path'];
   for (const key of metadataFields) {
     const catalogMetadata = entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {};
     const catalogValue = entry[key] !== undefined ? entry[key] : catalogMetadata[key];
