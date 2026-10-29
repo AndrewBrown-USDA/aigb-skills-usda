@@ -55,6 +55,15 @@ Use one task branch per feature. Let the user choose its name unless repository 
 
 Do not switch branches if doing so could overwrite or conflict with existing work. Ask how to proceed.
 
+## Worktrees
+
+- Retain agent-created worktrees until their changes are merged to the main branch or the user or orchestrator explicitly releases them.
+- Sequential orchestrations must detect and account for prior worktrees so unexplained accumulation is avoided.
+- Record each worktree's repository path, worktree path, branch, orchestration/task identifier, creation time, and lifecycle status.
+- Treat stale-worktree detection as candidate identification and reporting only; age or worker completion alone does not authorize deletion.
+- Report cleanup candidates first and obtain explicit approval from the user or orchestrator before deleting any worktree.
+- Protect active, dirty, detached, user-owned, overlapping, and unverified worktrees from cleanup.
+
 ## Build commits
 
 - Keep implementation, related tests, and docs together.
