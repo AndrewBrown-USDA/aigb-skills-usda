@@ -4,7 +4,7 @@ description: Guides evidence-driven discovery, design, validation, and delivery 
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.1.1
+  version: 1.1.2
   source_repo: aigb-skills
   source_path: skills/skill-research/SKILL.md
 ---

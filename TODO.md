@@ -32,3 +32,11 @@ Improve `skills/skill-research` using the findings in `planning\skill-research-i
 - The requested report path was absent; the confirmed source is `planning\skill-research-improvements-research-report.md`.
 - Scope excludes `evals/evals.json`, validator changes, and new automated evaluation infrastructure.
 - Bump the skill version and synchronize the final skill to `..\aigb-skills`; do not hand-edit generated catalog entries.
+
+## Discovered Tasks
+
+### 5. Document `skills-ref` setup
+- [x] Update `skills/skill-research/references/validation-tools.md` with what `skills-ref` is, official installation steps, a `skills-ref --help` check, the repository validation fallback, and its optional dependency status.
+- [x] Include the official `skills-ref` repository URL.
+- [x] Regenerate the catalog after the version bump.
+- [x] Synchronize the update to `..\aigb-skills`, validate both repositories, and commit the changes.
