@@ -27,8 +27,8 @@ Add the issue #16 `magic-wand` skill to this package, commit it, propagate it to
 - [x] Commit the reviewed update in `D:\workspace\aigb-skills`.
 
 ### 5. Final verification
-- [ ] Verify clean or explicitly understood post-commit status in both repositories.
-- [ ] Confirm no remote actions were performed and summarize the resulting commits.
+- [x] Verify clean or explicitly understood post-commit status in both repositories.
+- [x] Confirm no remote actions were performed and summarize the resulting commits.
 
 ## Notes
 - Issue source: `AndrewBrown-USDA/aigb-skills-usda#16`.
