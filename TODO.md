@@ -17,14 +17,14 @@ Add the issue #16 `magic-wand` skill to this package, commit it, propagate it to
 - [x] Commit the initial `magic-wand` addition in `D:\workspace\aigb-skills`.
 
 ### 3. Review and revise with dr-lexus
-- [ ] Run the `dr-lexus` skill against `skills\magic-wand\SKILL.md`.
-- [ ] Apply only necessary review-driven revisions to the packaged skill and any directly dependent derived metadata.
-- [ ] Re-run focused validation and inspect the review diff.
+- [x] Run the `dr-lexus` skill against `skills\magic-wand\SKILL.md`.
+- [x] Apply only necessary review-driven revisions to the packaged skill and any directly dependent derived metadata.
+- [x] Re-run focused validation and inspect the review diff.
 
 ### 4. Propagate the reviewed skill upstream
-- [ ] Apply the reviewed `magic-wand` skill to `D:\workspace\aigb-skills` using the supported workflow.
-- [ ] Validate that the upstream source and packaged copies match the reviewed version.
-- [ ] Commit the reviewed update in `D:\workspace\aigb-skills`.
+- [x] Apply the reviewed `magic-wand` skill to `D:\workspace\aigb-skills` using the supported workflow.
+- [x] Validate that the upstream source and packaged copies match the reviewed version.
+- [x] Commit the reviewed update in `D:\workspace\aigb-skills`.
 
 ### 5. Final verification
 - [ ] Verify clean or explicitly understood post-commit status in both repositories.

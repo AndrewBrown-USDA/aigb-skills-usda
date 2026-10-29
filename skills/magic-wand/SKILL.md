@@ -1,6 +1,6 @@
 ---
 name: magic-wand
-description: Extracts, aligns, and prioritizes candidate goals using the 24-hour Magic Wand dependency heuristic. Filters out uncontrollable or non-viable tasks, organizes surviving candidates into a dependency DAG in planning/GOALS.md, and spins off the highest-leverage goal for plan-wave or wave-orchestration.
+description: Finds and ranks candidate goals with the 24-hour Magic Wand dependency heuristic, records their dependency graph in planning/GOALS.md, and hands the highest-leverage goal to plan-wave or wave-orchestration.
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
@@ -12,14 +12,14 @@ metadata:
 
 # Magic Wand
 
-Use the 24-hour Magic Wand heuristic to turn loose ideas, workspace audits, or discovered candidates into a dependency-ordered goal graph.
+Turn loose ideas, workspace audits, or discovered candidates into a dependency-ordered goal graph.
 
-The skill finds the single highest-leverage bottleneck: the goal that, if completed within 24 hours, would unblock, speed up, or remove the most downstream goals.
+Find the bottleneck goal: the goal that would unblock, speed up, or remove the most downstream goals if completed within 24 hours.
 
 ## Companion skills
 
-- **goal-alignment** (`../../goal-alignment/SKILL.md`) clarifies intent, trade-offs, and evaluation weights during Phase 1.
-- **plan-wave** (`../../plan-wave/SKILL.md`) and **wave-orchestration** (`../../wave-orchestration/SKILL.md`) act on the selected goal. Magic Wand selects and bounds what to build next. Plan-wave writes the execution plan. Wave-orchestration executes it.
+- **goal-alignment** (`../../goal-alignment/SKILL.md`) clarifies intent, trade-offs, and evaluation weights in Phase 1.
+- **plan-wave** (`../../plan-wave/SKILL.md`) and **wave-orchestration** (`../../wave-orchestration/SKILL.md`) act on the selected goal. Magic Wand selects and bounds the next work. Plan-wave writes the execution plan. Wave-orchestration runs it.
 
 Stop once the target state, scope boundary, and first action are clear.
 
@@ -28,7 +28,7 @@ Stop once the target state, scope boundary, and first action are clear.
 Do not scan the whole workspace without confirming scope.
 
 1. Check whether the user supplied candidate goals, target paths, or references to `planning/GOALS.md` or `planning/STATE_N.md`.
-2. If scope is missing, ask the user to provide candidate goals or target paths, identify the planning reports to inspect, or confirm a full workspace audit.
+2. If scope is missing, ask the user for candidate goals or target paths, the planning reports to inspect, or confirmation of a full workspace audit.
 
 ## Phase 1: Candidate extraction
 
@@ -36,7 +36,7 @@ Extract about 10 candidates by default. Use 5 to 25 when the scope requires it.
 
 Rewrite each candidate as a declarative, verifiable, present-tense end state. For example, replace “fix slow raster reclassification” with “raster reclassification runs without intermediate heap allocations and passes benchmark X in 50 ms or less.”
 
-Present the normalized candidates to the user. Confirm that they match the intended outcomes and identify any custom criteria to weigh alongside the default heuristic.
+Present the normalized candidates to the user. Confirm that they match the intended outcomes and ask for any custom criteria to weigh with the default heuristic.
 
 ## Phase 2: Viability and control
 
@@ -64,7 +64,7 @@ Record directed dependencies such as `G1 -> [G3, G5]`. Rank candidates by:
 
 Partition evaluated goals into these sections:
 
-1. **Circled Goal (Active Focus)**: one highest-leverage root goal, or strictly orthogonal goals when the user requests parallel workstreams.
+1. **Circled Goal (Active Focus)**: one highest-leverage root goal, or strictly orthogonal goals when the user requests parallel work.
 2. **Sequenced Goals (Dependency DAG)**: viable goals ordered topologically, each noting `Depends on: Gx`.
 3. **Independent Backlog**: viable goals with low unblocking leverage.
 4. **Deferred**: valid goals with an explicit trigger for reconsideration.
