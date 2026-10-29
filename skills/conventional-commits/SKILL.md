@@ -4,7 +4,7 @@ description: Create, classify, validate, and explain commit messages using Conve
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.0
+  version: 1.1
   source_repo: aigb-skills
   source_path: skills/conventional-commits/SKILL.md
   source_url: https://github.com/AndrewBrown-USDA/aigb-skills.git

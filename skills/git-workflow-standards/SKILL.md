@@ -4,7 +4,7 @@ description: Create safe, focused local Git commits during coding tasks. Use whe
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.0
+  version: 1.1
   source_repo: aigb-skills
   source_path: skills/git-workflow-standards/SKILL.md
   source_url: https://github.com/AndrewBrown-USDA/aigb-skills.git

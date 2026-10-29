@@ -4,7 +4,7 @@ description: Performs a read-only review of a code repository to find code that 
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.0
+  version: 1.1
   source_repo: aigb-skills
   source_path: skills/code-review-subtractive/SKILL.md
 ---

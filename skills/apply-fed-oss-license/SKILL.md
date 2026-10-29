@@ -7,7 +7,7 @@ metadata:
   source_repo: aigb-skills
   source_path: skills/apply-fed-oss-license/SKILL.md
   source_url: https://github.com/AndrewBrown-USDA/aigb-skills.git
-  version: 1.0.0
+  version: 1.0.1
 ---
 
 # Federal Open Source Licensing (Code.mil Model)

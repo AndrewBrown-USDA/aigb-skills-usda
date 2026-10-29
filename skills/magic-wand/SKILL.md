@@ -4,7 +4,7 @@ description: Finds and ranks candidate goals with the 24-hour Magic Wand depende
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.0
+  version: 1.1
   source_repo: aigb-skills
   source_path: skills/magic-wand/SKILL.md
   source_url: https://github.com/AndrewBrown-USDA/aigb-skills.git
