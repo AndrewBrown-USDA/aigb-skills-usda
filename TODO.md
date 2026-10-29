@@ -12,9 +12,9 @@ Add the issue #16 `magic-wand` skill to this package, commit it, propagate it to
 - [x] Commit the new skill and any required derived catalog change in `aigb-skills-usda`.
 
 ### 2. Propagate the initial skill upstream
-- [ ] Apply the new `magic-wand` skill to `D:\workspace\aigb-skills` using that repository's supported workflow.
-- [ ] Validate the upstream source and packaged copies.
-- [ ] Commit the initial `magic-wand` addition in `D:\workspace\aigb-skills`.
+- [x] Apply the new `magic-wand` skill to `D:\workspace\aigb-skills` using that repository's supported workflow.
+- [x] Validate the upstream source and packaged copies.
+- [x] Commit the initial `magic-wand` addition in `D:\workspace\aigb-skills`.
 
 ### 3. Review and revise with dr-lexus
 - [ ] Run the `dr-lexus` skill against `skills\magic-wand\SKILL.md`.
