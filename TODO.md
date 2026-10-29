@@ -19,16 +19,16 @@ Add issue #14 `complexity-map` as a packaged skill, record Ryon Morrison as the 
 ### 3. Review and revise with dr-lexus
 - [x] Review `skills\complexity-map\SKILL.md` with `dr-lexus`.
 - [x] Apply only necessary review-driven revisions and regenerate directly dependent catalog data.
-- [ ] Re-run focused validation and inspect the review diff.
+- [x] Re-run focused validation and inspect the review diff.
 
 ### 4. Propagate the reviewed skill upstream
-- [ ] Apply the reviewed skill to `D:\workspace\aigb-skills\skills\complexity-map\SKILL.md`.
-- [ ] Validate that the upstream and packaged copies match.
-- [ ] Commit the reviewed update in `D:\workspace\aigb-skills`.
+- [x] Apply the reviewed skill to `D:\workspace\aigb-skills\skills\complexity-map\SKILL.md`.
+- [x] Validate that the upstream and packaged copies match.
+- [x] Commit the reviewed update in `D:\workspace\aigb-skills`.
 
 ### 5. Final verification
-- [ ] Verify post-commit status in both repositories.
-- [ ] Confirm no remote actions were performed and report the resulting commits.
+- [x] Verify post-commit status in both repositories.
+- [x] Confirm no remote actions were performed and report the resulting commits.
 
 ## Notes
 - Issue source: `AndrewBrown-USDA/aigb-skills-usda#14`.
