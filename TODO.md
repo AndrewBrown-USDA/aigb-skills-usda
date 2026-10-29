@@ -38,3 +38,5 @@ Clarify the integration between `git-workflow-standards` and `conventional-commi
 ### 6. Restore unintended local materialization changes
 - [x] Restore the broad packaged-skill changes caused by running the sibling materialization command from this checkout, preserving the requested two skill edits and `TODO.md`.
 - [x] Re-run materialization from `..\aigb-skills` with the correct working directory and verify only the requested sibling/package changes remain.
+
+All tasks in TODO.md are complete.
