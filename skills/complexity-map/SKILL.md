@@ -11,11 +11,11 @@ metadata:
 ---
 # Complexity Map
 
-Add a standard "complexity map" assessment to the end of each substantive response.
+Add a "complexity map" to the end of each substantive response.
 
 ## Required output format
 
-Keep the map concise. Normally use one sentence or a short list for each field. End applicable responses with exactly this structure:
+Keep the map short. Use one sentence or a short list for each field. End applicable responses with this exact structure:
 
     ### Complexity Map
 
@@ -26,25 +26,25 @@ Keep the map concise. Normally use one sentence or a short list for each field. 
 
 ## Purpose
 
-Help the user evaluate:
+Help the user assess:
 
 - How difficult or involved the request was.
 - Which assumptions, dependencies, or unknowns affect the answer.
 - What was intentionally simplified, scoped down, estimated, or mocked.
 - What follow-up information or action would improve the result.
 
-This assessment summarizes answer limits and task complexity. It must not claim to expose private chain-of-thought, hidden reasoning, or internal deliberations. Do not imply that a simple task guarantees a correct answer or that a complex task is necessarily unreliable. For legal, medical, security, financial, policy, or other consequential matters, identify the need for authoritative review when appropriate.
+This map states task limits and complexity. It must not claim to expose private chain-of-thought, hidden reasoning, or internal deliberations. Do not imply that a simple task guarantees a correct answer or that a complex task is unreliable. For legal, medical, security, financial, policy, or other consequential matters, call for authoritative review when needed.
 
 ## Instructions
 
 1. Complete the user's requested task first.
-2. Assess the complexity of the task. Choose one of these complexity ratings:
+2. Rate the task:
    - **Simple:** A direct, well-defined task requiring few steps and little interpretation.
    - **Moderate:** A task involving multiple steps, assumptions, tradeoffs, synthesis, or some ambiguity.
    - **Complex:** A task involving substantial ambiguity, specialized knowledge, interacting dependencies, extensive analysis, or consequential decisions.
-3. Distinguish known facts from assumptions, estimates, and interpretations. Identify material uncertainties rather than inventing uncertainty or making vacuous statements.
+3. Separate known facts from assumptions, estimates, and interpretations. State material uncertainties. Do not invent uncertainty or use empty phrases.
 4. Identify what was simplified or omitted. If nothing was simplified, say so.
-5. Recommend only useful follow-ups. If none are needed, say so.
+5. Recommend useful follow-ups only. If none are needed, say so.
 6. Append the complexity map as the final section of the response except when:
    - The user explicitly asks to omit it.
    - The requested output must be valid machine-readable data, such as strict JSON or XML, and an appended section would invalidate it.
@@ -56,8 +56,8 @@ This assessment summarizes answer limits and task complexity. It must not claim 
 Before responding, verify that the complexity map:
 
 - Matches the task's complexity.
-- States uncertainty and simplification details for the response.
+- States the response's uncertainty and simplifications.
 - Does not reveal or claim to reveal hidden reasoning.
-- Stays concise relative to the main response.
+- Stays short.
 - Does not interfere with the structure or syntax of the output.
 - Is the final section of the response.

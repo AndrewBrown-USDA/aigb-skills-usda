@@ -10,15 +10,15 @@ Add issue #14 `complexity-map` as a packaged skill, record Ryon Morrison as the 
 - [x] Add `inspired_by: Ryon Morrison (idea shared with GitHub Copilot CoP)` to the supported metadata contract, validator, catalog generation, and documentation if needed.
 - [x] Regenerate `catalog\skills.lock.json`.
 - [x] Run focused packaged-skill validation and inspect the diff.
-- [ ] Commit the initial skill and required metadata/catalog changes in `aigb-skills-usda`.
+- [x] Commit the initial skill and required metadata/catalog changes in `aigb-skills-usda`.
 
 ### 2. Propagate the initial skill upstream
 - [ ] Apply `skills\complexity-map\SKILL.md` to `D:\workspace\aigb-skills\skills\complexity-map\SKILL.md`.
 - [ ] Validate the upstream source and commit the initial skill addition in `D:\workspace\aigb-skills`.
 
 ### 3. Review and revise with dr-lexus
-- [ ] Review `skills\complexity-map\SKILL.md` with `dr-lexus`.
-- [ ] Apply only necessary review-driven revisions and regenerate directly dependent catalog data.
+- [x] Review `skills\complexity-map\SKILL.md` with `dr-lexus`.
+- [x] Apply only necessary review-driven revisions and regenerate directly dependent catalog data.
 - [ ] Re-run focused validation and inspect the review diff.
 
 ### 4. Propagate the reviewed skill upstream
