@@ -9,7 +9,7 @@ Add the issue #16 `magic-wand` skill to this package, commit it, propagate it to
 - [x] Create `skills\magic-wand\SKILL.md` from issue #16 with repository-compatible frontmatter and content.
 - [x] Regenerate `catalog\skills.lock.json` from the skill frontmatter if required by the repository workflow.
 - [x] Run the focused packaged-skill validation and inspect the resulting diff.
-- [ ] Commit the new skill and any required derived catalog change in `aigb-skills-usda`.
+- [x] Commit the new skill and any required derived catalog change in `aigb-skills-usda`.
 
 ### 2. Propagate the initial skill upstream
 - [ ] Apply the new `magic-wand` skill to `D:\workspace\aigb-skills` using that repository's supported workflow.
