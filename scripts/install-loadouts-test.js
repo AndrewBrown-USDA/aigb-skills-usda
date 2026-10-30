@@ -41,6 +41,28 @@ try {
   const cli = path.join(__dirname, 'install.js');
   const packaged = installer.readCatalog();
   const rootName = packaged.skills[0].name;
+  assert.equal(installer.isLoadoutMember({ loadout: 'example' }, 'example'), true);
+  assert.equal(installer.isLoadoutMember({ loadouts: ['example'] }, 'example'), true);
+  assert.equal(installer.isLoadoutMember({ loadout: 'other', loadouts: ['example'] }, 'missing'), false);
+  assert.deepStrictEqual(
+    installer.parseArgs([
+      '--skill', `${rootName}, ${rootName}`,
+      '--skills', rootName,
+      '--include', `${rootName}, ${rootName}`,
+      '--exclude', rootName
+    ]),
+    {
+      mode: 'copy',
+      source: installer.parseArgs([]).source,
+      catalogPath: installer.parseArgs([]).catalogPath,
+      target: null,
+      skills: [rootName, rootName, rootName],
+      force: false,
+      include: [rootName, rootName],
+      exclude: [rootName],
+      help: false
+    }
+  );
   const runCli = (...args) => spawnSync(process.execPath, [cli, ...args], {
     encoding: 'utf8'
   });
@@ -51,6 +73,17 @@ try {
     assert.doesNotMatch(cliResult.stderr, /(TypeError|ReferenceError|at\s+\S+\s+\(|node:internal)/);
     if (targetPath) assert.ok(!fs.existsSync(targetPath));
   };
+  for (const option of ['--skill', '--skills', '--include', '--exclude']) {
+    for (const [label, value] of [
+      ['leading', `,${rootName}`],
+      ['trailing', `${rootName},`],
+      ['repeated', `${rootName},,${rootName}`]
+    ]) {
+      const malformedTarget = path.join(root, `malformed-${option.slice(2)}-${label}`);
+      const malformed = runCli('--target', malformedTarget, option, value);
+      assertCliFailure(malformed, new RegExp(`${option} does not allow leading, trailing, or repeated commas`), malformedTarget);
+    }
+  }
   const selectedTarget = path.join(root, 'selected');
   let cliResult = runCli('--target', selectedTarget, '--skill', rootName, '--include', rootName, '--include', rootName, '--exclude', rootName);
   assertCliFailure(cliResult, /excluded-root/, selectedTarget);

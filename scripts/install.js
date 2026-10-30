@@ -7,7 +7,7 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_SOURCE_DIR = path.join(REPO_ROOT, 'skills');
 const DEFAULT_CATALOG_PATH = path.join(REPO_ROOT, 'catalog', 'skills.lock.json');
-const { loadCatalog, resolve: resolveLoadout } = require('./skill-loadouts');
+const { isLoadoutMember, loadCatalog, resolve: resolveLoadout } = require('./skill-loadouts');
 
 function printHelp() {
   process.stdout.write([
@@ -65,6 +65,16 @@ function parseArgs(argv) {
     }
     return value;
   };
+  const listValue = (arg, value) => {
+    if (value.trim().length === 0) {
+      throw new Error(`${arg} requires a non-empty skill name or comma-separated list`);
+    }
+    const parsed = value.split(',').map(s => s.trim());
+    if (parsed.some(token => token.length === 0)) {
+      throw new Error(`${arg} does not allow leading, trailing, or repeated commas`);
+    }
+    return parsed;
+  };
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -90,13 +100,7 @@ function parseArgs(argv) {
       case '--skills': {
         const val = optionValue(arg, i, 'a non-empty skill name or comma-separated list');
         i += 1;
-        if (!val || typeof val !== 'string' || val.trim().length === 0) {
-          throw new Error(`${arg} requires a non-empty skill name or comma-separated list`);
-        }
-        const parsed = val.split(',').map(s => s.trim()).filter(Boolean);
-        if (parsed.length === 0) {
-          throw new Error(`${arg} requires at least one non-empty skill name`);
-        }
+        const parsed = listValue(arg, val);
         if (!options.skills) {
           options.skills = [];
         }
@@ -107,12 +111,9 @@ function parseArgs(argv) {
       case '--exclude': {
         const val = optionValue(arg, i, 'a non-empty skill name or comma-separated list');
         i += 1;
-        if (!val || typeof val !== 'string' || val.trim().length === 0) {
-          throw new Error(`${arg} requires a non-empty skill name or comma-separated list`);
-        }
         const key = arg.slice(2);
         if (!options[key]) options[key] = [];
-        options[key].push(...val.split(',').map(s => s.trim()).filter(Boolean));
+        options[key].push(...listValue(arg, val));
         break;
       }
       case '--force':
@@ -338,7 +339,7 @@ function installSkills(options) {
           if (/^loadout:[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name)) {
             const loadout = name.slice(8);
             return catalog.skills
-              .filter(skill => skill.loadout === loadout || (Array.isArray(skill.loadouts) && skill.loadouts.includes(loadout)))
+              .filter(skill => isLoadoutMember(skill, loadout))
               .map(skill => skill.name);
           }
           return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name) ? [name] : [];
@@ -390,6 +391,7 @@ if (require.main === module) {
 module.exports = {
   main,
   parseArgs,
+  isLoadoutMember,
   readCatalog,
   resolveLoadout,
   installResolved,
