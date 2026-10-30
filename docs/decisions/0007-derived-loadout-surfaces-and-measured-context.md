@@ -1,7 +1,7 @@
 ---
 id: "0007"
 title: "Expose Loadouts Through Derived Catalog, CLI, and Reusable API"
-status: "Proposed"
+status: "Accepted"
 date: 2026-10-24
 authors:
   - "Andrew G. Brown"
@@ -73,5 +73,6 @@ artifact records six real curated scenarios, five distinct child executions per
 scenario, retained raw samples, corpus hashes, manifests, environment and
 cache declarations, aggregate byte metrics, null tokenizer/model metrics, and
 overwrite refusal. This proves measured byte evidence, not token reduction.
-ADRs 0002 and 0004 remain in force, and this ADR remains Proposed until the
-wave-6 full gate and separate acceptance review.
+ADRs 0002 and 0004 remain in force. The wave-6 full acceptance gate passed,
+and the tracked evidence and process audit satisfy the separate acceptance
+review; this ADR is Accepted.
