@@ -1,40 +1,35 @@
 # TODO
 
 ## Goal
-Resolve all 10 new and previously missed review comments on pull request #17, including custom catalog/source selection, generated metadata validation, loadout materialization, documentation links, and planning-state accuracy.
+Resolve the code-review findings and restore the installer regression suite so the loadout changes are ready to merge.
 
 ## Tasks
 
-### 1. Correct custom catalog and source selection
-- [x] Pass the parsed `--lockfile` path through CLI installation into catalog loading.
-- [x] Resolve selected skills and loadout membership from the selected `--source` tree rather than the packaged default tree.
-- [x] Add regression tests proving custom lockfiles and custom source directories affect installation and do not fall back to repository defaults.
+### 1. Repair installer regression coverage
+- [x] Fix the installer test fixture setup so the overlap assertion reaches the intended overlap validation.
+- [x] Run `node scripts/install-loadouts-test.js` and confirm the regression suite passes.
 
-### 2. Validate generated metadata ownership
-- [x] Validate normalized metadata before emitting each generated catalog record and fail catalog generation with actionable errors.
-- [x] Compare every generated metadata field against frontmatter-derived expectations, including group, singular/plural loadouts, required dependencies, optional dependencies, and provenance/version fields.
-- [x] Add regression tests for invalid generated metadata and field-level frontmatter/catalog mismatches.
+### 2. Enforce the metadata parser contract
+- [x] Reject array-valued metadata and YAML-like inline array syntax in `scripts/skill-metadata.js`.
+- [x] Add focused regression cases proving dependency and loadout metadata must use supported scalar forms.
+- [x] Run the metadata validator tests and confirm existing valid scalar metadata remains compatible.
 
-### 3. Complete loadout metadata materialization
-- [x] Add the documented loadout memberships and dependency metadata to the appropriate packaged skill frontmatter.
-- [x] Regenerate `catalog/skills.lock.json` from authoritative frontmatter.
-- [x] Ensure measurement member selection includes plural `loadouts` entries and add focused coverage.
+### 3. Complete install help documentation
+- [x] Update `scripts/install.js` help to document loadout roots, `--include`, `--exclude`, and `--lockfile` where supported.
+- [x] Verify the top-level CLI help remains aligned with the install command surface.
 
-### 4. Remove duplicate validation and clarify resolution semantics
-- [x] Refactor loadout validation so each metadata field is validated once without duplicate diagnostics.
-- [x] Document that missing required dependency nodes are errors while selected missing optional nodes remain warnings/omissions.
+### 4. Enforce the measurement protocol
+- [x] Validate that measurement runs use exactly five serial child-process samples and reject other sample counts.
+- [x] Add focused regression coverage for invalid sample counts and preserve the existing five-sample artifact checks.
+- [x] Add explicit output wording that distinguishes protocol measurements from deferred real curated-loadout evidence.
 
-### 5. Repair documentation and planning references
-- [x] Update ADR links after renamed or removed decision files.
-- [x] Mark completed `STATE_13` tasks as checked.
-- [x] Update affected documentation and tests to reflect the materialized loadout contract.
-
-### 6. Verify all review-comment fixes
-- [x] Run focused installer, catalog, resolver, measurement, and validator tests.
-- [x] Run packaged validation and inspect the final diff against all 10 review comments.
-- [x] Confirm the worktree and generated catalog are consistent with the approved frontmatter.
+### 5. Run release validation
+- [x] Run the focused validator, resolver, installer, and measurement suites.
+- [x] Run packaged validation, CLI help checks, and the serial maintainer smoke suite.
+- [x] Inspect the final diff and confirm no unrelated files or generated artifacts changed.
 
 ## Notes
-- Scope includes all 10 comments listed in the latest review: 6 open issues and 4 previously missed issues.
-- The documented loadout gap will be resolved by materializing metadata in packaged skill frontmatter and regenerating the catalog.
+- Scope includes all four findings from the two-axis review and the installer regression failure observed during validation.
+- Measurement behavior will reject any sample count other than exactly five.
+- Install documentation will be updated in both the direct installer help and the public CLI help path as needed.
 - Preserve existing CLI compatibility, generated-file ownership, and prior commits; do not rewrite history.
