@@ -57,43 +57,17 @@ instead of silently querying broader history. Preserve each metric's `kind`,
      - follow-up work, reusable helper, package, report, or process that came out of the session
    - Keep distinct efforts separate in the working record. Do not merge related projects just because they share a domain, repository, package, or data source.
 
-   Query strategy:
-   - Use the miner's two-stage candidate discovery and selected-session expansion. Do not broaden turn text or source tables outside the selected artifact.
-   - Prefer checkpoints for compact context, turns for actual conversation evidence, files for session/file association, and refs for commits, pull requests, or issues.
-   - Treat unavailable source tables, redacted content, duplicate suppression, and incomplete sessions as explicit gaps.
-
-   Example pattern:
-   ```sql
- -- step 1: find candidate sessions
-   SELECT id, created_at, repository, cwd, summary
-   FROM sessions
-   WHERE created_at > now() - INTERVAL 'REPLACE_ME_DAYS days'
-    AND (
-      repository ILIKE '%REPLACE_ME_REPOSITORY%'
-      OR cwd ILIKE '%REPLACE_ME_WORKSPACE_FRAGMENT%'
-    )
-   ORDER BY created_at DESC
-   LIMIT REPLACE_ME_LIMIT;
-
- -- step 2: inspect the conversation for the sessions you picked
-   SELECT session_id, turn_index, user_message, assistant_response, timestamp
-   FROM turns
-   WHERE session_id IN (REPLACE_ME_SESSION_ID_LIST)
-   ORDER BY session_id, turn_index
-   LIMIT REPLACE_ME_LIMIT;
-
- -- optional: pull the compact evidence trail for those same sessions
-   SELECT session_id, created_at, title, overview
-   FROM checkpoints
-   WHERE session_id IN (REPLACE_ME_SESSION_ID_LIST)
-   ORDER BY session_id, created_at
-   LIMIT REPLACE_ME_LIMIT;
-   ```
-   - `REPLACE_ME_REPOSITORY`: use a repository name or fragment that matches your local or cloud session metadata.
-   - `REPLACE_ME_WORKSPACE_FRAGMENT`: use a unique substring from the workspace path or cwd for your environment.
-   - `REPLACE_ME_DAYS`: use the date window you want to inspect, such as `7`, `30`, or `90`.
-   - `REPLACE_ME_SESSION_ID_LIST`: use a comma-separated list of session IDs, or replace this block with the exact filter your SQL dialect expects.
-   - `REPLACE_ME_LIMIT`: use the maximum row count appropriate for the query stage.
+ Query strategy:
+ - Ask `copilot-history-miner` for a bounded artifact using the requested date,
+   repository, workspace, branch, session, or keyword filters.
+ - Use the miner's two-stage candidate discovery and selected-session expansion.
+   Do not broaden source tables or turn text outside the selected artifact.
+ - Prefer checkpoints for compact context, turns for actual conversation evidence,
+   files for session/file association, and refs for commits, pull requests, or issues.
+ - Treat unavailable source tables, redacted content, duplicate suppression, and
+   incomplete sessions as explicit gaps.
+ - Load the returned artifact and its contract before interpreting records; do not
+   query the history database directly from this skill.
 
 4. Extract success-story material.
    - First create a detail-rich working brief. It may be longer and more technical than the final answer, because its purpose is to preserve enough raw material for later distillation.

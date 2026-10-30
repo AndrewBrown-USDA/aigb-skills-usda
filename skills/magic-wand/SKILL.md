@@ -18,8 +18,8 @@ Find the bottleneck goal: the goal that would unblock, speed up, or remove the m
 
 ## Companion skills
 
-- **goal-alignment** (`../../goal-alignment/SKILL.md`) clarifies intent, trade-offs, and evaluation weights in Phase 1.
-- **plan-wave** (`../../plan-wave/SKILL.md`) and **wave-orchestration** (`../../wave-orchestration/SKILL.md`) act on the selected goal. Magic Wand selects and bounds the next work. Plan-wave writes the execution plan. Wave-orchestration runs it.
+- **goal-alignment** (`../goal-alignment/SKILL.md`) clarifies intent, trade-offs, and evaluation weights in Phase 1.
+- **plan-wave** (`../plan-wave/SKILL.md`) and **wave-orchestration** (`../wave-orchestration/SKILL.md`) act on the selected goal. Magic Wand selects and bounds the next work. Plan-wave writes the execution plan. Wave-orchestration runs it.
 
 Stop once the target state, scope boundary, and first action are clear.
 
