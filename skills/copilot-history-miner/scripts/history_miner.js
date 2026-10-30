@@ -6,7 +6,16 @@ const TABLES = ['sessions', 'turns', 'checkpoints', 'session_files', 'session_re
 const REDACTION_RULES_VERSION = '1';
 
 function stableJson(value) {
-  return JSON.stringify(value, Object.keys(value || {}).sort());
+  const normalize = input => {
+    if (Array.isArray(input)) return input.map(normalize);
+    if (input && typeof input === 'object') {
+      return Object.fromEntries(
+        Object.keys(input).sort().map(key => [key, normalize(input[key])])
+      );
+    }
+    return input;
+  };
+  return JSON.stringify(normalize(value));
 }
 
 function hash(value) {
@@ -14,7 +23,10 @@ function hash(value) {
 }
 
 function sourceRef(table, row, index) {
-  const identity = row.id || row.event_id || row.tool_call_id || row.session_id && `${row.session_id}:${row.turn_index ?? row.ref_value ?? index}`;
+  const identity = row.id || row.event_id || row.tool_call_id ||
+    (row.session_id && (row.turn_index !== undefined || row.ref_value !== undefined)
+      ? `${row.session_id}:${row.turn_index ?? row.ref_value}`
+      : null);
   return `${table}:${identity || hash(row)}`;
 }
 
@@ -26,20 +38,46 @@ function redact(value, options = {}) {
   if (typeof value !== 'string') return value;
   const patterns = options.redactPatterns || [
     /([?&](?:token|key|secret|password)=)[^&\s]+/gi,
-    /\b(?:api[_-]?key|password|secret|token)\s*[:=]\s*\S+/gi,
-    /[A-Za-z]:\\(?:Users|Documents and Settings)\\[^\\\s]+/gi
+    /\b(?:api[_-]?key|password|secret|token)\s*[:=]\s*\S+/gi
   ];
-  return patterns.reduce((result, pattern) => result.replace(pattern, match => {
+  const redacted = patterns.reduce((result, pattern) => result.replace(pattern, match => {
     const separator = match.match(/^([?&][^=]+=|[^:=\s]+[:=]\s*)/);
     return separator ? `${separator[1]}[REDACTED]` : '[REDACTED]';
   }), value);
+  const pathPattern = /(?:[A-Za-z]:[\\/]|\\\\|\/)(?:[^\\/\s"'<>]+[\\/]?)+/g;
+  return redacted.replace(pathPattern, (match, offset, full) => {
+    const prefix = full.slice(0, offset);
+    return /https?:\/$/i.test(prefix) ? match : '[REDACTED_PATH]';
+  });
+}
+
+function cleanValue(value, options) {
+  if (typeof value === 'string') return redact(value, options);
+  if (Array.isArray(value)) return value.map(item => cleanValue(item, options));
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, nested]) => [
+      key,
+      cleanValue(nested, options)
+    ]));
+  }
+  return value;
 }
 
 function cleanRow(row, options) {
-  return Object.fromEntries(Object.entries(row || {}).map(([key, value]) => [
-    key,
-    typeof value === 'string' ? redact(value, options) : value
-  ]));
+  return cleanValue(row || {}, options);
+}
+
+function recordTimestamp(record) {
+  return record.created_at || record.timestamp || record.started_at ||
+    record.completed_at || record.updated_at || '';
+}
+
+function sortRecords(records) {
+  return [...records].sort((a, b) =>
+    String(a.source_ref || '').localeCompare(String(b.source_ref || '')) ||
+    String(recordTimestamp(a)).localeCompare(String(recordTimestamp(b))) ||
+    stableJson(a).localeCompare(stableJson(b))
+  );
 }
 
 function rows(source, table) {
@@ -90,7 +128,8 @@ function dedupe(table, input) {
 }
 
 function normalizeHistory(raw, options = {}) {
-  const sessions = dedupe('sessions', rows(raw, 'sessions')).map(row => cleanRow(row, options));
+  const sessions = sortRecords(dedupe('sessions', rows(raw, 'sessions'))
+    .map((row, index) => ({ ...cleanRow(row, options), source_ref: sourceRef('sessions', row, index) })));
   const selected = new Set(sessions.map(row => row.id));
   const normalizeTable = table => dedupe(table, rows(raw, table))
     .filter(row => !row.session_id || selected.has(row.session_id))
@@ -116,6 +155,9 @@ function normalizeHistory(raw, options = {}) {
     metrics: [],
     errors: Array.isArray(options.errors) ? [...options.errors] : []
   };
+  for (const key of ['turns', 'checkpoints', 'files', 'refs', 'usage', 'tools']) {
+    artifact[key] = sortRecords(artifact[key]);
+  }
   for (const key of ['sessions', 'turns', 'checkpoints', 'files', 'refs', 'usage', 'tools']) {
     artifact.record_counts[key] = artifact[key].length;
   }
@@ -164,9 +206,15 @@ function mine(raw, options = {}) {
 }
 
 function toNdjson(artifact) {
-  return Object.entries(artifact).flatMap(([type, value]) => Array.isArray(value)
-    ? value.map(record => JSON.stringify({ type, ...record }))
-    : []).join('\n') + '\n';
+  const recordTypes = new Set(['sessions', 'turns', 'checkpoints', 'files', 'refs', 'usage', 'tools']);
+  const manifest = Object.fromEntries(
+    Object.entries(artifact).filter(([type]) => !recordTypes.has(type))
+  );
+  const lines = [JSON.stringify({ type: 'manifest', ...manifest })];
+  for (const type of recordTypes) {
+    for (const record of artifact[type] || []) lines.push(JSON.stringify({ type, ...record }));
+  }
+  return `${lines.join('\n')}\n`;
 }
 
 module.exports = {
