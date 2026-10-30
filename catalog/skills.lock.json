@@ -275,6 +275,10 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/plan-wave/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "loadouts": [
+        "wave-delivery",
+        "plan-review"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.2"
@@ -402,6 +406,10 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/wave-orchestration/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "loadouts": [
+        "wave-delivery",
+        "software-delivery"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.1"

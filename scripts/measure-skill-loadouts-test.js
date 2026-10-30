@@ -39,7 +39,7 @@ writeSkill('beta', '# Beta fixture with different bytes\n');
 fs.writeFileSync(catalog, `${JSON.stringify({
   skills: [
     { name: 'alpha', description: 'Alpha', source_repo: 'fixture', source_path: 'skills/alpha/SKILL.md' },
-    { name: 'beta', description: 'Beta', source_repo: 'fixture', source_path: 'skills/beta/SKILL.md', dependencies: ['alpha'] }
+    { name: 'beta', description: 'Beta', source_repo: 'fixture', source_path: 'skills/beta/SKILL.md', loadouts: ['sample'], dependencies: ['alpha'] }
   ]
 }, null, 2)}\n`, 'utf8');
 

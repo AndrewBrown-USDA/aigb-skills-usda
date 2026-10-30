@@ -73,10 +73,10 @@ function validateMetadata(input) {
     if (metadata[field] !== undefined && (typeof metadata[field] !== 'string' || !identifier.test(metadata[field]))) {
       errors.push(`${field} must be a lowercase kebab-case identifier`);
     }
-    if (metadata.loadouts !== undefined && (!Array.isArray(metadata.loadouts) ||
-        metadata.loadouts.some((token) => typeof token !== 'string' || !identifier.test(token)))) {
-      errors.push('loadouts contains an invalid identifier or empty token');
-    }
+  }
+  if (metadata.loadouts !== undefined && (!Array.isArray(metadata.loadouts) ||
+      metadata.loadouts.some((token) => typeof token !== 'string' || !identifier.test(token)))) {
+    errors.push('loadouts contains an invalid identifier or empty token');
   }
   for (const field of ['dependencies', 'optional_dependencies']) {
     const tokens = splitList(input[field]);

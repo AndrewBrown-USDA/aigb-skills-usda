@@ -133,9 +133,15 @@ function main(argv) {
   const all = [...loaded.skills.keys()];
   if (all.length === 0) throw new Error('catalog contains no measurable skills');
   const repositoryRoot = path.dirname(options.source);
-  const loadout = [...new Set([...loaded.skills.values()].map(skill => skill.loadout).filter(Boolean))].sort()[0];
+  const loadout = [...new Set([...loaded.skills.values()].flatMap(skill => [
+    ...(skill.loadout ? [skill.loadout] : []),
+    ...(Array.isArray(skill.loadouts) ? skill.loadouts : [])
+  ]))].sort()[0];
   const members = loadout
-    ? all.filter(name => loaded.skills.get(name).loadout === loadout).sort()
+    ? all.filter(name => {
+      const skill = loaded.skills.get(name);
+      return skill.loadout === loadout || (Array.isArray(skill.loadouts) && skill.loadouts.includes(loadout));
+    }).sort()
     : all.slice(0, Math.min(3, all.length));
   const optional = members.flatMap(name => loaded.skills.get(name).optional_dependencies || [])
     .find(name => loaded.skills.has(name));

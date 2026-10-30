@@ -5,7 +5,7 @@ const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SKILLS_DIR = path.join(REPO_ROOT, 'skills');
-const { normalizeMetadata } = require('./skill-metadata');
+const { normalizeMetadata, validateMetadata } = require('./skill-metadata');
 
 function parseSimpleYamlFrontmatter(content) {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -78,6 +78,10 @@ function scanCuratedSkills(skillsDir = SKILLS_DIR) {
       source_repo: metadata.source_repo || 'aigb-skills',
       source_path: metadata.source_path || `skills/${skillName}/SKILL.md`
     });
+    const validation = validateMetadata({ name, ...normalized });
+    if (!validation.valid) {
+      throw new Error(`Invalid metadata for ${name}: ${validation.errors.join('; ')}`);
+    }
     const author = metadata.author;
     const license = fm.license;
     const versionVal = metadata.version ? String(metadata.version).trim() : null;

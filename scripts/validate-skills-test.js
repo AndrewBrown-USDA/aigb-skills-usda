@@ -528,6 +528,10 @@ try {
   fs.writeFileSync(curatedSkill, frontmatter('new-keys', {
     source_repo: 'aigb-skills',
     source_path: 'skills/new-keys/SKILL.md',
+    group: 'quality-assurance',
+    loadouts: 'software-delivery, code-quality',
+    dependencies: 'legacy-keys',
+    optional_dependencies: 'worker-validation',
     upstream_ref: 'new-ref',
     upstream_repo: 'new-repo',
     source_url: 'https://provenance.example.test/should-not-be-used'
@@ -545,8 +549,20 @@ try {
   assert.equal(minedNew.upstream_repo, 'new-repo');
   assert.equal(minedNew.upstream_path, undefined);
   assert.equal(minedNew.source_url, 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
+  assert.equal(minedNew.group, 'quality-assurance');
+  assert.deepEqual(minedNew.loadouts, ['software-delivery', 'code-quality']);
+  assert.deepEqual(minedNew.dependencies, ['legacy-keys']);
+  assert.deepEqual(minedNew.optional_dependencies, ['worker-validation']);
   assert.equal(minedLegacy.upstream_ref, 'legacy-ref');
   assert.equal(minedLegacy.upstream_repo, 'legacy-repo');
+  const invalidRoot = path.join(tempRoot, 'invalid-metadata');
+  fs.mkdirSync(path.join(invalidRoot, 'invalid'), { recursive: true });
+  fs.writeFileSync(path.join(invalidRoot, 'invalid', 'SKILL.md'), frontmatter('invalid', {
+    source_repo: 'aigb-skills',
+    source_path: 'skills/invalid/SKILL.md',
+    loadouts: 'Bad_Name'
+  }), 'utf8');
+  assert.throws(() => require('./mine-history').scanCuratedSkills(invalidRoot), /Invalid metadata for invalid/);
   console.log('Validator tests passed.');
 } finally {
   fs.rmSync(tempRoot, { recursive: true, force: true });
