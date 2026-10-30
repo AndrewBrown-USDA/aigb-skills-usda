@@ -26,9 +26,17 @@ The result is either a successful ordered list of unique skill records and
 diagnostics, or a failed result with `skills: []` and no installable partial
 result. Diagnostics add stable `severity`, `message`, array `path`, and
 string `legacyPath` fields to the original `code`, `subject`, and `detail`
-shape. They are sorted by path, then code and subject. The install source is always the packaged
+shape. They retain discovery order, with code and subject as deterministic
+tie-breakers. The install source is always the packaged
 `source_path` under `./skills`; resolution never fetches `source_url` or an
 upstream repository.
+
+Names and override values are parser-compatible comma-separated scalar lists.
+Empty items, including leading, trailing, or repeated commas and
+whitespace-only items, are malformed and rejected before resolution or
+installation. The normalized catalog contains the approved taxonomy derived
+from frontmatter; membership is shared across loadouts rather than inferred
+from informational groups.
 
 ## Expansion, traversal, ordering, and idempotence
 

@@ -58,7 +58,8 @@ identity or install path.
 ```
 
 Failure returns `{ ok: false, skills: [], diagnostics }`. Names and override
-lists use the resolution contract's trim/deduplicate rules. Roots preserve
+lists use the resolution contract's trim/deduplicate rules and reject malformed
+empty list items before any catalog resolution. Roots preserve
 request order; loadout members are name-sorted; dependencies are emitted
 post-order. `source_path` is always the packaged install path. Required and
 selected optional missing nodes, cycles, exclusions, and invalid constraints
@@ -122,7 +123,9 @@ Unknown options, missing option values, malformed lists, rootless overrides,
 unknown/mistyped loadouts, resolution errors, and install conflicts print one
 concise diagnostic to stderr and exit 1. Resolution completes before target
 creation or replacement, so every such failure is atomic. Success exits 0.
-`--help` continues to exit 0 and includes the selection options.
+`--help` continues to exit 0 and includes the selection options. Diagnostics
+retain discovery order, identify the actionable path, and do not expose
+absolute paths or provenance URLs.
 
 No new public `sync` selection semantics are required. If a maintainer needs
 to materialize a selected loadout after synchronization, they run `sync`
@@ -136,7 +139,8 @@ Representative commands:
 skills install --target ~/.agents/skills --skills loadout:wave-delivery
 skills install --target ./.agents/skills --skill plan-first,dr-lexus \
   --include web-source-bundler
-skills install --target ./.agents/skills --skill loadout:fied-ops # fails
+skills install --target ./.agents/skills --skill loadout:software-delivery
+skills install --target ./.agents/skills --skill loadout:typo # fails
 skills install --help
 skills sync --mode copy --no-clone
 ```
@@ -247,9 +251,10 @@ install: excluded-required: field-reporting requires dr-lexus
 ```
 
 Diagnostics must identify the actionable skill and edge path, preserve stable
-ordering, and avoid absolute paths or provenance secrets. `--help` describes
-selection syntax and the install/sync boundary; it does not claim network
-access or context-reduction results.
+ordering, and avoid absolute paths or provenance secrets. `--help` describes selection syntax and the install/sync boundary; it does not
+claim network access or context-reduction results. The tracked measurement
+artifact records real curated scenarios and byte metrics without claiming
+token reduction.
 
 ## 8. Cross-check and unresolved questions
 

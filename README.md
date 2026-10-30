@@ -98,7 +98,7 @@ override options require at least one explicit `--skill`/`--skills` root.
 Excluding a direct root is an error unless `--force` is also supplied:
 
 ```bash
-npx --no-install skills install --target ~/.agents/skills --skill loadout:research
+npx --no-install skills install --target ~/.agents/skills --skill loadout:software-delivery
 npx --no-install skills install --target ~/.agents/skills --skill plan-first --include tdd
 npx --no-install skills install --target ~/.agents/skills --skill plan-first --exclude plan-first --force
 ```
@@ -116,6 +116,13 @@ excluded direct roots, and options missing their required values also exit
 unsuccessfully and install nothing; an existing destination remains unchanged.
 `--source`, `--mode`, and `--force` apply to the install command only; `sync`
 remains the maintainer-only command for upstream repositories and lockfiles.
+
+The packaged catalog is the source for loadout membership. A skill may belong
+to multiple loadouts through parser-compatible scalar metadata; selection uses
+the explicit `loadout:<name>` form. Measured byte evidence for curated
+loadouts is recorded in
+[`docs/evidence/skill-loadout-measurement.md`](docs/evidence/skill-loadout-measurement.md).
+Tokenizer/model metrics are unavailable and are not estimated.
 
 For a safe local helper example, specify a temporary target rather than a real agent directory:
 

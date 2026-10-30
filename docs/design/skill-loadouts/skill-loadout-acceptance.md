@@ -1,9 +1,11 @@
 # Skill Loadout Acceptance and Measurement Plan
 
-Status: implemented acceptance contract. This document maps the metadata,
+Status: implemented acceptance contract. This document maps the approved
+frontmatter taxonomy and metadata,
 resolver, installer, API, CLI, documentation, and measurement requirements to
 their focused regression suites. Real curated-loadout measurement evidence is
-still blocked on orchestration 14.
+recorded in the tracked evidence artifacts; tokenizer/model metrics remain
+environment-dependent.
 
 ## 1. Acceptance classification
 
@@ -57,7 +59,7 @@ Fixtures are isolated under a test-owned scratch directory (never the packaged
 | Documentation is complete | Documentation contract checks | Metadata, resolution, surfaces, and acceptance documents agree on names, precedence, diagnostics, and boundaries | Required |
 | README/help alignment is maintained | Text assertions or review checklist | User-facing examples do not contradict the design or imply unsupported behavior | Required |
 | Measurement protocol is verified | `scripts/measure-skill-loadouts-test.js` | Five independent serial executions, raw evidence, hashes, metadata, aggregates, and overwrite refusal are verified | Required |
-| Real curated context reduction is measured | Orchestration 14 evidence artifact | Baseline and real curated-loadout measurements report pinned inputs and metrics without overwriting prior runs | Deferred |
+| Real curated context bytes are measured | `docs/evidence/skill-loadout-measurement.{json,md}` | Pinned packaged corpus and curated selections report five serial samples, retained raw runs, hashes, manifests, and byte metrics without overwriting prior runs | Required |
 
 ## 3. Focused-test discipline
 
@@ -108,8 +110,9 @@ environment must run it before release acceptance.
 
 ## 5. Context-reduction measurement plan
 
-This is a measurement protocol, not a result. No percentage, token count, or
-performance claim may be published until the protocol has produced an artifact.
+The tracked artifact is the result of this measurement protocol. It publishes
+byte counts and ratios from the pinned packaged corpus only; no tokenizer,
+model, or token-reduction claim is made.
 
 ### Corpus and selections
 
@@ -134,9 +137,10 @@ for baseline and target. Measure the exact bytes and, where the harness
 supports it, tokenizer count of the assembled context. Warm-up behavior,
 cache state, model/tokenizer version, and command arguments must be recorded.
 Run each scenario five times, each in a distinct serial Node.js child process;
-retain every raw sample and report median, minimum, maximum, and spread. If a tokenizer or model
-service is unavailable, byte counts remain valid evidence and token metrics
-are marked environment-dependent rather than estimated.
+retain every raw sample and report median, minimum, maximum, and spread. If a tokenizer or model service is unavailable, byte counts remain valid
+evidence and token metrics are marked environment-dependent rather than
+estimated. The current tracked run uses five fresh serial Node.js child
+processes per scenario.
 
 ### Comparison metrics and artifact
 
@@ -147,13 +151,14 @@ For each scenario record:
 `absolute_reduction_tokens`, `reduction_ratio_tokens`, resolved names,
 diagnostics, environment, and source commit.
 
-Write each run to a newly created directory under `.scratch/` (or the CI
-artifact store). Retain raw per-scenario JSON, SHA-256 corpus and selection
-manifests, serialization and cache declarations, command/environment metadata,
-and aggregate JSON. Existing run directories are refused rather than deleted
-or overwritten. Tokenizer/model metrics remain `null` when unavailable. A
-result is repeatable only when pinned corpus, procedure, and environment fields
-match; otherwise report it as a new run.
+The retained run is under
+`.scratch/loadout-measurement/18.5.1/orchestration-18-evidence-v1/`, with
+tracked summaries at `docs/evidence/skill-loadout-measurement.json` and
+`docs/evidence/skill-loadout-measurement.md`. Raw per-scenario JSON, SHA-256
+corpus and selection manifests, serialization and cache declarations,
+command/environment metadata, and aggregate JSON are retained. Existing run
+directories are refused rather than deleted or overwritten. Tokenizer/model
+metrics are `null` because the tooling is unavailable.
 
 ## 6. Deferred and environment-dependent items
 
@@ -164,7 +169,7 @@ match; otherwise report it as a new run.
 | Token counts requiring a tokenizer/model service | Environment-dependent | Record unavailable tooling and use byte evidence only |
 | Full maintainer smoke requiring sibling checkouts | Environment-dependent | Run when available; otherwise preserve the not-evidenced record |
 | Network recovery paths in sync | Environment-dependent | Test only with explicit opt-in and controlled local remote fixtures; never require network for packaged install |
-| Real curated-loadout evidence and performance claims | Deferred to orchestration 14 | Publish no result without the pinned corpus and non-overwriting repeatability artifact |
+| Real curated-loadout evidence and performance claims | Required | Use the tracked pinned-corpus byte artifact; do not extend it to token/model claims |
 
 ## 7. Traceability and sign-off
 
@@ -178,5 +183,5 @@ non-overwriting measurement protocol. A reviewer
 signs off only when each Required row has a named test or artifact, each
 Deferred row has an owner/trigger in the implementation plan, and each
 Environment-dependent row has either successful evidence or a precise
-limitation record. Protocol verification is complete; real curated-loadout
-evidence and any context-reduction claim remain blocked on orchestration 14.
+limitation record. Real curated-loadout byte evidence is complete; token
+metrics remain unavailable and are not estimated.
