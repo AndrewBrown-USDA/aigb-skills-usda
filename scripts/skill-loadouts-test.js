@@ -2,7 +2,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { resolve } = require('./skill-loadouts');
+const { isLoadoutMember, resolve } = require('./skill-loadouts');
 const s = (name, extra = {}) => ({ name, source_repo: 'aigb-skills', source_path: `skills/${name}/SKILL.md`, ...extra });
 const names = result => result.skills.map(x => x.name);
 const assertFailure = (result, code, subject = '') => {
@@ -32,6 +32,10 @@ const catalog = { skills: [
 const scratch = path.join(__dirname, '..', '.scratch', 'loadout-tests', '16.2.1', 'resolver');
 fs.mkdirSync(scratch, { recursive: true });
 try {
+  assert.strictEqual(isLoadoutMember(catalog.skills[0], 'base'), true);
+  assert.strictEqual(isLoadoutMember(catalog.skills[0], 'shared'), true);
+  assert.strictEqual(isLoadoutMember(catalog.skills[0], 'missing'), false);
+  assert.strictEqual(isLoadoutMember(null, 'base'), false);
   assert.deepStrictEqual(names(resolve(['loadout:base'], catalog)), ['c', 'a', 'b']);
   assert.deepStrictEqual(names(resolve(['loadout:shared'], catalog)), ['c', 'a', 'b']);
   assert.deepStrictEqual(names(resolve(['a', 'b'], catalog)), ['c', 'a', 'b']);
@@ -94,6 +98,17 @@ try {
   const cycleResult = resolve(['x'], cycle);
   assert.strictEqual(cycleResult.ok, false);
   assert.deepStrictEqual(cycleResult.diagnostics.map(d => [d.code, d.subject, d.path]), [['cycle', 'x', ['x', 'y', 'x']]]);
+  assert.match(cycleResult.diagnostics[0].message, /required edge closes cycle: x -> y -> x/);
+  assert.match(cycleResult.diagnostics[0].detail, /required edge closes cycle: x -> y -> x/);
+  const missingRequired = resolve(['a'], { skills: [s('a', { dependencies: ['gone'] })] });
+  assert.strictEqual(missingRequired.diagnostics[0].code, 'missing-skill');
+  assert.match(missingRequired.diagnostics[0].message, /a -> gone/);
+  assert.deepStrictEqual(missingRequired.diagnostics[0].path, ['a']);
+  const missingOptional = resolve(['bad-opt'], catalog, { include: ['gone'] });
+  const missingOptionalDiagnostic = missingOptional.diagnostics.find(d => d.code === 'missing-optional');
+  assert.ok(missingOptionalDiagnostic);
+  assert.match(missingOptionalDiagnostic.message, /bad-opt -> gone/);
+  assert.deepStrictEqual(missingOptionalDiagnostic.path, ['bad-opt']);
   const unsafe = { skills: [s('x', { source_path: '../x/SKILL.md' })] };
   const unsafeResult = resolve(['x'], unsafe);
   assert.strictEqual(unsafeResult.ok, false);
