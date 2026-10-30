@@ -2,6 +2,8 @@
 name: grilling
 description: Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.
 metadata:
+  group: architecture-planning
+  loadouts: software-delivery,decision-stress-testing,wave-delivery
   author: Matt Pocock (https://github.com/mattpocock/skills)
   source_repo: aigb-skills
   source_path: skills/grilling/SKILL.md

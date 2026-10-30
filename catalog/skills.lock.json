@@ -253,6 +253,13 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/git-history-interval-study/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "research-evidence",
+      "loadouts": [
+        "evidence-research",
+        "software-delivery",
+        "architecture-history",
+        "git-practices"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -265,6 +272,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/github-actions-ci/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "developer-tooling",
+      "loadouts": [
+        "software-delivery",
+        "ci-maintenance",
+        "r-package-quality"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -277,6 +290,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/goal-alignment/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "architecture-planning",
+      "loadouts": [
+        "software-delivery",
+        "plan-review",
+        "wave-delivery"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0.0"
@@ -291,6 +310,12 @@
       "upstream_ref": "v1.2.0",
       "upstream_repo": "https://github.com/mattpocock/skills",
       "upstream_path": "skills/productivity/grilling/SKILL.md",
+      "group": "architecture-planning",
+      "loadouts": [
+        "software-delivery",
+        "decision-stress-testing",
+        "wave-delivery"
+      ],
       "version": {
         "status": "missing",
         "value": null
@@ -303,6 +328,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/install-skills/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "developer-tooling",
+      "loadouts": [
+        "software-delivery",
+        "agent-setup",
+        "skill-authoring"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -315,6 +346,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/json-processing-with-jq/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "developer-tooling",
+      "loadouts": [
+        "software-delivery",
+        "evidence-research",
+        "data-utilities"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -327,6 +364,11 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/makefile-development-workflow/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "developer-tooling",
+      "loadouts": [
+        "software-delivery",
+        "ci-maintenance"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -339,6 +381,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/performance-benchmarking/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "quality-assurance",
+      "loadouts": [
+        "software-delivery",
+        "performance-analysis",
+        "test-validation"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -352,6 +400,14 @@
       "source_path": "skills/plan-first/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "upstream_repo": "https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js",
+      "group": "architecture-planning",
+      "loadouts": [
+        "software-delivery",
+        "wave-delivery"
+      ],
+      "optional_dependencies": [
+        "goal-alignment"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -364,9 +420,19 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/plan-wave/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "architecture-planning",
       "loadouts": [
         "wave-delivery",
         "plan-review"
+      ],
+      "dependencies": [
+        "wave-orchestration",
+        "grilling"
+      ],
+      "optional_dependencies": [
+        "code-review-2axis",
+        "goal-alignment",
+        "adr-distillation"
       ],
       "version": {
         "status": "resolved",
@@ -382,6 +448,13 @@
       "upstream_ref": "v4.10.0",
       "upstream_repo": "https://github.com/DietrichGebert/ponytail",
       "upstream_path": "skills/ponytail/SKILL.md",
+      "group": "quality-assurance",
+      "loadouts": [
+        "software-delivery",
+        "documentation",
+        "code-quality",
+        "context-economy"
+      ],
       "version": {
         "status": "missing",
         "value": null

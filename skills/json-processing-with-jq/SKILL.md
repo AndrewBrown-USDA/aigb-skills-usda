@@ -3,6 +3,8 @@ name: json-processing-with-jq
 description: Processes JSON on the command line with jq. Use when parsing, filtering, or validating JSON from files or APIs.
 license: MIT
 metadata:
+  group: developer-tooling
+  loadouts: software-delivery,evidence-research,data-utilities
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0
   source_repo: aigb-skills
