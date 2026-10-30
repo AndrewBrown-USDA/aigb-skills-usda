@@ -111,6 +111,12 @@ try {
   fs.writeFileSync(invalidCatalog, JSON.stringify({ skills: [{ name: 'a', source_path: 'https://example.invalid/a' }] }));
   assert.throws(() => installer.readCatalog({ catalogPath: invalidCatalog, sourceDir: source }), /Invalid catalog|packaged source path/);
   assert.throws(() => installer.installResolved({ ok: false, skills: [] }, { sourceDir: source, target: path.join(root, 'bad') }), /unsuccessful/);
+  const customCatalog = path.join(root, 'custom-catalog.json');
+  fs.writeFileSync(customCatalog, JSON.stringify(catalog));
+  const customTarget = path.join(root, 'custom-target');
+  const customCliResult = runCli('--source', source, '--lockfile', customCatalog, '--target', customTarget, '--skill', 'a');
+  assert.equal(customCliResult.status, 0, customCliResult.stderr);
+  assert.deepStrictEqual(fs.readdirSync(customTarget).sort(), ['a', 'c']);
   console.log('Install loadout tests passed.');
 } finally {
   fs.rmSync(root, { recursive: true, force: true });

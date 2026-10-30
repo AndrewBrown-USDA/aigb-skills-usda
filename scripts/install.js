@@ -47,6 +47,7 @@ function parseArgs(argv) {
   const options = {
     mode: 'copy',
     source: DEFAULT_SOURCE_DIR,
+    catalogPath: DEFAULT_CATALOG_PATH,
     target: null,
     skills: null,
     force: false,
@@ -72,6 +73,10 @@ function parseArgs(argv) {
         break;
       case '--source':
         options.source = path.resolve(process.cwd(), expandHomeDir(optionValue(arg, i, 'a path')));
+        i += 1;
+        break;
+      case '--lockfile':
+        options.catalogPath = path.resolve(process.cwd(), expandHomeDir(optionValue(arg, i, 'a path')));
         i += 1;
         break;
       case '--target':
@@ -107,10 +112,6 @@ function parseArgs(argv) {
         options[key].push(...val.split(',').map(s => s.trim()).filter(Boolean));
         break;
       }
-      case '--lockfile':
-        optionValue(arg, i, 'a path');
-        i += 1;
-        break;
       case '--force':
         options.force = true;
         break;
@@ -320,7 +321,7 @@ function installMaterialized(skillDirs, sourceDir, options) {
 }
 
 function installSkills(options) {
-  const catalog = readCatalog({ sourceDir: options.source });
+  const catalog = readCatalog({ catalogPath: options.catalogPath, sourceDir: options.source });
   if ((!options.skills || options.skills.length === 0) &&
       ((options.include && options.include.length) || (options.exclude && options.exclude.length))) {
     throw new Error('roots-required: --include and --exclude require --skill or --skills');
