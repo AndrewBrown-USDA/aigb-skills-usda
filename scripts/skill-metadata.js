@@ -10,7 +10,7 @@ function deriveSourceUrl(sourceRepo) {
 
 function splitList(value) {
   return typeof value === 'string'
-    ? value.replace(/^\[|\]$/g, '').split(',').map((token) => token.trim().replace(/^['"]|['"]$/g, ''))
+    ? value.split(',').map((token) => token.trim().replace(/^['"]|['"]$/g, ''))
     : value;
 }
 

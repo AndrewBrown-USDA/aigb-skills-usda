@@ -120,6 +120,15 @@ try {
     dependencies: 'second-skill, first-skill',
     optional_dependencies: 'third-skill, fourth-skill'
   }).optional_dependencies, ['third-skill', 'fourth-skill']);
+  for (const field of ['dependencies', 'optional_dependencies', 'loadouts']) {
+    const validation = validateMetadata({
+      source_repo: 'repo',
+      source_path: 'skills/example/SKILL.md',
+      [field]: '[first-skill, second-skill]'
+    });
+    assert.equal(validation.valid, false);
+    assert.match(validation.errors.join('; '), new RegExp(`${field} contains an invalid identifier`));
+  }
   for (const [field, value] of [
     ['dependencies', 'first-skill, first-skill'],
     ['optional_dependencies', 'second-skill, second-skill'],
