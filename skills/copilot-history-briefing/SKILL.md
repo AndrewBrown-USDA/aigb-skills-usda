@@ -3,6 +3,8 @@ name: copilot-history-briefing
 description: Reads Copilot conversation history and extracts executive-ready success stories. Use when the user asks to study prior Copilot sessions, summarize what was done before, mine evidence, or quantify time, cost, risk, and priority alignment from GitHub Copilot history in any workspace or repository.
 license: MIT
 metadata:
+  group: research-evidence
+  loadouts: evidence-research,copilot-insights,architecture-history
   version: 1.4
   author: Andrew G. Brown (https://github.com/brownag)
   source_repo: aigb-skills

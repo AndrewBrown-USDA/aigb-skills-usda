@@ -16,6 +16,8 @@ description: >
 argument-hint: "[lite|full|ultra]"
 license: MIT
 metadata:
+  group: quality-assurance
+  loadouts: software-delivery,documentation,code-quality,context-economy
   source_repo: aigb-skills
   source_path: skills/ponytail/SKILL.md
   original_source_repo: DietrichGebert-ponytail

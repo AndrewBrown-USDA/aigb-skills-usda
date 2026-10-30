@@ -7,6 +7,8 @@ metadata:
   version: 1.0
   source_repo: aigb-skills
   source_path: skills/verbosity-cleaner/SKILL.md
+  group: communication-documentation
+  loadouts: documentation, context-economy, documentation-quality
 ---
 # Verbosity Cleaner
 

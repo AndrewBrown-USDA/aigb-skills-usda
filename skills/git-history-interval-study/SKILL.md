@@ -3,6 +3,8 @@ name: git-history-interval-study
 description: Incrementally studies git history across tagged or pattern-matched intervals (e.g., creation of planning artifacts like EXECUTION_PLAN_N.md, release tags, or milestone commits). Extracts commit diffs, file churn, and subsystem shifts to track feature evolution and architectural convergence, providing structured feeds for ADR distillation.
 license: MIT
 metadata:
+  group: research-evidence
+  loadouts: evidence-research,software-delivery,architecture-history,git-practices
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0
   source_repo: aigb-skills

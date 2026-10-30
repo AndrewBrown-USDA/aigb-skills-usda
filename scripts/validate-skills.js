@@ -180,7 +180,12 @@ function validateSkill(entry, skillsDir, results) {
     addResult(results, entry.name, 'metadata', 'failed', `Custom top-level metadata keys are not allowed: ${customTopLevel.join(', ')}`);
   }
   const normalizedEntry = normalizeMetadata(entry);
-  const metadataFields = ['author', 'authors', 'inspired_by', 'source_repo', 'source_path', 'source_url', 'source_ref', 'upstream', 'upstream_name', 'upstream_repo', 'upstream_ref', 'upstream_path'];
+  const metadataFields = [
+    'author', 'authors', 'inspired_by', 'source_repo', 'source_path', 'source_url',
+    'source_ref', 'upstream', 'upstream_name', 'upstream_repo', 'upstream_ref',
+    'upstream_path', 'group', 'loadout', 'loadouts', 'dependencies',
+    'optional_dependencies'
+  ];
   for (const key of metadataFields) {
     const catalogMetadata = entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {};
     const catalogValue = entry[key] !== undefined ? entry[key] : catalogMetadata[key];
@@ -199,9 +204,12 @@ function validateSkill(entry, skillsDir, results) {
           ? frontmatter.metadata.source_url
         : frontmatter.metadata[key];
     if (expected !== undefined && expected !== null) {
+      const normalizedActual = actual === undefined || key === 'source_ref' || key === 'upstream'
+        ? actual
+        : normalizeMetadata({ [key]: actual })[key];
       if (actual === undefined || actual === null || actual === '') {
         addResult(results, entry.name, 'metadata', 'failed', `Frontmatter metadata.${key} is required by catalog entry`);
-      } else if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+      } else if (JSON.stringify(normalizedActual) !== JSON.stringify(expected)) {
         addResult(results, entry.name, 'metadata', 'failed', `Frontmatter metadata.${key} does not match catalog entry`);
       }
     }

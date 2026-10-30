@@ -7,6 +7,8 @@ metadata:
   version: 1.0
   source_repo: aigb-skills
   source_path: skills/reviewer-architecture/SKILL.md
+  group: quality-assurance
+  loadouts: software-delivery, code-quality, plan-review
 ---
 # Architectural Reviewer
 

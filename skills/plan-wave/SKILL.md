@@ -3,6 +3,10 @@ name: plan-wave
 description: Develops an implementation plan ready for wave-orchestration to execute. Takes the user's goal or rough plan as input, mines the codebase for facts, grills the user one question at a time for the decisions, drafts the planning/ artifacts (task DAG, wave table, worker prompt template, state file), then reviews its own plan on two axes before seeking approval. Use when the user wants to turn a feature idea, master plan, or backlog into a wave-orchestration execution plan.
 license: MIT
 metadata:
+  group: architecture-planning
+  loadouts: software-delivery, wave-delivery, plan-review
+  dependencies: wave-orchestration,grilling
+  optional_dependencies: code-review-2axis,goal-alignment,adr-distillation
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.2
   source_repo: aigb-skills

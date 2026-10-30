@@ -3,6 +3,8 @@ name: doc-consistency
 description: Normalizes documentation and examples for consistency in style, format, and accuracy. Ensures code matches existing patterns and documentation. Use when reviewing docs, examples, or writing new code that should follow established patterns.
 license: MIT
 metadata:
+  group: communication-documentation
+  loadouts: documentation,software-delivery,documentation-quality,skill-authoring
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0
   source_repo: aigb-skills

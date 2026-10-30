@@ -7,6 +7,9 @@ metadata:
   version: 1.1
   source_repo: aigb-skills
   source_path: skills/wave-orchestration/SKILL.md
+  group: architecture-planning
+  loadouts: software-delivery, wave-delivery
+  optional_dependencies: adr-distillation, conventional-commits
 ---
 # Wave Orchestration (plan-gated, small-model workers)
 
