@@ -22,7 +22,7 @@ try {
   assert.deepStrictEqual(result.skills.map(skill => skill.name), ['c', 'a']);
   assert.ok(installer.readCatalog && installer.installResolved && installer.buildCatalog);
   const target = path.join(root, 'target');
-  const installedResult = installer.installResolved(result, { sourceDir: source, target, mode: 'copy' });
+  const installedResult = installer.installResolved(result, { sourceDir: source, targetDir: target, mode: 'copy' });
   assert.deepStrictEqual(installedResult, {
     mode: 'copy',
     sourceDir: source,

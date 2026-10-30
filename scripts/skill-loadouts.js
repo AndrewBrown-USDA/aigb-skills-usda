@@ -23,6 +23,9 @@ function diagnostic(code, subject, edgePath = [], detail = '', severity = 'error
 function loadCatalog(input) {
   const catalog = typeof input === 'string' ? JSON.parse(fs.readFileSync(input, 'utf8')) : input;
   const errors = [];
+  if (catalog && catalog.schema_version !== undefined && catalog.schema_version !== 1) {
+    errors.push(`unsupported catalog schema_version: ${catalog.schema_version}`);
+  }
   if (!catalog || !Array.isArray(catalog.skills)) return { skills: new Map(), errors: ['catalog.skills must be an array'] };
   const skills = new Map();
   for (const record of catalog.skills) {
@@ -130,7 +133,7 @@ function resolve(request = [], catalogInput, options = {}) {
       const loadout = token.slice(8);
       if (!NAME.test(loadout)) throw new Error(`invalid loadout selector: ${token}`);
       const members = [...catalog.values()]
-        .filter((s) => s.loadout === loadout)
+        .filter((s) => s.loadout === loadout || (Array.isArray(s.loadouts) && s.loadouts.includes(loadout)))
         .sort((a, b) => a.name.localeCompare(b.name));
       if (members.length === 0) {
         diagnostics.push(diagnostic('missing-loadout', loadout, [], `loadout has no packaged members: ${loadout}`));

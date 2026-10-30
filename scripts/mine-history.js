@@ -97,6 +97,11 @@ function scanCuratedSkills(skillsDir = SKILLS_DIR) {
       ...(normalized.upstream_ref ? { upstream_ref: normalized.upstream_ref } : {}),
       ...(normalized.upstream_repo ? { upstream_repo: normalized.upstream_repo } : {}),
       ...(normalized.upstream_path ? { upstream_path: normalized.upstream_path } : {}),
+      ...(normalized.group !== undefined ? { group: normalized.group } : {}),
+      ...(normalized.loadout !== undefined ? { loadout: normalized.loadout } : {}),
+      ...(normalized.loadouts !== undefined ? { loadouts: normalized.loadouts } : {}),
+      ...(normalized.dependencies !== undefined ? { dependencies: normalized.dependencies } : {}),
+      ...(normalized.optional_dependencies !== undefined ? { optional_dependencies: normalized.optional_dependencies } : {}),
       version
     };
 

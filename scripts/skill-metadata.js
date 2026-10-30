@@ -10,7 +10,7 @@ function deriveSourceUrl(sourceRepo) {
 
 function splitList(value) {
   return typeof value === 'string'
-    ? value.split(',').map((token) => token.trim())
+    ? value.replace(/^\[|\]$/g, '').split(',').map((token) => token.trim().replace(/^['"]|['"]$/g, ''))
     : value;
 }
 
@@ -39,6 +39,7 @@ function normalizeMetadata(input = {}) {
     ...(upstreamPath ? { upstream_path: upstreamPath } : {}),
     ...(metadata.group !== undefined ? { group: typeof metadata.group === 'string' ? metadata.group.trim() : metadata.group } : {}),
     ...(metadata.loadout !== undefined ? { loadout: typeof metadata.loadout === 'string' ? metadata.loadout.trim() : metadata.loadout } : {}),
+    ...(metadata.loadouts !== undefined ? { loadouts: list(metadata.loadouts) } : {}),
     ...(metadata.dependencies !== undefined ? { dependencies: list(metadata.dependencies) } : {}),
     ...(metadata.optional_dependencies !== undefined ? { optional_dependencies: list(metadata.optional_dependencies) } : {}),
     ...(metadata.upstream_name ? { upstream_name: metadata.upstream_name } : {}),
@@ -71,6 +72,10 @@ function validateMetadata(input) {
   for (const field of ['group', 'loadout']) {
     if (metadata[field] !== undefined && (typeof metadata[field] !== 'string' || !identifier.test(metadata[field]))) {
       errors.push(`${field} must be a lowercase kebab-case identifier`);
+    }
+    if (metadata.loadouts !== undefined && (!Array.isArray(metadata.loadouts) ||
+        metadata.loadouts.some((token) => typeof token !== 'string' || !identifier.test(token)))) {
+      errors.push('loadouts contains an invalid identifier or empty token');
     }
   }
   for (const field of ['dependencies', 'optional_dependencies']) {

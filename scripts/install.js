@@ -222,7 +222,10 @@ function installResolved(result, options = {}) {
   }
   const sourceDir = path.resolve(options.sourceDir || DEFAULT_SOURCE_DIR);
   const names = result.skills.map(record => record.name);
-  const installed = installMaterialized(names, sourceDir, options);
+  const installed = installMaterialized(names, sourceDir, {
+    ...options,
+    target: options.targetDir || options.target
+  });
   return { ...installed, installed: [...installed.skills], skipped: [] };
 }
 
@@ -327,7 +330,15 @@ function installSkills(options) {
       include: options.include,
       exclude: options.exclude,
       force: options.force
-        ? options.skills.filter(name => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name))
+        ? options.skills.flatMap(name => {
+          if (/^loadout:[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name)) {
+            const loadout = name.slice(8);
+            return catalog.skills
+              .filter(skill => skill.loadout === loadout || (Array.isArray(skill.loadouts) && skill.loadouts.includes(loadout)))
+              .map(skill => skill.name);
+          }
+          return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name) ? [name] : [];
+        })
         : [],
       constraints: options.constraints
     })

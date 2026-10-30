@@ -22,8 +22,8 @@ const assertFailure = (result, code, subject = '') => {
   return result.diagnostics[0];
 };
 const catalog = { skills: [
-  s('a', { loadout: 'base', dependencies: ['c'] }),
-  s('b', { loadout: 'base', dependencies: ['c'] }),
+  s('a', { loadout: 'base', loadouts: ['shared'], dependencies: ['c'] }),
+  s('b', { loadout: 'base', loadouts: ['shared'], dependencies: ['c'] }),
   s('c'),
   s('opt', { optional_dependencies: ['c'] }),
   s('bad-opt', { optional_dependencies: ['gone'] }),
@@ -33,6 +33,7 @@ const scratch = path.join(__dirname, '..', '.scratch', 'loadout-tests', '16.2.1'
 fs.mkdirSync(scratch, { recursive: true });
 try {
   assert.deepStrictEqual(names(resolve(['loadout:base'], catalog)), ['c', 'a', 'b']);
+  assert.deepStrictEqual(names(resolve(['loadout:shared'], catalog)), ['c', 'a', 'b']);
   assert.deepStrictEqual(names(resolve(['a', 'b'], catalog)), ['c', 'a', 'b']);
   assert.deepStrictEqual(names(resolve(['opt'], catalog)), ['opt']);
   assert.deepStrictEqual(names(resolve(['opt'], catalog, { include: ['c'] })), ['c', 'opt']);
@@ -45,6 +46,7 @@ try {
   assert.deepStrictEqual(forcedRoot.diagnostics, []);
   const missingLoadout = assertFailure(resolve(['loadout:not-real'], catalog), 'missing-loadout', 'not-real');
   assert.match(missingLoadout.message, /no packaged members/);
+  assert.match(resolve(['a'], { schema_version: 2, skills: [s('a')] }).diagnostics[0].message, /unsupported catalog schema_version/);
   for (const options of [{ include: ['c'] }, { exclude: ['c'] }]) {
     const rootless = assertFailure(resolve([], catalog, options), 'roots-required');
     assert.match(rootless.message, /require at least one explicit skill or loadout root/);
