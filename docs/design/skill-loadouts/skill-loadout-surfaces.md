@@ -133,7 +133,7 @@ must never resolve a provenance URL as an install source.
 Representative commands:
 
 ```bash
-skills install --target ~/.agents/skills --skills loadout:field-ops
+skills install --target ~/.agents/skills --skills loadout:wave-delivery
 skills install --target ./.agents/skills --skill plan-first,dr-lexus \
   --include web-source-bundler
 skills install --target ./.agents/skills --skill loadout:fied-ops # fails

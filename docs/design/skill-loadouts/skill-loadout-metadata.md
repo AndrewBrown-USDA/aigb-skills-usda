@@ -60,10 +60,10 @@ They must not disagree with their canonical counterparts.
 6. `group` and loadout membership are independent; equal values are allowed but
    have no special meaning. A skill may use singular `loadout` for compatibility
    or `loadouts` as a comma-separated scalar/list of memberships.
-7. All referenced dependency names must resolve to a packaged skill during
-   catalog validation. An unresolved optional dependency is a warning/error
-   policy decision for the later resolution task, not permission to invent a
-   skill; metadata validation must report it.
+7. Dependency references are validated as metadata, but resolution severity
+   depends on edge kind: missing required nodes are errors; selected missing
+   optional nodes are warnings and are omitted; unselected optional nodes are
+   not resolution diagnostics.
 8. Canonical identity and upstream provenance remain separate. Provenance
    never replaces `source_repo` or changes install source.
 9. If both canonical and legacy provenance fields are present, their

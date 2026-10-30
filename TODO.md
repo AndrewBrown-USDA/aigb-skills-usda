@@ -1,34 +1,40 @@
 # TODO
 
 ## Goal
-Resolve all nine unresolved review comments on pull request #17, including generated catalog metadata, loadout/dependency resolution, measurement artifacts, schema validation, multi-loadout support, and regression-test coverage.
+Resolve all 10 new and previously missed review comments on pull request #17, including custom catalog/source selection, generated metadata validation, loadout materialization, documentation links, and planning-state accuracy.
 
 ## Tasks
 
-### 1. Propagate metadata into generated catalogs
-- [x] Update the metadata scanner and catalog builder to preserve normalized `group`, multi-value `loadouts`, `dependencies`, and `optional_dependencies` fields.
-- [x] Regenerate `catalog/skills.lock.json` from authoritative skill frontmatter and verify the generated entries contain the new fields.
+### 1. Correct custom catalog and source selection
+- [x] Pass the parsed `--lockfile` path through CLI installation into catalog loading.
+- [x] Resolve selected skills and loadout membership from the selected `--source` tree rather than the packaged default tree.
+- [x] Add regression tests proving custom lockfiles and custom source directories affect installation and do not fall back to repository defaults.
 
-### 2. Complete loadout and dependency resolution
-- [x] Extend frontmatter parsing and validation to accept the documented multi-loadout representation, including comma-separated values where specified.
-- [x] Update catalog loading to reject unsupported `schema_version` values while retaining compatibility for fixtures without a schema version.
-- [x] Update `installResolved` to accept documented `targetDir` and retain the CLI-compatible `target` alias.
-- [x] Ensure force resolution expands `loadout:<name>` roots so excluded direct members follow the documented force behavior.
-- [x] Add or update focused resolver and installer tests for multi-loadout expansion, dependencies, optional dependencies, schema rejection, target aliases, and forced exclusions.
+### 2. Validate generated metadata ownership
+- [x] Validate normalized metadata before emitting each generated catalog record and fail catalog generation with actionable errors.
+- [x] Compare every generated metadata field against frontmatter-derived expectations, including group, singular/plural loadouts, required dependencies, optional dependencies, and provenance/version fields.
+- [x] Add regression tests for invalid generated metadata and field-level frontmatter/catalog mismatches.
 
-### 3. Correct loadout measurement outputs
-- [x] Add `baseline_bytes`, `target_bytes`, `absolute_reduction_bytes`, and `reduction_ratio` to generated measurement aggregates.
-- [x] Generate the required Markdown measurement summary linking the manifest, raw samples, calculation procedure, command, environment, and source commit.
-- [x] Add or update measurement tests to verify the complete artifact contract.
+### 3. Complete loadout metadata materialization
+- [x] Add the documented loadout memberships and dependency metadata to the appropriate packaged skill frontmatter.
+- [x] Regenerate `catalog/skills.lock.json` from authoritative frontmatter.
+- [x] Ensure measurement member selection includes plural `loadouts` entries and add focused coverage.
 
-### 4. Repair generated-ownership regression coverage
-- [x] Rebuild the test fixture after simulating a hand-edited catalog value and assert regeneration restores the frontmatter-derived output.
+### 4. Remove duplicate validation and clarify resolution semantics
+- [x] Refactor loadout validation so each metadata field is validated once without duplicate diagnostics.
+- [x] Document that missing required dependency nodes are errors while selected missing optional nodes remain warnings/omissions.
 
-### 5. Verify the complete change
-- [x] Run the focused validation and regression test suites for metadata, installation, loadouts, and measurements.
-- [x] Run the repository validation command and inspect the final diff for all nine review comments.
+### 5. Repair documentation and planning references
+- [x] Update ADR links after renamed or removed decision files.
+- [x] Mark completed `STATE_13` tasks as checked.
+- [x] Update affected documentation and tests to reflect the materialized loadout contract.
+
+### 6. Verify all review-comment fixes
+- [x] Run focused installer, catalog, resolver, measurement, and validator tests.
+- [x] Run packaged validation and inspect the final diff against all 10 review comments.
+- [x] Confirm the worktree and generated catalog are consistent with the approved frontmatter.
 
 ## Notes
-- Scope includes all nine unresolved review comments from AndrewBrown-USDA/aigb-skills-usda#17.
-- Multi-loadout support is intentional per user decision; update the implementation and related design documentation consistently.
-- Preserve existing CLI compatibility and do not rewrite or amend existing commits.
+- Scope includes all 10 comments listed in the latest review: 6 open issues and 4 previously missed issues.
+- The documented loadout gap will be resolved by materializing metadata in packaged skill frontmatter and regenerating the catalog.
+- Preserve existing CLI compatibility, generated-file ownership, and prior commits; do not rewrite history.
