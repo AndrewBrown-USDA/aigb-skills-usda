@@ -51,6 +51,7 @@ try {
   assert.equal(first.status, 0, first.stderr);
   const runDir = path.join(output, 'preserved-run');
   const evidence = JSON.parse(fs.readFileSync(path.join(runDir, 'measurement.json'), 'utf8'));
+  const summary = fs.readFileSync(path.join(runDir, 'summary.md'), 'utf8');
   assert.equal(evidence.samples_per_scenario, 5);
   assert.equal(evidence.tokenizer_model_metrics, null);
   assert.match(evidence.serialization, /NUL/);
@@ -59,6 +60,8 @@ try {
   assert.equal(evidence.environment.platform, process.platform);
   assert.ok(evidence.source_commit);
   assert.equal(evidence.corpus_files.length, 2);
+  assert.match(summary, /\[manifest\.json\]\(manifest\.json\)/);
+  assert.match(summary, /Calculation:/);
   for (const entry of evidence.corpus_files) {
     const file = path.join(fixture, ...entry.path.split('/'));
     assert.equal(entry.sha256, crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'));
@@ -74,6 +77,12 @@ try {
     assert.equal(result.maximum_bytes, values[4]);
     assert.equal(result.median_bytes, values[2]);
     assert.equal(result.spread_bytes, values[4] - values[0]);
+    assert.equal(result.baseline_bytes, evidence.results[0].median_bytes);
+    assert.equal(result.target_bytes, result.median_bytes);
+    assert.equal(result.absolute_reduction_bytes, result.baseline_bytes - result.target_bytes);
+    assert.equal(result.reduction_ratio, result.baseline_bytes === 0
+      ? 0
+      : result.absolute_reduction_bytes / result.baseline_bytes);
     assert.deepEqual(result.diagnostics, raw[0].diagnostics);
   }
 

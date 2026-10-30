@@ -184,6 +184,15 @@ function main(argv) {
       tokenizer_model_metrics: null
     });
   }
+  const baselineBytes = results.find(result => result.name === 'full-corpus').median_bytes;
+  for (const result of results) {
+    result.baseline_bytes = baselineBytes;
+    result.target_bytes = result.median_bytes;
+    result.absolute_reduction_bytes = baselineBytes - result.target_bytes;
+    result.reduction_ratio = baselineBytes === 0
+      ? 0
+      : result.absolute_reduction_bytes / baselineBytes;
+  }
 
   const manifest = {
     protocol: 'packaged-skill-context-bytes-v2',
@@ -219,6 +228,23 @@ function main(argv) {
     tokenizer_model_metrics: null,
     results
   });
+  const summary = [
+    '# Skill Loadout Measurement Summary',
+    '',
+    `- **Run:** \`${runId}\``,
+    `- **Source commit:** \`${manifest.source_commit}\``,
+    `- **Command:** \`${'node scripts/measure-skill-loadouts.js'}\``,
+    `- **Environment:** Node ${process.version} on ${process.platform} ${process.arch}; ${os.release()}`,
+    '- **Calculation:** baseline is the full-corpus median UTF-8 byte count; target is each scenario median; reduction ratio is `(baseline - target) / baseline`.',
+    '- **Manifest:** [manifest.json](manifest.json)',
+    '- **Measurement:** [measurement.json](measurement.json)',
+    '',
+    '| Scenario | Baseline bytes | Target bytes | Reduction bytes | Reduction ratio | Raw samples |',
+    '| --- | ---: | ---: | ---: | ---: | --- |',
+    ...results.map(result =>
+      `| ${result.name} | ${result.baseline_bytes} | ${result.target_bytes} | ${result.absolute_reduction_bytes} | ${result.reduction_ratio} | [${result.raw_sample_file}](${result.raw_sample_file}) |`)
+  ].join('\n') + '\n';
+  fs.writeFileSync(path.join(runDir, 'summary.md'), summary, { encoding: 'utf8', flag: 'wx' });
   process.stdout.write(`${runDir}\n`);
   return 0;
 }
