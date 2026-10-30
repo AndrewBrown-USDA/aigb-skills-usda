@@ -322,6 +322,9 @@ try {
   assert.equal(loadedLegacy.skills.get('owned').source_repo, 'example');
   const handEdited = { ...generated, skills: generated.skills.map((entry) => ({ ...entry, source_path: 'skills/other/SKILL.md' })) };
   assert.notEqual(handEdited.skills[0].source_path, generated.skills[0].source_path);
+  fs.writeFileSync(path.join(catalogFixture, 'catalog.json'), JSON.stringify(handEdited), 'utf8');
+  const regenerated = require('./mine-history').buildLockfile(catalogFixture);
+  assert.deepEqual(regenerated, generated);
   fs.writeFileSync(
     lockfile,
     JSON.stringify({

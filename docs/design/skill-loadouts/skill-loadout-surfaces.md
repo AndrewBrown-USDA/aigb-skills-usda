@@ -116,7 +116,8 @@ skills install [options]
 
 For compatibility, `--skill` and `--skills` remain aliases, comma-separated
 names remain valid, and an omitted selection still means all packaged skills.
-`loadout:<name>` is the only loadout syntax; a bare name remains a skill name.
+`loadout:<name>` is the only loadout selection syntax; a bare name remains a
+skill name, and a skill may belong to multiple loadouts.
 Unknown options, missing option values, malformed lists, rootless overrides,
 unknown/mistyped loadouts, resolution errors, and install conflicts print one
 concise diagnostic to stderr and exit 1. Resolution completes before target

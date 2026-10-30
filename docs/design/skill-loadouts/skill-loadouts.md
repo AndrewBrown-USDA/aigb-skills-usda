@@ -143,7 +143,7 @@ existing design docs, ADRs, or generated output outside its regeneration flow.
 | Plan requirement / hazard | Evidence | Class |
 |---|---|---|
 | Frontmatter authority and parser limits | Metadata fixtures; catalog regeneration test | Required |
-| Groups, loadouts, dependencies, optionality | Scalar metadata and normalization fixtures | Required |
+| Groups, loadouts, dependencies, optionality | Scalar/list metadata and normalization fixtures | Required |
 | Invalid identifiers, duplicates, self-reference, provenance | Invalid/provenance fixtures | Required |
 | Transitive ordering and deduplication | `resolution-order`, `resolution-deduplication` | Required |
 | Overrides and optional behavior | `resolution-overrides`, `resolution-optional` | Required |
@@ -199,4 +199,3 @@ references as errors or warnings while preserving resolution's selected-missing
 warning; and define the exact measurement harness/tokenizer available in CI.
 None permits inventing semantics, weakening required acceptance, or changing
 the canonical/generated ownership model.
-

@@ -57,8 +57,9 @@ They must not disagree with their canonical counterparts.
 4. `dependencies` and `optional_dependencies` cannot contain duplicate tokens.
 5. A loadout is identified by `loadout`; `group` is organizational metadata
    and does not imply dependency resolution. A skill may have one of each.
-6. `group` and `loadout` are independent; equal values are allowed but have no
-   special meaning.
+6. `group` and loadout membership are independent; equal values are allowed but
+   have no special meaning. A skill may use singular `loadout` for compatibility
+   or `loadouts` as a comma-separated scalar/list of memberships.
 7. All referenced dependency names must resolve to a packaged skill during
    catalog validation. An unresolved optional dependency is a warning/error
    policy decision for the later resolution task, not permission to invent a
@@ -73,8 +74,7 @@ They must not disagree with their canonical counterparts.
 
 ## Valid examples
 
-These examples deliberately use only scalar values supported by the current
-parser:
+These examples use the supported scalar/list values:
 
 ```yaml
 ---
@@ -82,7 +82,7 @@ name: field-reporting
 description: Produces field reporting workflows.
 metadata:
   group: geospatial
-  loadout: field-ops
+  loadouts: field-ops, field-reporting
   dependencies: dr-lexus, worker-validation
   optional_dependencies: web-source-bundler
   version: 2.1.0
