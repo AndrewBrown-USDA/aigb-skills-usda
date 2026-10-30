@@ -10,6 +10,9 @@ metadata:
   upstream_path: skills/engineering/tdd/SKILL.md
   source_ref: v1.2.0
   upstream: https://github.com/mattpocock/skills
+  group: quality-assurance
+  loadouts: software-delivery, code-quality, test-validation
+  optional_dependencies: reviewer-correctness
 ---
 # Test-Driven Development
 

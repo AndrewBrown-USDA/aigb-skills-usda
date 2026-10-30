@@ -3,6 +3,8 @@ name: conventional-commits
 description: Create, classify, validate, and explain commit messages using Conventional Commits v1.0.0, with repository-aware type, scope, footer, and breaking-change guidance. Use when drafting or reviewing a commit message.
 license: MIT
 metadata:
+  group: developer-tooling
+  loadouts: software-delivery,git-practices,wave-delivery
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0
   source_repo: aigb-skills

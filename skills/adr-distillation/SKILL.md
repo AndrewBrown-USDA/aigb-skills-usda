@@ -3,6 +3,9 @@ name: adr-distillation
 description: Distills enduring architectural decisions and design rationale from wave orchestration plans or historical git changes into structured, tracked Architecture Decision Records (ADRs). Use pre-wave to resolve active architectural constraints or post-wave to record enduring decisions in docs/decisions/.
 license: MIT
 metadata:
+  group: architecture-planning
+  loadouts: software-delivery,evidence-research,wave-delivery,architecture-history,plan-review
+  optional_dependencies: git-history-interval-study
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0.0
   source_repo: aigb-skills

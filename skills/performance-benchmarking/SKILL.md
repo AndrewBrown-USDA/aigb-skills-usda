@@ -3,6 +3,8 @@ name: performance-benchmarking
 description: Design and run reproducible benchmarks. Use when measuring performance scaling, comparing branches, or analyzing speedup metrics.
 license: MIT
 metadata:
+  group: quality-assurance
+  loadouts: software-delivery,performance-analysis,test-validation
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0
   source_repo: aigb-skills

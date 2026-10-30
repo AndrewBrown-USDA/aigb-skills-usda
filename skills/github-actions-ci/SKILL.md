@@ -3,6 +3,8 @@ name: github-actions-ci
 description: GitHub Actions CI/CD setup for Python, R, and multi-platform testing. Use when creating, debugging, or optimizing CI/CD pipelines.
 license: MIT
 metadata:
+  group: developer-tooling
+  loadouts: software-delivery,ci-maintenance,r-package-quality
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0
   source_repo: aigb-skills

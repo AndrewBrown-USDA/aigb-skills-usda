@@ -7,6 +7,9 @@ metadata:
   version: 1.0
   source_repo: aigb-skills
   source_path: skills/r-package-testing-workflow/SKILL.md
+  group: domain-workflows
+  loadouts: specialist-workflows, software-delivery, r-package-quality, test-validation
+  optional_dependencies: github-actions-ci
 ---
 
 # R Package Testing Workflow

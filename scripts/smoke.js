@@ -397,7 +397,7 @@ function main() {
   assert.equal(invalidResult.status, 1, 'Install must exit with status 1 on invalid skill');
   assert.match(
     invalidResult.stderr,
-    /Skill\(s\) not found in/i
+    /install: Skill\(s\) not found in .+: non-existent-skill-xyz/i
   );
 
   // 6e. Test empty or missing --skill filter flag error
@@ -472,6 +472,10 @@ function main() {
   const overlapRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-install-overlap-'));
   try {
     const overlapSource = path.join(overlapRoot, 'source');
+    const overlapCatalog = path.join(overlapRoot, 'catalog.json');
+    fs.writeFileSync(overlapCatalog, JSON.stringify({
+      skills: [{ name: 'fixture', source_repo: 'aigb-skills', source_path: 'skills/fixture/SKILL.md' }]
+    }));
     fs.mkdirSync(path.join(overlapSource, 'fixture'), { recursive: true });
     fs.writeFileSync(path.join(overlapSource, 'fixture', 'SKILL.md'), 'name: fixture');
     for (const mode of ['copy', 'symlink']) {
@@ -493,10 +497,23 @@ function main() {
         fs.writeFileSync(path.join(source, 'fixture', 'SKILL.md'), 'name: fixture');
         fs.mkdirSync(target, { recursive: true });
         fs.writeFileSync(marker, 'untouched');
-        const result = runNodeResult(['scripts/install.js', '--source', source, '--target', target, '--mode', mode]);
+        const result = runNodeResult([
+          'scripts/install.js',
+          '--source',
+          source,
+          '--lockfile',
+          overlapCatalog,
+          '--target',
+          target,
+          '--mode',
+          mode
+        ]);
         assert.equal(result.status, 1, `${mode} overlap must fail: ${source} -> ${target}`);
-        assert.match(result.stderr, /must not overlap/);
+        assert.match(result.stderr, /Source and target directories must not overlap:/i);
         assert.equal(fs.readFileSync(marker, 'utf8'), 'untouched');
+        if (marker !== path.join(source, 'fixture', 'SKILL.md')) {
+          assert.equal(fs.readFileSync(path.join(source, 'fixture', 'SKILL.md'), 'utf8'), 'name: fixture');
+        }
       }
     }
   } finally {
@@ -508,6 +525,10 @@ function main() {
   try {
     const ancestorSource = path.join(ancestorSymlinkRoot, 'source');
     const symlinkParent = path.join(ancestorSymlinkRoot, 'alias');
+    const ancestorCatalog = path.join(ancestorSymlinkRoot, 'catalog.json');
+    fs.writeFileSync(ancestorCatalog, JSON.stringify({
+      skills: [{ name: 'fixture', source_repo: 'aigb-skills', source_path: 'skills/fixture/SKILL.md' }]
+    }));
     fs.mkdirSync(path.join(ancestorSource, 'fixture'), { recursive: true });
     fs.writeFileSync(path.join(ancestorSource, 'fixture', 'SKILL.md'), 'name: fixture');
     fs.symlinkSync(ancestorSource, symlinkParent, process.platform === 'win32' ? 'junction' : 'dir');
@@ -518,14 +539,17 @@ function main() {
         'scripts/install.js',
         '--source',
         ancestorSource,
+        '--lockfile',
+        ancestorCatalog,
         '--target',
         redirectedTarget,
         '--mode',
         mode
       ]);
       assert.equal(result.status, 1, `${mode} must reject targets below symlinked ancestors`);
-      assert.match(result.stderr, /must not overlap/);
+      assert.match(result.stderr, /Source and target directories must not overlap:/i);
       assert.equal(fs.existsSync(path.join(ancestorSource, `${mode}-new`)), false);
+      assert.equal(fs.readFileSync(path.join(ancestorSource, 'fixture', 'SKILL.md'), 'utf8'), 'name: fixture');
     }
   } finally {
     fs.rmSync(ancestorSymlinkRoot, { recursive: true, force: true });
@@ -541,10 +565,15 @@ function main() {
     fs.writeFileSync(path.join(sourceAliasActual, 'fixture', 'SKILL.md'), 'name: fixture');
     fs.mkdirSync(sourceAliasTarget, { recursive: true });
     fs.symlinkSync(sourceAliasActual, sourceAlias, process.platform === 'win32' ? 'junction' : 'dir');
+    fs.writeFileSync(path.join(sourceAliasRoot, 'catalog.json'), JSON.stringify({
+      skills: [{ name: 'fixture', source_repo: 'aigb-skills', source_path: 'skills/fixture/SKILL.md' }]
+    }));
     const aliasResult = runNodeResult([
       'scripts/install.js',
       '--source',
       sourceAlias,
+      '--lockfile',
+      path.join(sourceAliasRoot, 'catalog.json'),
       '--target',
       sourceAliasTarget,
       '--skill',
@@ -552,8 +581,9 @@ function main() {
       '--force'
     ]);
     assert.equal(aliasResult.status, 1);
-    assert.match(aliasResult.stderr, /must not overlap/);
+    assert.match(aliasResult.stderr, /Source and target directories must not overlap:/i);
     assert.equal(fs.lstatSync(sourceAlias).isSymbolicLink(), true);
+    assert.equal(fs.readFileSync(path.join(sourceAliasActual, 'fixture', 'SKILL.md'), 'utf8'), 'name: fixture');
   } finally {
     fs.rmSync(sourceAliasRoot, { recursive: true, force: true });
   }

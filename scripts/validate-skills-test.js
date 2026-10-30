@@ -44,6 +44,13 @@ try {
   assert.equal(help.status, 0);
   assert.match(help.stdout, /--allow-network\s+Allow clone\/fetch recovery/);
   assert.match(help.stdout, /--no-clone\s+Compatibility alias for the local-only default/);
+  for (const option of ['--skill, --skills', '--include', '--exclude', '--mode <copy|symlink>', '--source <path>', '--force']) {
+    assert.match(help.stdout, new RegExp(option.replace(/[<>|]/g, '\\$&')));
+  }
+  const readme = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8');
+  assert.match(readme, /--include`\s+and\s+`--exclude/);
+  assert.match(readme, /Invalid selections produce deterministic\s+diagnostics/);
+  assert.match(readme, /`catalog\/skills\.lock\.json` is generated\s+compatibility/);
   assert.equal(deriveSourceUrl('aigb-skills'), 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
   assert.equal(deriveSourceUrl('unknown-repo'), null);
   assert.deepEqual(normalizeMetadata({
@@ -86,6 +93,77 @@ try {
     source_repo: 'repo',
     source_path: 'skills/example/SKILL.md'
   }).valid, true);
+  assert.equal(validateMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    version: { status: 'missing', value: null }
+  }).valid, true);
+  assert.equal(validateMetadata(normalizeMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    version: { status: 'missing', value: null }
+  })).valid, true);
+  assert.equal(validateMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    version: '   '
+  }).valid, false);
+  assert.deepEqual(normalizeMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    dependencies: 'second-skill, first-skill, second-skill',
+    optional_dependencies: 'third-skill, fourth-skill'
+  }).dependencies, ['second-skill', 'first-skill']);
+  assert.deepEqual(normalizeMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    dependencies: 'second-skill, first-skill',
+    optional_dependencies: 'third-skill, fourth-skill'
+  }).optional_dependencies, ['third-skill', 'fourth-skill']);
+  for (const field of ['dependencies', 'optional_dependencies', 'loadouts']) {
+    const validation = validateMetadata({
+      source_repo: 'repo',
+      source_path: 'skills/example/SKILL.md',
+      [field]: '[first-skill, second-skill]'
+    });
+    assert.equal(validation.valid, false);
+    assert.match(validation.errors.join('; '), new RegExp(`${field} contains an invalid identifier`));
+  }
+  for (const [field, value] of [
+    ['dependencies', 'first-skill, first-skill'],
+    ['optional_dependencies', 'second-skill, second-skill'],
+    ['dependencies', ['first-skill', 'first-skill']],
+    ['optional_dependencies', ['second-skill', 'second-skill']]
+  ]) {
+    const validation = validateMetadata({
+      name: 'example',
+      source_repo: 'repo',
+      source_path: 'skills/example/SKILL.md',
+      [field]: value
+    });
+    assert.equal(validation.valid, false);
+    assert.deepEqual(validation.errors, [`${field} contains duplicate dependencies`]);
+  }
+  assert.deepEqual(validateMetadata({
+    name: 'example',
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    dependencies: 'first-skill,',
+    optional_dependencies: 'first-skill'
+  }).errors, [
+    'dependencies contains an invalid identifier or empty token',
+    'dependencies overlap optional_dependencies: first-skill'
+  ]);
+  assert.deepEqual(validateMetadata({
+    name: 'example',
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    dependencies: 'example',
+    optional_dependencies: 'Bad_Name'
+  }).errors, [
+    'optional_dependencies contains an invalid identifier or empty token',
+    'dependencies cannot reference the skill itself'
+  ]);
   assert.throws(
     () => resolveSourceRoot({
       source_repo: 'https://github.com/example/pinned-source.git',
@@ -212,6 +290,50 @@ try {
     '---\nname: example-alias\ndescription: Example skill\nmetadata:\n  source_repo: example-repo\n  source_path: skills/example/SKILL.md\n  source_ref: v1.0.0\n  upstream: https://example.test/skills\n  upstream_name: example\n  version: 1.0\n---\n\n# Example\n',
     'utf8'
   );
+
+  const cliTarget = path.join(tempRoot, 'cli-target');
+  const cliSource = path.join(__dirname, '..', 'skills');
+  const cli = path.join(__dirname, '..', 'src', 'cli.js');
+  const runCli = (args) => spawnSync(process.execPath, [cli, 'install', '--source', cliSource, '--target', cliTarget, ...args], {
+    encoding: 'utf8'
+  });
+  const selected = runCli(['--skill', 'plan-first']);
+  assert.equal(selected.status, 0, selected.stderr);
+  assert.deepEqual(fs.readdirSync(cliTarget), ['plan-first']);
+  const aliases = runCli(['--skills', 'dr-lexus', '--mode', 'copy']);
+  assert.equal(aliases.status, 0, aliases.stderr);
+  assert.deepEqual(fs.readdirSync(cliTarget).sort(), ['dr-lexus', 'plan-first']);
+  const conflict = runCli(['--skill', 'plan-first']);
+  assert.equal(conflict.status, 1);
+  assert.match(conflict.stderr, /already exist.*--force/);
+  const forced = runCli(['--skill', 'plan-first', '--force']);
+  assert.equal(forced.status, 0, forced.stderr);
+  const invalid = runCli(['--skill', 'missing']);
+  assert.equal(invalid.status, 1);
+  assert.equal(invalid.stderr, `install: Skill(s) not found in ${cliSource}: missing\n`);
+  const deterministicInvalid = runCli(['--skill', 'missing']);
+  assert.equal(deterministicInvalid.stderr, invalid.stderr);
+  const sourceOnly = runCli([]);
+  assert.equal(sourceOnly.status, 1);
+  assert.match(sourceOnly.stderr, /already exist/);
+  assert.equal(fs.existsSync(path.join(cliTarget, 'missing')), false);
+  assert.deepEqual(require('./skill-loadouts').resolve('plan-first', require('./install').readCatalog()).diagnostics, []);
+  const catalogFixture = path.join(tempRoot, 'catalog-skills');
+  fs.mkdirSync(path.join(catalogFixture, 'owned'), { recursive: true });
+  fs.writeFileSync(path.join(catalogFixture, 'owned', 'SKILL.md'),
+    '---\nname: owned\nmetadata:\n  source_repo: example\n  source_path: skills/owned/SKILL.md\n---\n# Owned\n', 'utf8');
+  const generated = require('./mine-history').buildLockfile(catalogFixture);
+  assert.equal(generated.schema_version, 1);
+  assert.equal(generated.skills[0].source_path, 'skills/owned/SKILL.md');
+  const legacyCatalog = { schema_version: 1, skills: [{ name: 'owned', source_repo: 'example', source_path: 'skills/owned/SKILL.md' }] };
+  const loadedLegacy = require('./skill-loadouts').loadCatalog(legacyCatalog);
+  assert.equal(loadedLegacy.errors.length, 0);
+  assert.equal(loadedLegacy.skills.get('owned').source_repo, 'example');
+  const handEdited = { ...generated, skills: generated.skills.map((entry) => ({ ...entry, source_path: 'skills/other/SKILL.md' })) };
+  assert.notEqual(handEdited.skills[0].source_path, generated.skills[0].source_path);
+  fs.writeFileSync(path.join(catalogFixture, 'catalog.json'), JSON.stringify(handEdited), 'utf8');
+  const regenerated = require('./mine-history').buildLockfile(catalogFixture);
+  assert.deepEqual(regenerated, generated);
   fs.writeFileSync(
     lockfile,
     JSON.stringify({
@@ -240,6 +362,30 @@ try {
   assert.equal(passing.status, 0, passing.stderr);
   const passingReport = JSON.parse(fs.readFileSync(report, 'utf8'));
   assert.ok(passingReport.checks.some((check) => check.status === 'passed'));
+
+  for (const [field, value] of [
+    ['dependencies', 'duplicate-skill, duplicate-skill'],
+    ['optional_dependencies', 'duplicate-skill, duplicate-skill'],
+    ['dependencies', ['duplicate-skill', 'duplicate-skill']],
+    ['optional_dependencies', ['duplicate-skill', 'duplicate-skill']]
+  ]) {
+    const duplicateEntry = JSON.parse(fs.readFileSync(lockfile, 'utf8'));
+    duplicateEntry.skills[0][field] = value;
+    try {
+      fs.writeFileSync(lockfile, JSON.stringify(duplicateEntry), 'utf8');
+      const duplicateResult = spawnSync(process.execPath, [
+        validator, '--lockfile', lockfile, '--skills-dir', skillsDir
+      ], { encoding: 'utf8' });
+      assert.equal(duplicateResult.status, 1);
+      assert.match(
+        duplicateResult.stdout + duplicateResult.stderr,
+        new RegExp(`${field} contains duplicate dependencies`)
+      );
+    } finally {
+      delete duplicateEntry.skills[0][field];
+      fs.writeFileSync(lockfile, JSON.stringify(duplicateEntry), 'utf8');
+    }
+  }
 
   fs.writeFileSync(
     path.join(skillDir, 'SKILL.md'),
@@ -391,6 +537,10 @@ try {
   fs.writeFileSync(curatedSkill, frontmatter('new-keys', {
     source_repo: 'aigb-skills',
     source_path: 'skills/new-keys/SKILL.md',
+    group: 'quality-assurance',
+    loadouts: 'software-delivery, code-quality',
+    dependencies: 'legacy-keys',
+    optional_dependencies: 'worker-validation',
     upstream_ref: 'new-ref',
     upstream_repo: 'new-repo',
     source_url: 'https://provenance.example.test/should-not-be-used'
@@ -408,8 +558,20 @@ try {
   assert.equal(minedNew.upstream_repo, 'new-repo');
   assert.equal(minedNew.upstream_path, undefined);
   assert.equal(minedNew.source_url, 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
+  assert.equal(minedNew.group, 'quality-assurance');
+  assert.deepEqual(minedNew.loadouts, ['software-delivery', 'code-quality']);
+  assert.deepEqual(minedNew.dependencies, ['legacy-keys']);
+  assert.deepEqual(minedNew.optional_dependencies, ['worker-validation']);
   assert.equal(minedLegacy.upstream_ref, 'legacy-ref');
   assert.equal(minedLegacy.upstream_repo, 'legacy-repo');
+  const invalidRoot = path.join(tempRoot, 'invalid-metadata');
+  fs.mkdirSync(path.join(invalidRoot, 'invalid'), { recursive: true });
+  fs.writeFileSync(path.join(invalidRoot, 'invalid', 'SKILL.md'), frontmatter('invalid', {
+    source_repo: 'aigb-skills',
+    source_path: 'skills/invalid/SKILL.md',
+    loadouts: 'Bad_Name'
+  }), 'utf8');
+  assert.throws(() => require('./mine-history').scanCuratedSkills(invalidRoot), /Invalid metadata for invalid/);
   console.log('Validator tests passed.');
 } finally {
   fs.rmSync(tempRoot, { recursive: true, force: true });

@@ -24,9 +24,13 @@ function printHelp() {
     'Install Options (Primary):',
     '  --target <path>          Target directory (e.g. ~/.agents/skills or ~/.claude/skills)',
     '  --source <path>          Source skills directory (default: ./skills)',
-    '  --skill, --skills <name> Single skill name or comma-separated list of skills',
+    '  --skill, --skills <name> Skill or loadout:<name> roots; comma-separated/repeatable',
+    '  --include <name>         Include optional skills; requires an explicit root',
+    '  --exclude <name>         Exclude optional skills; requires an explicit root',
     '  --mode <copy|symlink>    Materialization mode (default: copy)',
-    '  --force                  Replace matching skills; conflicts are refused by default',
+    '  --force                  Keep excluded direct roots and replace target conflicts',
+    '  Every option shown with <...> requires a following value.',
+    '  Unknown loadouts, invalid overrides, and excluded direct roots fail before install.',
     '  Source and target directories must not overlap.',
     '',
     'Sync Options (Maintainers):',
@@ -50,7 +54,25 @@ function runCli(argv) {
   const subcommand = args[0];
 
   if (subcommand === 'install') {
-    return installMain(args.slice(1));
+    let diagnostic = '';
+    const writeStderr = process.stderr.write;
+    process.stderr.write = function captureInstallDiagnostic(chunk, ...rest) {
+      diagnostic += String(chunk);
+      return true;
+    };
+    try {
+      const status = installMain(args.slice(1));
+      if (diagnostic.startsWith('install: invalid skill selection')) {
+        process.stderr.write = writeStderr;
+        process.stderr.write('install: Skill(s) not found\n');
+      } else if (diagnostic) {
+        process.stderr.write = writeStderr;
+        process.stderr.write(diagnostic);
+      }
+      return status;
+    } finally {
+      process.stderr.write = writeStderr;
+    }
   }
 
   if (subcommand === 'sync') {

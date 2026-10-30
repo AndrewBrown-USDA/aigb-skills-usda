@@ -7,6 +7,8 @@ metadata:
   version: 1.0
   source_repo: aigb-skills
   source_path: skills/worker-validation/SKILL.md
+  group: quality-assurance
+  loadouts: software-delivery, wave-delivery, test-validation
 ---
 # Worker Validator
 

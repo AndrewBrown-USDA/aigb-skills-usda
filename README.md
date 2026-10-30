@@ -91,6 +91,39 @@ npx --no-install skills install --target ~/.pi/agent/skills --skills plan-first,
 npx --no-install skills install --target ./.agents/skills --skills plan-first,web-source-bundler
 ```
 
+Selection roots may also name a catalog loadout with the `loadout:` prefix.
+Use `--include` and `--exclude` for optional selections and explicit
+overrides; repeated options and comma-separated values are accepted. Both
+override options require at least one explicit `--skill`/`--skills` root.
+Excluding a direct root is an error unless `--force` is also supplied:
+
+```bash
+npx --no-install skills install --target ~/.agents/skills --skill loadout:software-delivery
+npx --no-install skills install --target ~/.agents/skills --skill plan-first --include tdd
+npx --no-install skills install --target ~/.agents/skills --skill plan-first --exclude plan-first --force
+```
+
+Omitting `--skill`/`--skills` preserves the compatibility behavior of
+installing every packaged skill. A mistyped or unknown loadout fails closed:
+
+```text
+$ npx --no-install skills install --target ./.agents/skills --skill loadout:reserach
+install: missing-loadout: loadout has no packaged members: reserach
+```
+
+Invalid selections produce deterministic diagnostics. Rootless overrides,
+excluded direct roots, and options missing their required values also exit
+unsuccessfully and install nothing; an existing destination remains unchanged.
+`--source`, `--mode`, and `--force` apply to the install command only; `sync`
+remains the maintainer-only command for upstream repositories and lockfiles.
+
+The packaged catalog is the source for loadout membership. A skill may belong
+to multiple loadouts through parser-compatible scalar metadata; selection uses
+the explicit `loadout:<name>` form. Measured byte evidence for curated
+loadouts is recorded in
+[`docs/evidence/skill-loadout-measurement.md`](docs/evidence/skill-loadout-measurement.md).
+Tokenizer/model metrics are unavailable and are not estimated.
+
 For a safe local helper example, specify a temporary target rather than a real agent directory:
 
 ```bash
@@ -130,7 +163,7 @@ when intentionally permitting maintainer network recovery.
 
 ## Curated Skills & Attribution
 
-The catalog includes 32 curated skills:
+The catalog includes 34 curated skills:
 
 - **Skill metadata contract:** Each `skills/*/SKILL.md` frontmatter must provide
   the standard top-level `name` and `description` fields. Supported standard

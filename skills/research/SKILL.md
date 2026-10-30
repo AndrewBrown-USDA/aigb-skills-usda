@@ -9,6 +9,9 @@ metadata:
   upstream_path: skills/engineering/research/SKILL.md
   source_ref: v1.2.0
   upstream: https://github.com/mattpocock/skills
+  group: research-evidence
+  loadouts: evidence-research, source-research
+  optional_dependencies: web-source-bundler
 ---
 Spin up a **background agent** to do the research, so you keep working while it reads.
 

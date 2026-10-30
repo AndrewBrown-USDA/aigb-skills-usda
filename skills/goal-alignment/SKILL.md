@@ -3,6 +3,8 @@ name: goal-alignment
 description: Evaluate whether goals, outcomes, requirements, tasks, acceptance evidence, and diffs are aligned, measurable, and within scope. Use before execution or when checking a proposed change against its intended result.
 license: MIT
 metadata:
+  group: architecture-planning
+  loadouts: software-delivery,plan-review,wave-delivery
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0.0
   source_repo: aigb-skills

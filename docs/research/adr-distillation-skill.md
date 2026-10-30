@@ -146,7 +146,7 @@ flowchart TD
   
   | ID | Title | Status | Date | Supersedes | Superseded By | Source Context |
   |---|---|---|---|---|---|---|
-  | 0001 | Sync skills via git clone | Superseded | 2026-09-18 | - | [0003](../decisions/0003-canonical-and-upstream-metadata.md) | Initial scaffold |
+  | 0001 | Sync skills via git clone | Superseded | 2026-09-18 | - | [0003](../decisions/0003-package-and-upstream-identity.md) | Initial scaffold |
   | 0002 | Target Node >=18 runtime | Accepted | 2026-09-20 | - | - | Engine baseline |
   | 0003 | Package Bundled Skills Directly | Accepted | 2026-10-10 | [0001](../decisions/0001-record-architecture-decisions.md) | - | Wave Plan 2 / PR #14 |
 

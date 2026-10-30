@@ -1,0 +1,987 @@
+{
+  "protocol": "packaged-skill-context-bytes-v3",
+  "run_id": "orchestration-18-evidence-v1",
+  "encoding": "utf8",
+  "serialization": "sorted files; UTF-8 relative path, NUL, raw file bytes, NUL",
+  "cache_state": {
+    "policy": "no application cache",
+    "declaration": "Each sample is a fresh serial Node.js child process reading files from the operating-system filesystem."
+  },
+  "source_commit": "51b562f6a0425b12cbb00d532bacd48f37c325d8",
+  "catalog": "catalog/skills.lock.json",
+  "corpus": [
+    "adr-distillation",
+    "agent-onboarding",
+    "apply-fed-oss-license",
+    "arcpy-migration",
+    "bull-in-a-china-shop",
+    "caveman",
+    "code-review-2axis",
+    "conventional-commits",
+    "copilot-history-briefing",
+    "deep-investigative-research",
+    "doc-consistency",
+    "dr-lexus",
+    "git-history-interval-study",
+    "github-actions-ci",
+    "goal-alignment",
+    "grilling",
+    "install-skills",
+    "json-processing-with-jq",
+    "makefile-development-workflow",
+    "performance-benchmarking",
+    "plan-first",
+    "plan-wave",
+    "ponytail",
+    "r-package-testing-workflow",
+    "research",
+    "reviewer-architecture",
+    "reviewer-correctness",
+    "rubber-ducking",
+    "skill-research",
+    "tdd",
+    "verbosity-cleaner",
+    "wave-orchestration",
+    "web-source-bundler",
+    "worker-validation"
+  ],
+  "corpus_files": [
+    {
+      "path": "skills/adr-distillation/SKILL.md",
+      "bytes": 8200,
+      "sha256": "26c961da5dc89126a2dd3adc99d6331dd217bc72be5d37758f375450dfc4c0eb"
+    },
+    {
+      "path": "skills/agent-onboarding/assets/AGENTS_template.md",
+      "bytes": 1457,
+      "sha256": "715af4c3987b49309ed73c65761b40348f034a7d6b042a743ea6d3e96ab7feca"
+    },
+    {
+      "path": "skills/agent-onboarding/references/patterns.md",
+      "bytes": 1592,
+      "sha256": "e86fd6f46b194366c8e07b822bedb769928038cf86ebc301dc4a2e67689bbe94"
+    },
+    {
+      "path": "skills/agent-onboarding/SKILL.md",
+      "bytes": 4201,
+      "sha256": "0cadb491ea2ec0ee84866d6cac52b590f82dc8b9e6f6078b6a6ab89e2cf26e3f"
+    },
+    {
+      "path": "skills/apply-fed-oss-license/SKILL.md",
+      "bytes": 7133,
+      "sha256": "67552202bf5227d64aa17776560d9f1141f59b0fddae90404348dcdd8a12f19c"
+    },
+    {
+      "path": "skills/arcpy-migration/examples/explicit-workflow.md",
+      "bytes": 875,
+      "sha256": "e16bdfd00c9dc8eeabbd26d5285b76e3171ada0596215f37de936936e8c95d6a"
+    },
+    {
+      "path": "skills/arcpy-migration/references/limitations-and-evidence.md",
+      "bytes": 989,
+      "sha256": "5d8b35ea2458e9e1961b6d4913f166ffbc359e5289bb30d1f2fc4963a08a35b2"
+    },
+    {
+      "path": "skills/arcpy-migration/references/source-inventory.md",
+      "bytes": 1047,
+      "sha256": "f818aab8e30b6bd5b1483863f428deb8bed039b73b4498197d80db36f158bf37"
+    },
+    {
+      "path": "skills/arcpy-migration/references/spatial-semantics.md",
+      "bytes": 953,
+      "sha256": "afa39f67929b45ebe22fc1f360ceca6330e42d25945400270a2638984e16a9cc"
+    },
+    {
+      "path": "skills/arcpy-migration/SKILL.md",
+      "bytes": 7890,
+      "sha256": "99a9941fdf805dcc117a6d10da929e665dd11142dbacfb7951c847fecded56bf"
+    },
+    {
+      "path": "skills/arcpy-migration/templates/migration-manifest.yaml",
+      "bytes": 619,
+      "sha256": "a573bb472be7dde1baf924eeb34e7f6982997a98ff09bcdbd702c7de0bedcf57"
+    },
+    {
+      "path": "skills/arcpy-migration/templates/operation-contract.yaml",
+      "bytes": 619,
+      "sha256": "4dce2a1e4617e839d73bb3a7ae50360bab178f13d0725e4865354362ba8ae820"
+    },
+    {
+      "path": "skills/arcpy-migration/templates/qa-and-test-matrix.md",
+      "bytes": 1009,
+      "sha256": "85cea3c0ada0b4c9478d1de72564e622ff1a5d0411373fe3ae865bf5767f6204"
+    },
+    {
+      "path": "skills/arcpy-migration/templates/workflow-boundary.py",
+      "bytes": 1212,
+      "sha256": "74e2e3454cd537ba5f1d9647dcd94694072db46f6d36c58d113c5d985160107c"
+    },
+    {
+      "path": "skills/bull-in-a-china-shop/SKILL.md",
+      "bytes": 5380,
+      "sha256": "7408615d885d2b306197fdac4c000c6bb6b8cabdc2a9ac1a1e74d97c6428a57d"
+    },
+    {
+      "path": "skills/caveman/README.md",
+      "bytes": 1954,
+      "sha256": "6d6e414f8446c166907dd9465e5c6e0c9e677f97e3013e0d30de2cf689a0c720"
+    },
+    {
+      "path": "skills/caveman/SKILL.md",
+      "bytes": 7374,
+      "sha256": "27abea35c454f7648c4a912f3b5faf9719e72fe4632f657d3045e0d2c1191fef"
+    },
+    {
+      "path": "skills/code-review-2axis/agents/openai.yaml",
+      "bytes": 103,
+      "sha256": "3f72329747a916ac8ab2b4004490c79e1be6774a8a83e5b258d6ddc7e866abfe"
+    },
+    {
+      "path": "skills/code-review-2axis/SKILL.md",
+      "bytes": 7158,
+      "sha256": "316191bceb9fb700f46a2f1e5f47d141e76c33dfe400bb3087d87334d7b457e6"
+    },
+    {
+      "path": "skills/conventional-commits/SKILL.md",
+      "bytes": 6539,
+      "sha256": "b358f3ab8f27e80aabf34cf92d57f5ef1dd28e0cfb0c425f27e7c72969e2669e"
+    },
+    {
+      "path": "skills/copilot-history-briefing/SKILL.md",
+      "bytes": 11077,
+      "sha256": "6fc8e1a47aa604946e864f62884c26241ef0904e708f3feed07ad36181116efd"
+    },
+    {
+      "path": "skills/deep-investigative-research/SKILL.md",
+      "bytes": 8915,
+      "sha256": "5257425dddca39717d5afb7cd70f7933271754690bdb28d0fa377d674e5251f5"
+    },
+    {
+      "path": "skills/doc-consistency/SKILL.md",
+      "bytes": 2292,
+      "sha256": "be3cb66b6cc1bb65d760adc29107398908e631bad5b3a9fe1f3d4545aeb5be8e"
+    },
+    {
+      "path": "skills/dr-lexus/references/VOCABULARY.md",
+      "bytes": 6793,
+      "sha256": "5f22550647fd6211e4f474a6bc7da938a386f911be9435f7047068df6a6bb0da"
+    },
+    {
+      "path": "skills/dr-lexus/SKILL.md",
+      "bytes": 3621,
+      "sha256": "bf78f36317b3c0fbdf3518a64198ae8899e4fbd11c444d2975cbff4e2ff0bfcd"
+    },
+    {
+      "path": "skills/git-history-interval-study/scripts/interval_ledger-test.js",
+      "bytes": 7457,
+      "sha256": "859d80af919f9d4fdcf1325e73b06bc013a800849c6a16e07e89a506a3ecfef7"
+    },
+    {
+      "path": "skills/git-history-interval-study/scripts/interval_ledger.js",
+      "bytes": 14236,
+      "sha256": "caf3e06b0128860e2744dd904a0b265c5b5f7127aa258c439c44d8efb31a78d2"
+    },
+    {
+      "path": "skills/git-history-interval-study/SKILL.md",
+      "bytes": 8256,
+      "sha256": "7fe3fa1e0b41fc9de591c0c8933007e9625e796c3eacffad0f4075ae12356beb"
+    },
+    {
+      "path": "skills/github-actions-ci/SKILL.md",
+      "bytes": 12224,
+      "sha256": "af02d0b421a4ae760352f0757ec026e7b16abcd60cc366ccbf8c1f9f1e0b4602"
+    },
+    {
+      "path": "skills/goal-alignment/SKILL.md",
+      "bytes": 7757,
+      "sha256": "5f596c7e257344f203078ad753113a8a9f770957cc81b911010f86a1499b2597"
+    },
+    {
+      "path": "skills/grilling/agents/openai.yaml",
+      "bytes": 116,
+      "sha256": "ad75163922ff8263acdd25ebc37420e8fcf1fccb93483fd5742e9bd26f5c45f6"
+    },
+    {
+      "path": "skills/grilling/SKILL.md",
+      "bytes": 2308,
+      "sha256": "88b630a47cf5b122acb75aff81bdd3c63ecf1006551035358f0c7f6da3df5363"
+    },
+    {
+      "path": "skills/install-skills/references/agent-paths.md",
+      "bytes": 2009,
+      "sha256": "5c1252cb143be5c7abf5e8e2bca0f926b06a79053cb8f8d5e7ae1b817a02660c"
+    },
+    {
+      "path": "skills/install-skills/references/skill-spec.md",
+      "bytes": 4646,
+      "sha256": "1c08cec1ab59baad632675ea23e9d4ff3870438fb8efef192afd239be5b58bc4"
+    },
+    {
+      "path": "skills/install-skills/scripts/install-core.sh",
+      "bytes": 6069,
+      "sha256": "2bbe1264a2153e214da2c38df350914eb1392691bcf0a5572d57012a808249bc"
+    },
+    {
+      "path": "skills/install-skills/scripts/install.sh",
+      "bytes": 3004,
+      "sha256": "ee13141a6130c3d97afd8233990fc868193eecdaa6b29b9c4e5abc4a6f79b52a"
+    },
+    {
+      "path": "skills/install-skills/SKILL.md",
+      "bytes": 6335,
+      "sha256": "bce05f5702f19c73329974a93ccf8fee16f2565eb0b3aa0e63464261a1903e95"
+    },
+    {
+      "path": "skills/json-processing-with-jq/SKILL.md",
+      "bytes": 8687,
+      "sha256": "319ad46367d1c34d0276443f748ec5e75bdf871648be28ac0e18daef547e5838"
+    },
+    {
+      "path": "skills/makefile-development-workflow/references/anatomy.md",
+      "bytes": 18495,
+      "sha256": "01771229c694fad94262dc5ceab50f06e6453a53a1a557cc5abe2aa5e644130e"
+    },
+    {
+      "path": "skills/makefile-development-workflow/SKILL.md",
+      "bytes": 4128,
+      "sha256": "3f66cf22c6fdce30e968e918de1e055d5fad961a34f6b1dbbfa7af643a599bc3"
+    },
+    {
+      "path": "skills/performance-benchmarking/references/benchmark-template.R",
+      "bytes": 3644,
+      "sha256": "ebe99c03e4067728d2d10017314963ed0b60188d85d4e9ba6c16e35b692cb8ce"
+    },
+    {
+      "path": "skills/performance-benchmarking/references/benchmark-template.sh",
+      "bytes": 485,
+      "sha256": "3061f3531c1e326ef6a6426908ff0503067c7d56dabe6c557456bec04851b143"
+    },
+    {
+      "path": "skills/performance-benchmarking/references/speedup-metrics.md",
+      "bytes": 2887,
+      "sha256": "faa63c02a57ff9e14ca1839d59b0a3a4ab8a91b97ef941122bf3a70b120566df"
+    },
+    {
+      "path": "skills/performance-benchmarking/SKILL.md",
+      "bytes": 11693,
+      "sha256": "678c5fe90dc38f29cb16e13df523ff15d0ef190275bbe4ae2e1b4a53db3e5600"
+    },
+    {
+      "path": "skills/plan-first/SKILL.md",
+      "bytes": 4227,
+      "sha256": "0ede6036ef89287b9a6077559ac6309bd38f55af958e07a52ab390590cde3d18"
+    },
+    {
+      "path": "skills/plan-wave/SKILL.md",
+      "bytes": 7684,
+      "sha256": "1bd46d264f29915fd7f67c5764af4065caea93f14b0b5d7ba3f1a8991deaf04b"
+    },
+    {
+      "path": "skills/ponytail/SKILL.md",
+      "bytes": 7059,
+      "sha256": "cfd69aedaafcc365f0a8108f98db4c82bb686ab8c7cf088432e7d6653e6bebf3"
+    },
+    {
+      "path": "skills/r-package-testing-workflow/SKILL.md",
+      "bytes": 6550,
+      "sha256": "f768d9c4f5482c85cd195a820b62fb78567decba6c56ab5a230d4fd51a63f85e"
+    },
+    {
+      "path": "skills/research/agents/openai.yaml",
+      "bytes": 97,
+      "sha256": "73840328dfa6b689d81ee645d8aaf8570a0cc44d64a32b119ea6091d2828d412"
+    },
+    {
+      "path": "skills/research/SKILL.md",
+      "bytes": 1238,
+      "sha256": "b4be8ed590015069b06250de06fd088b5d96731294fcee285e0d76d7ebdc5a8e"
+    },
+    {
+      "path": "skills/reviewer-architecture/SKILL.md",
+      "bytes": 4611,
+      "sha256": "e6192ce30260b35c056ab7a192f8fd04f704bf6fb4aa2870601ea85f6ff305df"
+    },
+    {
+      "path": "skills/reviewer-correctness/SKILL.md",
+      "bytes": 4999,
+      "sha256": "92a69de88708090c0a149b0191946036a256f9d6f23712704c3768dc452ed3fe"
+    },
+    {
+      "path": "skills/rubber-ducking/references/facilitator-rules.md",
+      "bytes": 8838,
+      "sha256": "e0518690746d7ab5e823822b6b0e828cd81774eab1516415952c7b809964ba87"
+    },
+    {
+      "path": "skills/rubber-ducking/references/interaction-flow.md",
+      "bytes": 16810,
+      "sha256": "f7d9f982435fc464e477151ad4e0d791688ad2e5984dad2988b5245c279889f3"
+    },
+    {
+      "path": "skills/rubber-ducking/scripts/__pycache__/ast_chunking.cpython-314.pyc",
+      "bytes": 16902,
+      "sha256": "e48b79a4ff9de20191a4e6889a97f067bdcc748c797d01b499379abdb29c1450"
+    },
+    {
+      "path": "skills/rubber-ducking/scripts/__pycache__/language_detect.cpython-314.pyc",
+      "bytes": 3867,
+      "sha256": "03b21e2621b703855ca80611feba509d860f243273bddc4a5000e3b30a18a5bd"
+    },
+    {
+      "path": "skills/rubber-ducking/scripts/ast_chunking.md",
+      "bytes": 5410,
+      "sha256": "85131e03602d10ade2703729741878049b06d62cf1e7d98a14ec34fe4bb0c0fe"
+    },
+    {
+      "path": "skills/rubber-ducking/scripts/ast_chunking.py",
+      "bytes": 11974,
+      "sha256": "c06e7db75cc5ac8ca585eeb4735cb57046eb98d361146a71b728ac5199d8e8fe"
+    },
+    {
+      "path": "skills/rubber-ducking/scripts/language_detect.md",
+      "bytes": 3007,
+      "sha256": "f6fc9d4c9dff3ed1cfadeeab51146b0d3f94f90042ca25f0acda66dbca84ea48"
+    },
+    {
+      "path": "skills/rubber-ducking/scripts/language_detect.py",
+      "bytes": 4284,
+      "sha256": "04b528e5b88371f620bf8bc96de18b059eaad0b3fda1db082598360c9fd2e195"
+    },
+    {
+      "path": "skills/rubber-ducking/scripts/README.md",
+      "bytes": 2142,
+      "sha256": "4396f369789d3ed503c47a17c4239c2db53a2a8e4a7bacaebf653bcdd494db36"
+    },
+    {
+      "path": "skills/rubber-ducking/scripts/test_ast_chunking.py",
+      "bytes": 4068,
+      "sha256": "4fbfe0ee9276a785b9a0b9b62f8c77930a59f73203232c477ba09f64bae105e8"
+    },
+    {
+      "path": "skills/rubber-ducking/scripts/test_language_detect.py",
+      "bytes": 5252,
+      "sha256": "d61e04234809bc0224d383b2bf4f7663d74b9375e4b8e7104e53e20c37c250a6"
+    },
+    {
+      "path": "skills/rubber-ducking/SKILL.md",
+      "bytes": 7648,
+      "sha256": "3eaa860b178580805e89b70c8df49f076a625ef1baf457360428dffc8fcf2350"
+    },
+    {
+      "path": "skills/skill-research/SKILL.md",
+      "bytes": 4950,
+      "sha256": "d10be12a8408209d5c5be8218998a3d0cffc62e40973271a9322255ca8bb4e6a"
+    },
+    {
+      "path": "skills/tdd/agents/openai.yaml",
+      "bytes": 90,
+      "sha256": "f8e2afc1fbcd6a6e1178c30f290ca9f2286c949a0b74b8b68fd14f198b78ebac"
+    },
+    {
+      "path": "skills/tdd/mocking.md",
+      "bytes": 1540,
+      "sha256": "73a10b6a26b56197c738a764c1e4205af98c74553f4a713795997f6bc35b917d"
+    },
+    {
+      "path": "skills/tdd/SKILL.md",
+      "bytes": 4036,
+      "sha256": "35f6e6ddb17e950d20524088d5bd7d42d9108a7ddc35e6fcb9454d910dfd87a7"
+    },
+    {
+      "path": "skills/tdd/tests.md",
+      "bytes": 2291,
+      "sha256": "0b401f98bd3684d2fea6440d6946afcf8f5f68ac6a65599dd7a2b90dd9f02eb5"
+    },
+    {
+      "path": "skills/verbosity-cleaner/SKILL.md",
+      "bytes": 1049,
+      "sha256": "33715ef78820b3f703936c62c430eea65f7540da1a25225be042acabf777d951"
+    },
+    {
+      "path": "skills/wave-orchestration/SKILL.md",
+      "bytes": 10867,
+      "sha256": "e0f9acb62326772779c1707eba0b26ca4115f190583e62a95f1c01f2e049d67f"
+    },
+    {
+      "path": "skills/web-source-bundler/SKILL.md",
+      "bytes": 5324,
+      "sha256": "f495aac3cb0f0f5281f7316ced1a5ba001ca64660c13fface79bc7e23df91451"
+    },
+    {
+      "path": "skills/worker-validation/SKILL.md",
+      "bytes": 3643,
+      "sha256": "ae502843a8564061779cfa284b10d82214ad69a60f081940c3ba7144fbf04d73"
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "full-corpus",
+      "roots": [
+        "adr-distillation",
+        "agent-onboarding",
+        "apply-fed-oss-license",
+        "arcpy-migration",
+        "bull-in-a-china-shop",
+        "caveman",
+        "code-review-2axis",
+        "conventional-commits",
+        "copilot-history-briefing",
+        "deep-investigative-research",
+        "doc-consistency",
+        "dr-lexus",
+        "git-history-interval-study",
+        "github-actions-ci",
+        "goal-alignment",
+        "grilling",
+        "install-skills",
+        "json-processing-with-jq",
+        "makefile-development-workflow",
+        "performance-benchmarking",
+        "plan-first",
+        "plan-wave",
+        "ponytail",
+        "r-package-testing-workflow",
+        "research",
+        "reviewer-architecture",
+        "reviewer-correctness",
+        "rubber-ducking",
+        "skill-research",
+        "tdd",
+        "verbosity-cleaner",
+        "wave-orchestration",
+        "web-source-bundler",
+        "worker-validation"
+      ],
+      "include": [],
+      "exclude": [],
+      "resolved_names": [
+        "adr-distillation",
+        "agent-onboarding",
+        "apply-fed-oss-license",
+        "arcpy-migration",
+        "bull-in-a-china-shop",
+        "caveman",
+        "code-review-2axis",
+        "conventional-commits",
+        "copilot-history-briefing",
+        "deep-investigative-research",
+        "doc-consistency",
+        "dr-lexus",
+        "git-history-interval-study",
+        "github-actions-ci",
+        "goal-alignment",
+        "grilling",
+        "install-skills",
+        "json-processing-with-jq",
+        "makefile-development-workflow",
+        "performance-benchmarking",
+        "plan-first",
+        "wave-orchestration",
+        "plan-wave",
+        "ponytail",
+        "r-package-testing-workflow",
+        "research",
+        "reviewer-architecture",
+        "reviewer-correctness",
+        "rubber-ducking",
+        "skill-research",
+        "tdd",
+        "verbosity-cleaner",
+        "web-source-bundler",
+        "worker-validation"
+      ],
+      "omitted": [],
+      "diagnostics": []
+    },
+    {
+      "name": "direct-plan-wave",
+      "roots": [
+        "plan-wave"
+      ],
+      "include": [],
+      "exclude": [],
+      "resolved_names": [
+        "wave-orchestration",
+        "grilling",
+        "plan-wave"
+      ],
+      "omitted": [
+        "adr-distillation",
+        "agent-onboarding",
+        "apply-fed-oss-license",
+        "arcpy-migration",
+        "bull-in-a-china-shop",
+        "caveman",
+        "code-review-2axis",
+        "conventional-commits",
+        "copilot-history-briefing",
+        "deep-investigative-research",
+        "doc-consistency",
+        "dr-lexus",
+        "git-history-interval-study",
+        "github-actions-ci",
+        "goal-alignment",
+        "install-skills",
+        "json-processing-with-jq",
+        "makefile-development-workflow",
+        "performance-benchmarking",
+        "plan-first",
+        "ponytail",
+        "r-package-testing-workflow",
+        "research",
+        "reviewer-architecture",
+        "reviewer-correctness",
+        "rubber-ducking",
+        "skill-research",
+        "tdd",
+        "verbosity-cleaner",
+        "web-source-bundler",
+        "worker-validation"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "wave-delivery",
+      "roots": [
+        "loadout:wave-delivery"
+      ],
+      "include": [],
+      "exclude": [],
+      "resolved_names": [
+        "adr-distillation",
+        "conventional-commits",
+        "goal-alignment",
+        "grilling",
+        "plan-first",
+        "wave-orchestration",
+        "plan-wave",
+        "worker-validation"
+      ],
+      "omitted": [
+        "agent-onboarding",
+        "apply-fed-oss-license",
+        "arcpy-migration",
+        "bull-in-a-china-shop",
+        "caveman",
+        "code-review-2axis",
+        "copilot-history-briefing",
+        "deep-investigative-research",
+        "doc-consistency",
+        "dr-lexus",
+        "git-history-interval-study",
+        "github-actions-ci",
+        "install-skills",
+        "json-processing-with-jq",
+        "makefile-development-workflow",
+        "performance-benchmarking",
+        "ponytail",
+        "r-package-testing-workflow",
+        "research",
+        "reviewer-architecture",
+        "reviewer-correctness",
+        "rubber-ducking",
+        "skill-research",
+        "tdd",
+        "verbosity-cleaner",
+        "web-source-bundler"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "wave-delivery-with-code-review-2axis",
+      "roots": [
+        "plan-wave"
+      ],
+      "include": [
+        "code-review-2axis"
+      ],
+      "exclude": [],
+      "resolved_names": [
+        "wave-orchestration",
+        "grilling",
+        "code-review-2axis",
+        "plan-wave"
+      ],
+      "omitted": [
+        "adr-distillation",
+        "agent-onboarding",
+        "apply-fed-oss-license",
+        "arcpy-migration",
+        "bull-in-a-china-shop",
+        "caveman",
+        "conventional-commits",
+        "copilot-history-briefing",
+        "deep-investigative-research",
+        "doc-consistency",
+        "dr-lexus",
+        "git-history-interval-study",
+        "github-actions-ci",
+        "goal-alignment",
+        "install-skills",
+        "json-processing-with-jq",
+        "makefile-development-workflow",
+        "performance-benchmarking",
+        "plan-first",
+        "ponytail",
+        "r-package-testing-workflow",
+        "research",
+        "reviewer-architecture",
+        "reviewer-correctness",
+        "rubber-ducking",
+        "skill-research",
+        "tdd",
+        "verbosity-cleaner",
+        "web-source-bundler",
+        "worker-validation"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "minimal-direct-selection",
+      "roots": [
+        "grilling"
+      ],
+      "include": [],
+      "exclude": [],
+      "resolved_names": [
+        "grilling"
+      ],
+      "omitted": [
+        "adr-distillation",
+        "agent-onboarding",
+        "apply-fed-oss-license",
+        "arcpy-migration",
+        "bull-in-a-china-shop",
+        "caveman",
+        "code-review-2axis",
+        "conventional-commits",
+        "copilot-history-briefing",
+        "deep-investigative-research",
+        "doc-consistency",
+        "dr-lexus",
+        "git-history-interval-study",
+        "github-actions-ci",
+        "goal-alignment",
+        "install-skills",
+        "json-processing-with-jq",
+        "makefile-development-workflow",
+        "performance-benchmarking",
+        "plan-first",
+        "plan-wave",
+        "ponytail",
+        "r-package-testing-workflow",
+        "research",
+        "reviewer-architecture",
+        "reviewer-correctness",
+        "rubber-ducking",
+        "skill-research",
+        "tdd",
+        "verbosity-cleaner",
+        "wave-orchestration",
+        "web-source-bundler",
+        "worker-validation"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "software-delivery",
+      "roots": [
+        "loadout:software-delivery"
+      ],
+      "include": [],
+      "exclude": [],
+      "resolved_names": [
+        "adr-distillation",
+        "agent-onboarding",
+        "apply-fed-oss-license",
+        "arcpy-migration",
+        "bull-in-a-china-shop",
+        "code-review-2axis",
+        "conventional-commits",
+        "doc-consistency",
+        "git-history-interval-study",
+        "github-actions-ci",
+        "goal-alignment",
+        "grilling",
+        "install-skills",
+        "json-processing-with-jq",
+        "makefile-development-workflow",
+        "performance-benchmarking",
+        "plan-first",
+        "wave-orchestration",
+        "plan-wave",
+        "ponytail",
+        "r-package-testing-workflow",
+        "reviewer-architecture",
+        "reviewer-correctness",
+        "rubber-ducking",
+        "skill-research",
+        "tdd",
+        "worker-validation"
+      ],
+      "omitted": [
+        "caveman",
+        "copilot-history-briefing",
+        "deep-investigative-research",
+        "dr-lexus",
+        "research",
+        "verbosity-cleaner",
+        "web-source-bundler"
+      ],
+      "diagnostics": []
+    }
+  ],
+  "command": "node scripts/measure-skill-loadouts.js",
+  "environment": {
+    "node": "v26.12.1",
+    "platform": "win32",
+    "release": "10.0.26200",
+    "arch": "x64",
+    "cpus": 32,
+    "locale": "en_US.UTF-8"
+  },
+  "samples_per_scenario": 5,
+  "tokenizer_model_metrics": null,
+  "results": [
+    {
+      "name": "full-corpus",
+      "request": [
+        "adr-distillation",
+        "agent-onboarding",
+        "apply-fed-oss-license",
+        "arcpy-migration",
+        "bull-in-a-china-shop",
+        "caveman",
+        "code-review-2axis",
+        "conventional-commits",
+        "copilot-history-briefing",
+        "deep-investigative-research",
+        "doc-consistency",
+        "dr-lexus",
+        "git-history-interval-study",
+        "github-actions-ci",
+        "goal-alignment",
+        "grilling",
+        "install-skills",
+        "json-processing-with-jq",
+        "makefile-development-workflow",
+        "performance-benchmarking",
+        "plan-first",
+        "plan-wave",
+        "ponytail",
+        "r-package-testing-workflow",
+        "research",
+        "reviewer-architecture",
+        "reviewer-correctness",
+        "rubber-ducking",
+        "skill-research",
+        "tdd",
+        "verbosity-cleaner",
+        "wave-orchestration",
+        "web-source-bundler",
+        "worker-validation"
+      ],
+      "options": {},
+      "resolved_names": [
+        "adr-distillation",
+        "agent-onboarding",
+        "apply-fed-oss-license",
+        "arcpy-migration",
+        "bull-in-a-china-shop",
+        "caveman",
+        "code-review-2axis",
+        "conventional-commits",
+        "copilot-history-briefing",
+        "deep-investigative-research",
+        "doc-consistency",
+        "dr-lexus",
+        "git-history-interval-study",
+        "github-actions-ci",
+        "goal-alignment",
+        "grilling",
+        "install-skills",
+        "json-processing-with-jq",
+        "makefile-development-workflow",
+        "performance-benchmarking",
+        "plan-first",
+        "wave-orchestration",
+        "plan-wave",
+        "ponytail",
+        "r-package-testing-workflow",
+        "research",
+        "reviewer-architecture",
+        "reviewer-correctness",
+        "rubber-ducking",
+        "skill-research",
+        "tdd",
+        "verbosity-cleaner",
+        "web-source-bundler",
+        "worker-validation"
+      ],
+      "diagnostics": [],
+      "raw_sample_file": "full-corpus.raw.json",
+      "sample_count": 5,
+      "median_bytes": 387052,
+      "minimum_bytes": 387052,
+      "maximum_bytes": 387052,
+      "spread_bytes": 0,
+      "tokenizer_model_metrics": null,
+      "baseline_bytes": 387052,
+      "target_bytes": 387052,
+      "absolute_reduction_bytes": 0,
+      "reduction_ratio": 0
+    },
+    {
+      "name": "direct-plan-wave",
+      "request": [
+        "plan-wave"
+      ],
+      "options": {},
+      "resolved_names": [
+        "wave-orchestration",
+        "grilling",
+        "plan-wave"
+      ],
+      "diagnostics": [],
+      "raw_sample_file": "direct-plan-wave.raw.json",
+      "sample_count": 5,
+      "median_bytes": 21100,
+      "minimum_bytes": 21100,
+      "maximum_bytes": 21100,
+      "spread_bytes": 0,
+      "tokenizer_model_metrics": null,
+      "baseline_bytes": 387052,
+      "target_bytes": 21100,
+      "absolute_reduction_bytes": 365952,
+      "reduction_ratio": 0.9454853611401052
+    },
+    {
+      "name": "wave-delivery",
+      "request": [
+        "loadout:wave-delivery"
+      ],
+      "options": {},
+      "resolved_names": [
+        "adr-distillation",
+        "conventional-commits",
+        "goal-alignment",
+        "grilling",
+        "plan-first",
+        "wave-orchestration",
+        "plan-wave",
+        "worker-validation"
+      ],
+      "diagnostics": [],
+      "raw_sample_file": "wave-delivery.raw.json",
+      "sample_count": 5,
+      "median_bytes": 51633,
+      "minimum_bytes": 51633,
+      "maximum_bytes": 51633,
+      "spread_bytes": 0,
+      "tokenizer_model_metrics": null,
+      "baseline_bytes": 387052,
+      "target_bytes": 51633,
+      "absolute_reduction_bytes": 335419,
+      "reduction_ratio": 0.866599319988012
+    },
+    {
+      "name": "wave-delivery-with-code-review-2axis",
+      "request": [
+        "plan-wave"
+      ],
+      "options": {
+        "include": [
+          "code-review-2axis"
+        ]
+      },
+      "resolved_names": [
+        "wave-orchestration",
+        "grilling",
+        "code-review-2axis",
+        "plan-wave"
+      ],
+      "diagnostics": [],
+      "raw_sample_file": "wave-delivery-with-code-review-2axis.raw.json",
+      "sample_count": 5,
+      "median_bytes": 28441,
+      "minimum_bytes": 28441,
+      "maximum_bytes": 28441,
+      "spread_bytes": 0,
+      "tokenizer_model_metrics": null,
+      "baseline_bytes": 387052,
+      "target_bytes": 28441,
+      "absolute_reduction_bytes": 358611,
+      "reduction_ratio": 0.926518917354774
+    },
+    {
+      "name": "minimal-direct-selection",
+      "request": [
+        "grilling"
+      ],
+      "options": {},
+      "resolved_names": [
+        "grilling"
+      ],
+      "diagnostics": [],
+      "raw_sample_file": "minimal-direct-selection.raw.json",
+      "sample_count": 5,
+      "median_bytes": 2486,
+      "minimum_bytes": 2486,
+      "maximum_bytes": 2486,
+      "spread_bytes": 0,
+      "tokenizer_model_metrics": null,
+      "baseline_bytes": 387052,
+      "target_bytes": 2486,
+      "absolute_reduction_bytes": 384566,
+      "reduction_ratio": 0.9935770904167915
+    },
+    {
+      "name": "software-delivery",
+      "request": [
+        "loadout:software-delivery"
+      ],
+      "options": {},
+      "resolved_names": [
+        "adr-distillation",
+        "agent-onboarding",
+        "apply-fed-oss-license",
+        "arcpy-migration",
+        "bull-in-a-china-shop",
+        "code-review-2axis",
+        "conventional-commits",
+        "doc-consistency",
+        "git-history-interval-study",
+        "github-actions-ci",
+        "goal-alignment",
+        "grilling",
+        "install-skills",
+        "json-processing-with-jq",
+        "makefile-development-workflow",
+        "performance-benchmarking",
+        "plan-first",
+        "wave-orchestration",
+        "plan-wave",
+        "ponytail",
+        "r-package-testing-workflow",
+        "reviewer-architecture",
+        "reviewer-correctness",
+        "rubber-ducking",
+        "skill-research",
+        "tdd",
+        "worker-validation"
+      ],
+      "diagnostics": [],
+      "raw_sample_file": "software-delivery.raw.json",
+      "sample_count": 5,
+      "median_bytes": 339271,
+      "minimum_bytes": 339271,
+      "maximum_bytes": 339271,
+      "spread_bytes": 0,
+      "tokenizer_model_metrics": null,
+      "baseline_bytes": 387052,
+      "target_bytes": 339271,
+      "absolute_reduction_bytes": 47781,
+      "reduction_ratio": 0.12344852887984044
+    }
+  ],
+  "retained_run": ".scratch/loadout-measurement/18.5.1/orchestration-18-evidence-v1"
+}

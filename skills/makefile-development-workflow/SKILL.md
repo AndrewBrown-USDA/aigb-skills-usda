@@ -3,6 +3,8 @@ name: makefile-development-workflow
 description: Standardizes Makefile-based build and test workflows with reproducible targets. Use when creating or refining helpful build, test, and clean targets.
 license: MIT
 metadata:
+  group: developer-tooling
+  loadouts: software-delivery,ci-maintenance
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0
   source_repo: aigb-skills
