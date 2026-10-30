@@ -37,8 +37,8 @@ Resolve all currently unresolved PR #18 review findings while preserving the six
 
 ### 6. Validate and commit
 
-- [ ] Run the package metadata check, catalog generation, skill validation, validator tests, smoke tests, and focused new regressions.
-- [ ] Review the final diff and create focused conventional commits without pushing.
+- [x] Run the package metadata check, catalog generation, skill validation, validator tests, smoke tests, and focused new regressions.
+- [x] Review the final diff and create focused conventional commits without pushing.
 
 ## Notes
 
