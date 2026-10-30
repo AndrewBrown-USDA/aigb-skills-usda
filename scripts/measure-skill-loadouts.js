@@ -9,11 +9,11 @@ const cp = require('node:child_process');
 const { loadCatalog, resolve } = require('./skill-loadouts');
 
 const root = path.resolve(__dirname, '..');
+const SAMPLE_COUNT = 5;
 const defaults = {
   source: path.join(root, 'skills'),
   catalog: path.join(root, 'catalog', 'skills.lock.json'),
   outRoot: path.join(root, '.scratch', 'loadout-measurement', '16.2.2'),
-  samples: 5
 };
 const serialization = 'sorted files; UTF-8 relative path, NUL, raw file bytes, NUL';
 
@@ -165,7 +165,7 @@ function main(argv) {
   const results = [];
   for (const scenario of scenarios) {
     const rawSamples = [];
-    for (let index = 0; index < options.samples; index += 1) {
+    for (let index = 0; index < SAMPLE_COUNT; index += 1) {
       rawSamples.push(runSample({
         source: options.source,
         catalog: options.catalog,
@@ -230,7 +230,7 @@ function main(argv) {
       cpus: os.cpus().length,
       locale: process.env.LC_ALL || process.env.LANG || Intl.DateTimeFormat().resolvedOptions().locale || 'default'
     },
-    samples_per_scenario: options.samples,
+    samples_per_scenario: SAMPLE_COUNT,
     tokenizer_model_metrics: null,
     results
   });
@@ -242,6 +242,7 @@ function main(argv) {
     `- **Command:** \`${'node scripts/measure-skill-loadouts.js'}\``,
     `- **Environment:** Node ${process.version} on ${process.platform} ${process.arch}; ${os.release()}`,
     '- **Calculation:** baseline is the full-corpus median UTF-8 byte count; target is each scenario median; reduction ratio is `(baseline - target) / baseline`.',
+    '- **Evidence status:** This verifies the measurement protocol only; it is not real curated-loadout reduction evidence.',
     '- **Manifest:** [manifest.json](manifest.json)',
     '- **Measurement:** [measurement.json](measurement.json)',
     '',

@@ -46,6 +46,9 @@ fs.writeFileSync(catalog, `${JSON.stringify({
 try {
   const help = spawnSync(process.execPath, [script, '--help'], { encoding: 'utf8' });
   assert.equal(help.status, 0, help.stderr);
+  const invalidSampleCount = spawnSync(process.execPath, [script, '--samples', '4'], { encoding: 'utf8' });
+  assert.equal(invalidSampleCount.status, 1);
+  assert.match(invalidSampleCount.stderr, /unknown option: --samples/);
 
   const first = run('preserved-run');
   assert.equal(first.status, 0, first.stderr);
@@ -62,6 +65,7 @@ try {
   assert.equal(evidence.corpus_files.length, 2);
   assert.match(summary, /\[manifest\.json\]\(manifest\.json\)/);
   assert.match(summary, /Calculation:/);
+  assert.match(summary, /protocol only; it is not real curated-loadout reduction evidence/);
   for (const entry of evidence.corpus_files) {
     const file = path.join(fixture, ...entry.path.split('/'));
     assert.equal(entry.sha256, crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'));
