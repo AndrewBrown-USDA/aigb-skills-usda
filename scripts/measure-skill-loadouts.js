@@ -6,14 +6,14 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const cp = require('node:child_process');
-const { loadCatalog, resolve } = require('./skill-loadouts');
+const { isLoadoutMember, loadCatalog, resolve } = require('./skill-loadouts');
 
 const root = path.resolve(__dirname, '..');
+const SAMPLE_COUNT = 5;
 const defaults = {
   source: path.join(root, 'skills'),
   catalog: path.join(root, 'catalog', 'skills.lock.json'),
-  outRoot: path.join(root, '.scratch', 'loadout-measurement', '16.2.2'),
-  samples: 5
+  outRoot: path.join(root, '.scratch', 'loadout-measurement', '18.5.1'),
 };
 const serialization = 'sorted files; UTF-8 relative path, NUL, raw file bytes, NUL';
 
@@ -21,7 +21,7 @@ function help() {
   console.log(`Usage: node scripts/measure-skill-loadouts.js [--help]
 
 Measures packaged skill contexts with deterministic UTF-8 byte counts.
-Writes a unique, non-overwriting run beneath .scratch/loadout-measurement/16.2.2/.
+Writes a unique, non-overwriting run beneath .scratch/loadout-measurement/18.5.1/.
 Token/model metrics remain unavailable unless measured with pinned tooling.`);
 }
 
@@ -116,6 +116,67 @@ function writeJson(file, value) {
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
 }
 
+function hashFile(file) {
+  return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+}
+
+function artifactChecksums(runDir) {
+  return files(runDir)
+    .filter(file => path.basename(file) !== 'checksums.json')
+    .map(file => ({
+      path: path.relative(runDir, file).split(path.sep).join('/'),
+      sha256: hashFile(file)
+    }));
+}
+
+function verifyExistingRun(runDir) {
+  const checksumFile = path.join(runDir, 'checksums.json');
+  if (!fs.existsSync(checksumFile)) throw new Error(`existing run lacks checksums: ${runDir}`);
+  const expected = JSON.parse(fs.readFileSync(checksumFile, 'utf8'));
+  const actual = artifactChecksums(runDir);
+  if (JSON.stringify(actual) !== JSON.stringify(expected.files)) {
+    throw new Error(`existing run failed byte-for-byte verification: ${runDir}`);
+  }
+  return runDir;
+}
+
+function requireScenarioCatalog(loaded) {
+  const required = ['plan-wave', 'wave-orchestration', 'grilling', 'code-review-2axis'];
+  for (const name of required) {
+    if (!loaded.skills.has(name)) throw new Error(`required measurement skill is absent: ${name}`);
+  }
+  for (const [name, loadout] of [
+    ['wave-delivery', 'wave-delivery'],
+    ['software-delivery', 'software-delivery']
+  ]) {
+    if (![...loaded.skills.values()].some(skill => isLoadoutMember(skill, loadout))) {
+      throw new Error(`required measurement loadout is absent: ${name}`);
+    }
+  }
+  const planWave = loaded.skills.get('plan-wave');
+  for (const name of ['wave-orchestration', 'grilling']) {
+    if (!(planWave.dependencies || []).includes(name)) {
+      throw new Error(`plan-wave required edge is absent: plan-wave -> ${name}`);
+    }
+  }
+}
+
+function scenarios(loaded, all) {
+  requireScenarioCatalog(loaded);
+  return [
+    { name: 'full-corpus', request: all, options: {} },
+    { name: 'direct-plan-wave', request: ['plan-wave'], options: {} },
+    { name: 'wave-delivery', request: ['loadout:wave-delivery'], options: {} },
+    {
+      name: 'wave-delivery-with-code-review-2axis',
+      request: ['plan-wave'],
+      options: { include: ['code-review-2axis'] }
+    },
+    { name: 'minimal-direct-selection', request: ['grilling'], options: {} },
+    { name: 'software-delivery', request: ['loadout:software-delivery'], options: {} }
+  ];
+}
+
 function main(argv) {
   const options = parseArgs(argv);
   if (options.help) {
@@ -133,22 +194,15 @@ function main(argv) {
   const all = [...loaded.skills.keys()];
   if (all.length === 0) throw new Error('catalog contains no measurable skills');
   const repositoryRoot = path.dirname(options.source);
-  const loadout = [...new Set([...loaded.skills.values()].map(skill => skill.loadout).filter(Boolean))].sort()[0];
-  const members = loadout
-    ? all.filter(name => loaded.skills.get(name).loadout === loadout).sort()
-    : all.slice(0, Math.min(3, all.length));
-  const optional = members.flatMap(name => loaded.skills.get(name).optional_dependencies || [])
-    .find(name => loaded.skills.has(name));
-  const scenarios = [
-    { name: 'full-corpus', request: all, options: {} },
-    { name: 'representative-selection', request: loadout ? [`loadout:${loadout}`] : members, options: {} },
-    { name: 'selection-with-optional', request: loadout ? [`loadout:${loadout}`] : members, options: optional ? { include: [optional] } : {} },
-    { name: 'minimal-direct-selection', request: [members[0]], options: {} }
-  ];
+  const selectedScenarios = scenarios(loaded, all);
 
   const runId = safeRunId(options.runId);
   fs.mkdirSync(options.outRoot, { recursive: true });
   const runDir = path.join(options.outRoot, runId);
+  if (fs.existsSync(runDir)) {
+    process.stdout.write(`${verifyExistingRun(runDir)}\n`);
+    return 0;
+  }
   fs.mkdirSync(runDir);
 
   const corpusFiles = files(options.source).map(file => ({
@@ -157,9 +211,9 @@ function main(argv) {
     sha256: crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')
   }));
   const results = [];
-  for (const scenario of scenarios) {
+  for (const scenario of selectedScenarios) {
     const rawSamples = [];
-    for (let index = 0; index < options.samples; index += 1) {
+    for (let index = 0; index < SAMPLE_COUNT; index += 1) {
       rawSamples.push(runSample({
         source: options.source,
         catalog: options.catalog,
@@ -184,9 +238,18 @@ function main(argv) {
       tokenizer_model_metrics: null
     });
   }
+  const baselineBytes = results.find(result => result.name === 'full-corpus').median_bytes;
+  for (const result of results) {
+    result.baseline_bytes = baselineBytes;
+    result.target_bytes = result.median_bytes;
+    result.absolute_reduction_bytes = baselineBytes - result.target_bytes;
+    result.reduction_ratio = baselineBytes === 0
+      ? 0
+      : result.absolute_reduction_bytes / baselineBytes;
+  }
 
   const manifest = {
-    protocol: 'packaged-skill-context-bytes-v2',
+    protocol: 'packaged-skill-context-bytes-v3',
     run_id: runId,
     encoding: 'utf8',
     serialization,
@@ -215,10 +278,43 @@ function main(argv) {
       cpus: os.cpus().length,
       locale: process.env.LC_ALL || process.env.LANG || Intl.DateTimeFormat().resolvedOptions().locale || 'default'
     },
-    samples_per_scenario: options.samples,
+    samples_per_scenario: SAMPLE_COUNT,
     tokenizer_model_metrics: null,
     results
   });
+  const summary = [
+    '# Skill Loadout Measurement Summary',
+    '',
+    `- **Run:** \`${runId}\``,
+    `- **Source commit:** \`${manifest.source_commit}\``,
+    `- **Command:** \`${'node scripts/measure-skill-loadouts.js'}\``,
+    `- **Environment:** Node ${process.version} on ${process.platform} ${process.arch}; ${os.release()}`,
+    '- **Calculation:** baseline is the full-corpus median UTF-8 byte count; target is each scenario median; reduction ratio is `(baseline - target) / baseline`.',
+    '- **Evidence status:** Real curated-loadout byte evidence from the pinned packaged corpus; tokenizer/model metrics are unavailable.',
+    '- **Manifest:** [manifest.json](manifest.json)',
+    '- **Measurement:** [measurement.json](measurement.json)',
+    '',
+    '| Scenario | Baseline bytes | Target bytes | Reduction bytes | Reduction ratio | Raw samples |',
+    '| --- | ---: | ---: | ---: | ---: | --- |',
+    ...results.map(result =>
+      `| ${result.name} | ${result.baseline_bytes} | ${result.target_bytes} | ${result.absolute_reduction_bytes} | ${result.reduction_ratio} | [${result.raw_sample_file}](${result.raw_sample_file}) |`)
+  ].join('\n') + '\n';
+  fs.writeFileSync(path.join(runDir, 'summary.md'), summary, { encoding: 'utf8', flag: 'wx' });
+  writeJson(path.join(runDir, 'checksums.json'), { files: artifactChecksums(runDir) });
+  if (runId === 'orchestration-18-evidence-v1' &&
+      path.resolve(options.outRoot) === path.join(root, '.scratch', 'loadout-measurement', '18.5.1')) {
+    const evidenceDir = path.join(root, 'docs', 'evidence');
+    fs.mkdirSync(evidenceDir, { recursive: true });
+    writeJson(path.join(evidenceDir, 'skill-loadout-measurement.json'), {
+      ...JSON.parse(fs.readFileSync(path.join(runDir, 'measurement.json'), 'utf8')),
+      retained_run: path.relative(root, runDir).split(path.sep).join('/')
+    });
+    fs.writeFileSync(
+      path.join(evidenceDir, 'skill-loadout-measurement.md'),
+      summary.replace(/\]\(([^)]+)\)/g, `](${path.relative(evidenceDir, runDir).split(path.sep).join('/')}/$1)`),
+      { encoding: 'utf8', flag: 'wx' }
+    );
+  }
   process.stdout.write(`${runDir}\n`);
   return 0;
 }

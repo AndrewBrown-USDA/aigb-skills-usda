@@ -1,7 +1,7 @@
 ---
 id: "0007"
 title: "Expose Loadouts Through Derived Catalog, CLI, and Reusable API"
-status: "Proposed"
+status: "Accepted"
 date: 2026-10-24
 authors:
   - "Andrew G. Brown"
@@ -48,11 +48,13 @@ materialization mode. Invalid selections and missing values fail before target
 mutation. `skills sync` remains maintainer-only and local by default; neither
 resolution nor install follows provenance URLs.
 
-Context reduction is not a design claim until a pinned corpus, environment,
-selection manifest, five independent serial child-process byte measurements,
-and optional tokenizer measurements are retained. Each run uses a new
-directory, preserves raw samples and hashes, records serialization/cache and
-environment metadata, and refuses to overwrite existing evidence.
+Context reduction is not a token or model claim. The tracked evidence records a
+pinned corpus, environment, selection manifests, five independent serial
+child-process byte measurements per scenario, raw samples and hashes,
+serialization/cache metadata, and non-overwriting run directories. The current
+artifact is
+`docs/evidence/skill-loadout-measurement.{json,md}`, with retained raw runs
+under `.scratch/loadout-measurement/18.5.1/orchestration-18-evidence-v1/`.
 
 ### Consequences
 
@@ -65,11 +67,12 @@ environment metadata, and refuses to overwrite existing evidence.
 ## Validation & Compliance
 
 Focused resolver and installer suites verify fail-closed CLI/API diagnostics,
-additive result shapes, missing option values, packaged-only installation, and
-atomic failure. `scripts/measure-skill-loadouts-test.js` verifies five distinct
-child executions, retained raw samples, corpus hashes, manifests, environment
-and cache declarations, aggregate metrics, null tokenizer/model metrics, and
-overwrite refusal. This proves the protocol, not context reduction. No real
-curated-loadout evidence or percentage/token result is claimed; that evidence
-remains blocked on orchestration 14. ADRs 0002 and 0004 remain in force, and
-this ADR remains Proposed until the real retained artifact is reviewed.
+additive result shapes, malformed-list rejection, missing option values,
+packaged-only installation, and atomic failure. The tracked measurement
+artifact records six real curated scenarios, five distinct child executions per
+scenario, retained raw samples, corpus hashes, manifests, environment and
+cache declarations, aggregate byte metrics, null tokenizer/model metrics, and
+overwrite refusal. This proves measured byte evidence, not token reduction.
+ADRs 0002 and 0004 remain in force. The wave-6 full acceptance gate passed,
+and the tracked evidence and process audit satisfy the separate acceptance
+review; this ADR is Accepted.

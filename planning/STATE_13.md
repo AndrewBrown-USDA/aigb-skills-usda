@@ -24,6 +24,18 @@
 | 13.4.3 measurement-tooling | 4 | done | 13.3.1, 13.3.2 |
 | 13.5.1 docs-and-adr-acceptance | 5 | done | 13.4.1, 13.4.2, 13.4.3 |
 
+### Completed task checklist
+
+- [x] 13.1.1 metadata-contract
+- [x] 13.2.1 catalog-generation
+- [x] 13.2.2 resolver-core
+- [x] 13.3.1 install-api
+- [x] 13.3.2 cli-surface
+- [x] 13.4.1 resolver-install-acceptance
+- [x] 13.4.2 cli-catalog-acceptance
+- [x] 13.4.3 measurement-tooling
+- [x] 13.5.1 docs-and-adr-acceptance
+
 ## Task reports
 
 <!-- Worker reports are appended here during execution. -->

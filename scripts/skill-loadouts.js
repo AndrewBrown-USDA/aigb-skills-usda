@@ -20,9 +20,19 @@ function diagnostic(code, subject, edgePath = [], detail = '', severity = 'error
   };
 }
 
+function isLoadoutMember(record, loadout) {
+  return Boolean(record && (
+    record.loadout === loadout ||
+    (Array.isArray(record.loadouts) && record.loadouts.includes(loadout))
+  ));
+}
+
 function loadCatalog(input) {
   const catalog = typeof input === 'string' ? JSON.parse(fs.readFileSync(input, 'utf8')) : input;
   const errors = [];
+  if (catalog && catalog.schema_version !== undefined && catalog.schema_version !== 1) {
+    errors.push(`unsupported catalog schema_version: ${catalog.schema_version}`);
+  }
   if (!catalog || !Array.isArray(catalog.skills)) return { skills: new Map(), errors: ['catalog.skills must be an array'] };
   const skills = new Map();
   for (const record of catalog.skills) {
@@ -130,7 +140,7 @@ function resolve(request = [], catalogInput, options = {}) {
       const loadout = token.slice(8);
       if (!NAME.test(loadout)) throw new Error(`invalid loadout selector: ${token}`);
       const members = [...catalog.values()]
-        .filter((s) => s.loadout === loadout)
+        .filter((s) => isLoadoutMember(s, loadout))
         .sort((a, b) => a.name.localeCompare(b.name));
       if (members.length === 0) {
         diagnostics.push(diagnostic('missing-loadout', loadout, [], `loadout has no packaged members: ${loadout}`));
@@ -145,9 +155,13 @@ function resolve(request = [], catalogInput, options = {}) {
     const record = catalog.get(name);
     if (!record) {
       if (kind === 'optional') {
-        diagnostics.push(diagnostic('missing-optional', name, parentPath, `selected optional dependency is not packaged: ${name}`, 'warning'));
+        const parent = parentPath[parentPath.length - 1] || '';
+        const detail = `selected optional dependency is not packaged: ${parent} -> ${name}`;
+        diagnostics.push(diagnostic('missing-optional', name, parentPath, detail, 'warning'));
       } else {
-        diagnostics.push(diagnostic('missing-skill', name, parentPath, `required skill is not packaged: ${name}`));
+        const parent = parentPath[parentPath.length - 1] || '';
+        const detail = `required dependency is not packaged: ${parent} -> ${name}`;
+        diagnostics.push(diagnostic('missing-skill', name, parentPath, detail));
       }
       return;
     }
@@ -158,7 +172,9 @@ function resolve(request = [], catalogInput, options = {}) {
     }
     if (state.get(name) === 'active') {
       const start = stack.indexOf(name);
-      diagnostics.push(diagnostic('cycle', name, stack.slice(start).concat(name), kind));
+      const cyclePath = stack.slice(start).concat(name);
+      const detail = `${kind} edge closes cycle: ${cyclePath.join(' -> ')}`;
+      diagnostics.push(diagnostic('cycle', name, cyclePath, detail));
       return;
     }
     if (state.get(name) === 'complete') return;
@@ -174,10 +190,8 @@ function resolve(request = [], catalogInput, options = {}) {
     else if (exclude.includes(name) && !force.includes(name)) diagnostics.push(diagnostic('excluded-root', name));
     else visit(name, 'direct', [name]);
   }
-  diagnostics.sort((a, b) => a.path.join(' -> ').localeCompare(b.path.join(' -> ')) ||
-    a.code.localeCompare(b.code) || a.subject.localeCompare(b.subject));
   const errors = diagnostics.filter((d) => d.severity === 'error');
   return { ok: errors.length === 0, skills: errors.length ? [] : output, diagnostics };
 }
 
-module.exports = { loadCatalog, resolve, resolveLoadout: resolve };
+module.exports = { isLoadoutMember, loadCatalog, resolve, resolveLoadout: resolve };

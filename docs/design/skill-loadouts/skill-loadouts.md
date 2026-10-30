@@ -1,9 +1,8 @@
 # Skill Loadouts
 
-Status: implementation-ready design specification for task 12.5.1. This
-document integrates the metadata, resolution, surface, and acceptance
-contracts. It specifies future implementation only; it changes no runtime
-code, packaged skill, catalog, prior design document, or ADR.
+Status: implemented design contract. This document integrates the approved
+frontmatter taxonomy, metadata, resolution, surface, acceptance, and measured
+evidence contracts.
 
 ## 1. Goal, scope, and constraints
 
@@ -34,7 +33,7 @@ SKILL.md frontmatter -> parser/normalizer -> generated catalog
 `skills/*/SKILL.md` owns identity and declared metadata. The parser boundary
 is top-level scalar fields plus scalar values under `metadata:`; comma-separated
 lists are scalar strings. Arrays, nested mappings, multiline values, anchors,
-and tags are invalid. `scripts/mine-history.js` owns generated schema fields,
+and tags are invalid; empty list tokens are rejected. `scripts/mine-history.js` owns generated schema fields,
 ordering, and derived URLs. `catalog/skills.lock.json` is never hand-edited.
 The resolver and installer read packaged `source_path` values only. `source_url`
 and all upstream fields are provenance, never download instructions.
@@ -143,7 +142,7 @@ existing design docs, ADRs, or generated output outside its regeneration flow.
 | Plan requirement / hazard | Evidence | Class |
 |---|---|---|
 | Frontmatter authority and parser limits | Metadata fixtures; catalog regeneration test | Required |
-| Groups, loadouts, dependencies, optionality | Scalar metadata and normalization fixtures | Required |
+| Groups, loadouts, dependencies, optionality | Scalar/list metadata and normalization fixtures | Required |
 | Invalid identifiers, duplicates, self-reference, provenance | Invalid/provenance fixtures | Required |
 | Transitive ordering and deduplication | `resolution-order`, `resolution-deduplication` | Required |
 | Overrides and optional behavior | `resolution-overrides`, `resolution-optional` | Required |
@@ -162,7 +161,7 @@ existing design docs, ADRs, or generated output outside its regeneration flow.
 | Network sync recovery | Controlled opt-in remote fixture | Environment-dependent |
 
 Focused fixtures must be isolated, cleaned up, scalar-parser compatible, and
-assert complete ordered outputs and diagnostics. No test may mutate packaged
+assert complete ordered outputs and discovery-ordered diagnostics. No test may mutate packaged
 skills, the generated catalog, prior documents, installed skills, network,
 home directory, shared port, or ambient clock.
 
@@ -176,12 +175,11 @@ at least five times serially and retain every sample plus median, minimum,
 maximum, and spread. Record resolved names, omissions, diagnostics, commands,
 environment, and source commit.
 
-Report `baseline_bytes`, `target_bytes`, absolute reduction, and ratio; record
-token metrics only when a pinned tokenizer/model is available. Store JSON under
-`.scratch/` (or CI artifacts) and a Markdown summary linking manifests, raw
-samples, and calculation code. Do not publish a percentage or token result
-before this artifact exists; unavailable tokenizer or sibling-checkout evidence
-is a limitation, not a pass.
+Report `baseline_bytes`, `target_bytes`, absolute reduction, and ratio. The
+tracked JSON and Markdown artifacts record the pinned commit, six scenarios,
+five serial samples per scenario, raw-run links, and environment metadata.
+Tokenizer/model metrics are unavailable and remain null; no token or
+performance claim is inferred from byte ratios.
 
 ## 9. ADR compliance and unresolved decisions
 
@@ -191,6 +189,10 @@ is a limitation, not a pass.
   separate, with legacy aliases normalized only for compatibility.
 * ADR 0004: maintainer synchronization remains a separate, explicit boundary
   with opt-in network recovery.
+* ADR 0005: frontmatter remains authoritative and loadout membership is
+  parser-compatible scalar metadata; a skill may belong to multiple loadouts.
+* ADR 0006: resolution is deterministic, fail-closed, and discovery-order
+  diagnostics are actionable.
 
 No ADR is superseded. Remaining implementation decisions are intentionally
 bounded: select and document the version-constraint grammar before exposing
@@ -198,5 +200,5 @@ constraints; decide whether catalog validation reports unresolved optional
 references as errors or warnings while preserving resolution's selected-missing
 warning; and define the exact measurement harness/tokenizer available in CI.
 None permits inventing semantics, weakening required acceptance, or changing
-the canonical/generated ownership model.
-
+the canonical/generated ownership model. The real curated byte evidence is
+tracked at `docs/evidence/skill-loadout-measurement.{json,md}`.

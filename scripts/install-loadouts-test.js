@@ -22,7 +22,7 @@ try {
   assert.deepStrictEqual(result.skills.map(skill => skill.name), ['c', 'a']);
   assert.ok(installer.readCatalog && installer.installResolved && installer.buildCatalog);
   const target = path.join(root, 'target');
-  const installedResult = installer.installResolved(result, { sourceDir: source, target, mode: 'copy' });
+  const installedResult = installer.installResolved(result, { sourceDir: source, targetDir: target, mode: 'copy' });
   assert.deepStrictEqual(installedResult, {
     mode: 'copy',
     sourceDir: source,
@@ -41,6 +41,28 @@ try {
   const cli = path.join(__dirname, 'install.js');
   const packaged = installer.readCatalog();
   const rootName = packaged.skills[0].name;
+  assert.equal(installer.isLoadoutMember({ loadout: 'example' }, 'example'), true);
+  assert.equal(installer.isLoadoutMember({ loadouts: ['example'] }, 'example'), true);
+  assert.equal(installer.isLoadoutMember({ loadout: 'other', loadouts: ['example'] }, 'missing'), false);
+  assert.deepStrictEqual(
+    installer.parseArgs([
+      '--skill', `${rootName}, ${rootName}`,
+      '--skills', rootName,
+      '--include', `${rootName}, ${rootName}`,
+      '--exclude', rootName
+    ]),
+    {
+      mode: 'copy',
+      source: installer.parseArgs([]).source,
+      catalogPath: installer.parseArgs([]).catalogPath,
+      target: null,
+      skills: [rootName, rootName, rootName],
+      force: false,
+      include: [rootName, rootName],
+      exclude: [rootName],
+      help: false
+    }
+  );
   const runCli = (...args) => spawnSync(process.execPath, [cli, ...args], {
     encoding: 'utf8'
   });
@@ -51,6 +73,17 @@ try {
     assert.doesNotMatch(cliResult.stderr, /(TypeError|ReferenceError|at\s+\S+\s+\(|node:internal)/);
     if (targetPath) assert.ok(!fs.existsSync(targetPath));
   };
+  for (const option of ['--skill', '--skills', '--include', '--exclude']) {
+    for (const [label, value] of [
+      ['leading', `,${rootName}`],
+      ['trailing', `${rootName},`],
+      ['repeated', `${rootName},,${rootName}`]
+    ]) {
+      const malformedTarget = path.join(root, `malformed-${option.slice(2)}-${label}`);
+      const malformed = runCli('--target', malformedTarget, option, value);
+      assertCliFailure(malformed, new RegExp(`${option} does not allow leading, trailing, or repeated commas`), malformedTarget);
+    }
+  }
   const selectedTarget = path.join(root, 'selected');
   let cliResult = runCli('--target', selectedTarget, '--skill', rootName, '--include', rootName, '--include', rootName, '--exclude', rootName);
   assertCliFailure(cliResult, /excluded-root/, selectedTarget);
@@ -82,7 +115,7 @@ try {
   cliResult = runCli('--target', omittedTarget);
   assert.equal(cliResult.status, 0, cliResult.stderr);
   assert.deepStrictEqual(fs.readdirSync(omittedTarget).sort(), packaged.skills.map(skill => skill.name).sort());
-  assert.throws(() => installer.installResolved(result, { sourceDir: source, target: source, mode: 'copy' }), /overlap/);
+  assert.throws(() => installer.installResolved(result, { sourceDir: source, targetDir: source, mode: 'copy' }), /overlap/);
   assert.throws(() => installer.installResolved(installer.resolveLoadout(['missing'], catalog), {
     sourceDir: source, target: path.join(root, 'failed')
   }));
@@ -111,6 +144,12 @@ try {
   fs.writeFileSync(invalidCatalog, JSON.stringify({ skills: [{ name: 'a', source_path: 'https://example.invalid/a' }] }));
   assert.throws(() => installer.readCatalog({ catalogPath: invalidCatalog, sourceDir: source }), /Invalid catalog|packaged source path/);
   assert.throws(() => installer.installResolved({ ok: false, skills: [] }, { sourceDir: source, target: path.join(root, 'bad') }), /unsuccessful/);
+  const customCatalog = path.join(root, 'custom-catalog.json');
+  fs.writeFileSync(customCatalog, JSON.stringify(catalog));
+  const customTarget = path.join(root, 'custom-target');
+  const customCliResult = runCli('--source', source, '--lockfile', customCatalog, '--target', customTarget, '--skill', 'a');
+  assert.equal(customCliResult.status, 0, customCliResult.stderr);
+  assert.deepStrictEqual(fs.readdirSync(customTarget).sort(), ['a', 'c']);
   console.log('Install loadout tests passed.');
 } finally {
   fs.rmSync(root, { recursive: true, force: true });

@@ -7,7 +7,7 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_SOURCE_DIR = path.join(REPO_ROOT, 'skills');
 const DEFAULT_CATALOG_PATH = path.join(REPO_ROOT, 'catalog', 'skills.lock.json');
-const { loadCatalog, resolve: resolveLoadout } = require('./skill-loadouts');
+const { isLoadoutMember, loadCatalog, resolve: resolveLoadout } = require('./skill-loadouts');
 
 function printHelp() {
   process.stdout.write([
@@ -21,7 +21,10 @@ function printHelp() {
     'Options:',
     '  --target <path>          Destination directory (required or e.g. ~/.agents/skills)',
     '  --source <path>          Source skills directory (default: ./skills)',
-    '  --skill, --skills <name> Single skill name or comma-separated list of skills',
+    '  --skill, --skills <name> Skill or loadout:<name> roots; comma-separated/repeatable',
+    '  --include <name>         Include optional skills; requires an explicit root',
+    '  --exclude <name>         Exclude optional skills; requires an explicit root',
+    '  --lockfile <path>        Catalog lockfile path',
     '  --mode <copy|symlink>    Materialization mode (default: copy)',
     '  --force                  Replace matching skills; conflicts are refused by default',
     '  Source and target directories must not overlap.',
@@ -47,6 +50,7 @@ function parseArgs(argv) {
   const options = {
     mode: 'copy',
     source: DEFAULT_SOURCE_DIR,
+    catalogPath: DEFAULT_CATALOG_PATH,
     target: null,
     skills: null,
     force: false,
@@ -61,6 +65,16 @@ function parseArgs(argv) {
     }
     return value;
   };
+  const listValue = (arg, value) => {
+    if (value.trim().length === 0) {
+      throw new Error(`${arg} requires a non-empty skill name or comma-separated list`);
+    }
+    const parsed = value.split(',').map(s => s.trim());
+    if (parsed.some(token => token.length === 0)) {
+      throw new Error(`${arg} does not allow leading, trailing, or repeated commas`);
+    }
+    return parsed;
+  };
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -74,6 +88,10 @@ function parseArgs(argv) {
         options.source = path.resolve(process.cwd(), expandHomeDir(optionValue(arg, i, 'a path')));
         i += 1;
         break;
+      case '--lockfile':
+        options.catalogPath = path.resolve(process.cwd(), expandHomeDir(optionValue(arg, i, 'a path')));
+        i += 1;
+        break;
       case '--target':
         options.target = path.resolve(process.cwd(), expandHomeDir(optionValue(arg, i, 'a path')));
         i += 1;
@@ -82,13 +100,7 @@ function parseArgs(argv) {
       case '--skills': {
         const val = optionValue(arg, i, 'a non-empty skill name or comma-separated list');
         i += 1;
-        if (!val || typeof val !== 'string' || val.trim().length === 0) {
-          throw new Error(`${arg} requires a non-empty skill name or comma-separated list`);
-        }
-        const parsed = val.split(',').map(s => s.trim()).filter(Boolean);
-        if (parsed.length === 0) {
-          throw new Error(`${arg} requires at least one non-empty skill name`);
-        }
+        const parsed = listValue(arg, val);
         if (!options.skills) {
           options.skills = [];
         }
@@ -99,18 +111,11 @@ function parseArgs(argv) {
       case '--exclude': {
         const val = optionValue(arg, i, 'a non-empty skill name or comma-separated list');
         i += 1;
-        if (!val || typeof val !== 'string' || val.trim().length === 0) {
-          throw new Error(`${arg} requires a non-empty skill name or comma-separated list`);
-        }
         const key = arg.slice(2);
         if (!options[key]) options[key] = [];
-        options[key].push(...val.split(',').map(s => s.trim()).filter(Boolean));
+        options[key].push(...listValue(arg, val));
         break;
       }
-      case '--lockfile':
-        optionValue(arg, i, 'a path');
-        i += 1;
-        break;
       case '--force':
         options.force = true;
         break;
@@ -222,7 +227,10 @@ function installResolved(result, options = {}) {
   }
   const sourceDir = path.resolve(options.sourceDir || DEFAULT_SOURCE_DIR);
   const names = result.skills.map(record => record.name);
-  const installed = installMaterialized(names, sourceDir, options);
+  const installed = installMaterialized(names, sourceDir, {
+    ...options,
+    target: options.targetDir || options.target
+  });
   return { ...installed, installed: [...installed.skills], skipped: [] };
 }
 
@@ -317,7 +325,7 @@ function installMaterialized(skillDirs, sourceDir, options) {
 }
 
 function installSkills(options) {
-  const catalog = readCatalog({ sourceDir: options.source });
+  const catalog = readCatalog({ catalogPath: options.catalogPath, sourceDir: options.source });
   if ((!options.skills || options.skills.length === 0) &&
       ((options.include && options.include.length) || (options.exclude && options.exclude.length))) {
     throw new Error('roots-required: --include and --exclude require --skill or --skills');
@@ -327,7 +335,15 @@ function installSkills(options) {
       include: options.include,
       exclude: options.exclude,
       force: options.force
-        ? options.skills.filter(name => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name))
+        ? options.skills.flatMap(name => {
+          if (/^loadout:[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name)) {
+            const loadout = name.slice(8);
+            return catalog.skills
+              .filter(skill => isLoadoutMember(skill, loadout))
+              .map(skill => skill.name);
+          }
+          return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name) ? [name] : [];
+        })
         : [],
       constraints: options.constraints
     })
@@ -375,6 +391,7 @@ if (require.main === module) {
 module.exports = {
   main,
   parseArgs,
+  isLoadoutMember,
   readCatalog,
   resolveLoadout,
   installResolved,

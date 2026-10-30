@@ -98,7 +98,7 @@ override options require at least one explicit `--skill`/`--skills` root.
 Excluding a direct root is an error unless `--force` is also supplied:
 
 ```bash
-npx --no-install skills install --target ~/.agents/skills --skill loadout:research
+npx --no-install skills install --target ~/.agents/skills --skill loadout:software-delivery
 npx --no-install skills install --target ~/.agents/skills --skill plan-first --include tdd
 npx --no-install skills install --target ~/.agents/skills --skill plan-first --exclude plan-first --force
 ```
@@ -116,6 +116,13 @@ excluded direct roots, and options missing their required values also exit
 unsuccessfully and install nothing; an existing destination remains unchanged.
 `--source`, `--mode`, and `--force` apply to the install command only; `sync`
 remains the maintainer-only command for upstream repositories and lockfiles.
+
+The packaged catalog is the source for loadout membership. A skill may belong
+to multiple loadouts through parser-compatible scalar metadata; selection uses
+the explicit `loadout:<name>` form. Measured byte evidence for curated
+loadouts is recorded in
+[`docs/evidence/skill-loadout-measurement.md`](docs/evidence/skill-loadout-measurement.md).
+Tokenizer/model metrics are unavailable and are not estimated.
 
 For a safe local helper example, specify a temporary target rather than a real agent directory:
 
@@ -156,7 +163,7 @@ when intentionally permitting maintainer network recovery.
 
 ## Curated Skills & Attribution
 
-The catalog includes 35 curated skills:
+The catalog includes 40 curated skills:
 
 - **Skill metadata contract:** Each `skills/*/SKILL.md` frontmatter must provide
   the standard top-level `name` and `description` fields. Supported standard
@@ -185,7 +192,7 @@ upstream name relative to `metadata.source_repo` as `metadata.upstream_name`.
 For example, `code-review-2axis` uses `upstream_name: code-review`.
 - **Diagnostics & Debugging:** `dr-lexus` (plain language directive) and `rubber-ducking` (interactive user-driven explanation and debugging).
 - **Web Research & Documentation:** `web-source-bundler` (captures web sources, search results, and file lists into deterministic Markdown reference bundles with SHA-256 provenance) and `research` (structured primary source investigations).
-- **Core Engineering & Standards:** `agent-onboarding`, `apply-fed-oss-license`, `arcpy-migration`, `conventional-commits`, `copilot-history-briefing`, `copilot-history-miner`, `deep-investigative-research`, `doc-consistency`, `github-actions-ci`, `goal-alignment`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `plan-first`, `plan-wave`, `reviewer-architecture`, `reviewer-correctness`, `skill-research`, `tdd`, `verbosity-cleaner`, `wave-orchestration`, and `worker-validation`.
+- **Core Engineering & Standards:** `agent-onboarding`, `apply-fed-oss-license`, `arcpy-migration`, `code-review-subtractive`, `complexity-map`, `conventional-commits`, `copilot-history-briefing`, `copilot-history-miner`, `deep-investigative-research`, `doc-consistency`, `git-workflow-standards`, `github-actions-ci`, `goal-alignment`, `install-skills`, `json-processing-with-jq`, `magic-wand`, `makefile-development-workflow`, `performance-benchmarking`, `plan-first`, `plan-wave`, `reviewer-architecture`, `reviewer-correctness`, `skill-research`, `tdd`, `usda-open-data-catalog`, `verbosity-cleaner`, `wave-orchestration`, and `worker-validation`.
 
 ## Licensing Model
 

@@ -1,6 +1,6 @@
 # ADR 0003-0005 Scope Audit
 
-Status: evidence record for task 16.3.1. This audit describes branch history;
+Status: evidence record for tasks 16.3.1 and 18.6.1. This audit describes branch history;
 it does not amend or replace the Accepted decisions.
 
 ## Evidence reviewed
@@ -18,6 +18,11 @@ offline and packaged; maintainer sync is the only workflow that may consult
 upstream sources under its explicit policy.
 
 ## Scope finding
+
+The historical commit `b26ff06` assigned work outside the worker's declared
+task scope. The finding is retained as a process-audit result: it is not a
+reason to rewrite history, and no history rewrite is authorized or required.
+The correction is documentation and planning discipline in the current branch.
 
 The earlier finding that ADRs 0003-0005 are active constraints outside the
 runtime hardening scope is valid. ADR 0003 governs identity versus provenance.
@@ -46,5 +51,5 @@ The active ADRs are retained rather than reverted because:
    design contracts, leaving Accepted historical scope intact.
 
 Accordingly, ADRs 0003-0005 remain Accepted and unmodified. ADR 0007 remains
-Proposed because repaired protocol verification is not real curated-loadout
-evidence; that evidence is blocked on orchestration 14.
+Proposed pending the wave-6 full gate; its tracked evidence now records real
+curated-loadout byte measurements, not tokenizer or token claims.
