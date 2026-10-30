@@ -3,6 +3,9 @@ name: arcpy-migration
 description: Migrates ArcPy and ArcGIS Pro workflows to explicit, testable open-source Python geospatial workflows. Use when removing ArcPy dependencies, porting geoprocessing scripts, or documenting ArcGIS behavior that will not be migrated.
 license: MIT
 metadata:
+  group: domain-workflows
+  loadouts: specialist-workflows,software-delivery,geospatial-migration,test-validation
+  optional_dependencies: worker-validation
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0
   source_repo: aigb-skills

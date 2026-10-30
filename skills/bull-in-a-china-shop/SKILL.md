@@ -2,6 +2,8 @@
 name: bull-in-a-china-shop
 description: Adversarial tester and UX/documentation stress-tester that acts like a clumsy, literal-minded, or overwhelmed user to break systems, expose design flaws, and highlight confusing documentation. Use when the user asks to run "bull in a china shop" testing, stress-test an API/CLI/library/doc/workflow, find traps, test how a user might misuse a feature, or evaluate how documentation is interpreted.
 metadata:
+  group: quality-assurance
+  loadouts: software-delivery,documentation,decision-stress-testing,code-quality
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0
   source_repo: aigb-skills

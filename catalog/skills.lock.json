@@ -17,6 +17,17 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/adr-distillation/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "architecture-planning",
+      "loadouts": [
+        "software-delivery",
+        "evidence-research",
+        "wave-delivery",
+        "architecture-history",
+        "plan-review"
+      ],
+      "optional_dependencies": [
+        "git-history-interval-study"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0.0"
@@ -29,6 +40,13 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/agent-onboarding/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "communication-documentation",
+      "loadouts": [
+        "documentation",
+        "software-delivery",
+        "agent-setup",
+        "skill-authoring"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -41,6 +59,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/apply-fed-oss-license/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "domain-workflows",
+      "loadouts": [
+        "specialist-workflows",
+        "software-delivery",
+        "federal-open-source"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0.0"
@@ -53,6 +77,16 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/arcpy-migration/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "domain-workflows",
+      "loadouts": [
+        "specialist-workflows",
+        "software-delivery",
+        "geospatial-migration",
+        "test-validation"
+      ],
+      "optional_dependencies": [
+        "worker-validation"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -64,6 +98,13 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/bull-in-a-china-shop/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "quality-assurance",
+      "loadouts": [
+        "software-delivery",
+        "documentation",
+        "decision-stress-testing",
+        "code-quality"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -77,6 +118,11 @@
       "upstream_ref": "v2.7.0",
       "upstream_repo": "https://github.com/JuliusBrussee/caveman",
       "upstream_path": "skills/caveman/SKILL.md",
+      "group": "communication-documentation",
+      "loadouts": [
+        "documentation",
+        "context-economy"
+      ],
       "version": {
         "status": "missing",
         "value": null
@@ -92,6 +138,16 @@
       "upstream_ref": "v1.2.0",
       "upstream_repo": "https://github.com/mattpocock/skills",
       "upstream_path": "skills/engineering/code-review/SKILL.md",
+      "group": "quality-assurance",
+      "loadouts": [
+        "software-delivery",
+        "code-quality",
+        "plan-review"
+      ],
+      "optional_dependencies": [
+        "reviewer-architecture",
+        "reviewer-correctness"
+      ],
       "version": {
         "status": "missing",
         "value": null
@@ -104,6 +160,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/conventional-commits/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "developer-tooling",
+      "loadouts": [
+        "software-delivery",
+        "git-practices",
+        "wave-delivery"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -116,6 +178,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/copilot-history-briefing/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "research-evidence",
+      "loadouts": [
+        "evidence-research",
+        "copilot-insights",
+        "architecture-history"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.3"
@@ -128,6 +196,14 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/deep-investigative-research/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "research-evidence",
+      "loadouts": [
+        "evidence-research",
+        "source-research"
+      ],
+      "optional_dependencies": [
+        "web-source-bundler"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -140,6 +216,13 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/doc-consistency/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "communication-documentation",
+      "loadouts": [
+        "documentation",
+        "software-delivery",
+        "documentation-quality",
+        "skill-authoring"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"
@@ -152,6 +235,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/dr-lexus/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "communication-documentation",
+      "loadouts": [
+        "documentation",
+        "context-economy",
+        "documentation-quality"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0"

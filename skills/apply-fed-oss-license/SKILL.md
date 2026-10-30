@@ -3,6 +3,8 @@ name: apply-fed-oss-license
 description: Audit and update an arbitrary codebase to follow the Code.mil federal open-source licensing model (MIT with 17 U.S.C. Section 105 disclaimers and INTENT.md), including CRAN/R package DESCRIPTION setup.
 license: MIT
 metadata:
+  group: domain-workflows
+  loadouts: specialist-workflows,software-delivery,federal-open-source
   author: Andrew G. Brown (https://github.com/brownag)
   version: 1.0.0
   source_repo: aigb-skills
