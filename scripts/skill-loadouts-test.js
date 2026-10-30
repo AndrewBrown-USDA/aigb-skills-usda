@@ -41,7 +41,7 @@ try {
   assert.strictEqual(realCatalog.schema_version, 1);
   assert.strictEqual(realCatalog.generated_by, 'scripts/mine-history.js');
   assert.deepStrictEqual(realCatalog.generated_from, generated.generated_from);
-  assert.strictEqual(realCatalog.skills.length, 34);
+  assert.strictEqual(realCatalog.skills.length, 40);
   assert.deepStrictEqual(realCatalog.skills.map(x => x.name), [...realCatalog.skills.map(x => x.name)].sort());
   assert.deepStrictEqual(realCatalog.skills, packaged);
   assert.deepStrictEqual(realCatalog.skills, generated.skills);
