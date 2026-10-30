@@ -7,6 +7,10 @@ metadata:
   version: 1.1
   source_repo: aigb-skills
   source_path: skills/skill-research/SKILL.md
+  group: communication-documentation
+  loadouts: documentation, software-delivery, skill-authoring
+  dependencies: install-skills
+  optional_dependencies: doc-consistency
 ---
 # Skill Research
 

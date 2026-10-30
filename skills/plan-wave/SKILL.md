@@ -4,7 +4,7 @@ description: Develops an implementation plan ready for wave-orchestration to exe
 license: MIT
 metadata:
   group: architecture-planning
-  loadouts: wave-delivery, plan-review
+  loadouts: software-delivery, wave-delivery, plan-review
   dependencies: wave-orchestration,grilling
   optional_dependencies: code-review-2axis,goal-alignment,adr-distillation
   author: Andrew G. Brown (https://github.com/brownag)

@@ -7,6 +7,8 @@ metadata:
   version: 1.1.0
   source_repo: aigb-skills
   source_path: skills/web-source-bundler/SKILL.md
+  group: research-evidence
+  loadouts: evidence-research, source-research, data-utilities
 ---
 # Web Source Bundler
 

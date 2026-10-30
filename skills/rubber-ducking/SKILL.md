@@ -7,6 +7,8 @@ metadata:
   version: 1.0
   source_repo: aigb-skills
   source_path: skills/rubber-ducking/SKILL.md
+  group: quality-assurance
+  loadouts: software-delivery, decision-stress-testing, code-quality
 ---
 # Rubber Ducking
 
