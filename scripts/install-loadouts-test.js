@@ -82,7 +82,7 @@ try {
   cliResult = runCli('--target', omittedTarget);
   assert.equal(cliResult.status, 0, cliResult.stderr);
   assert.deepStrictEqual(fs.readdirSync(omittedTarget).sort(), packaged.skills.map(skill => skill.name).sort());
-  assert.throws(() => installer.installResolved(result, { sourceDir: source, target: source, mode: 'copy' }), /overlap/);
+  assert.throws(() => installer.installResolved(result, { sourceDir: source, targetDir: source, mode: 'copy' }), /overlap/);
   assert.throws(() => installer.installResolved(installer.resolveLoadout(['missing'], catalog), {
     sourceDir: source, target: path.join(root, 'failed')
   }));
