@@ -181,7 +181,7 @@ function validateSkill(entry, skillsDir, results) {
   }
   const normalizedEntry = normalizeMetadata(entry);
   const metadataFields = [
-    'author', 'authors', 'source_repo', 'source_path', 'source_url',
+    'author', 'authors', 'inspired_by', 'source_repo', 'source_path', 'source_url',
     'source_ref', 'upstream', 'upstream_name', 'upstream_repo', 'upstream_ref',
     'upstream_path', 'group', 'loadout', 'loadouts', 'dependencies',
     'optional_dependencies'
@@ -203,10 +203,10 @@ function validateSkill(entry, skillsDir, results) {
         : key === 'source_url'
           ? frontmatter.metadata.source_url
         : frontmatter.metadata[key];
-    const normalizedActual = actual === undefined || key === 'source_ref' || key === 'upstream'
-      ? actual
-      : normalizeMetadata({ [key]: actual })[key];
     if (expected !== undefined && expected !== null) {
+      const normalizedActual = actual === undefined || key === 'source_ref' || key === 'upstream'
+        ? actual
+        : normalizeMetadata({ [key]: actual })[key];
       if (actual === undefined || actual === null || actual === '') {
         addResult(results, entry.name, 'metadata', 'failed', `Frontmatter metadata.${key} is required by catalog entry`);
       } else if (JSON.stringify(normalizedActual) !== JSON.stringify(expected)) {

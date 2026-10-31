@@ -1,0 +1,32 @@
+{
+  "sessions": [
+    {
+      "id": "cloud-1",
+      "repository": "example/repo",
+      "cwd": null,
+      "branch": "main",
+      "summary": null,
+      "created_at": "2026-01-02T10:00:00Z",
+      "updated_at": "2026-01-02T10:10:00Z"
+    }
+  ],
+  "usage": [
+    {
+      "session_id": "cloud-1",
+      "usage_model": "example-model",
+      "input_tokens": 10,
+      "output_tokens": 20,
+      "duration": 1000
+    }
+  ],
+  "tool_executions": [
+    {
+      "session_id": "cloud-1",
+      "tool_call_id": "tool-1",
+      "tool_name": "powershell",
+      "started_at": "2026-01-02T10:01:00Z",
+      "completed_at": "2026-01-02T10:01:02Z",
+      "success": true
+    }
+  ]
+}

@@ -163,18 +163,21 @@ when intentionally permitting maintainer network recovery.
 
 ## Curated Skills & Attribution
 
-The catalog includes 34 curated skills:
+The catalog includes 40 curated skills:
 
 - **Skill metadata contract:** Each `skills/*/SKILL.md` frontmatter must provide
   the standard top-level `name` and `description` fields. Supported standard
   optional fields remain top-level when used. Repository-specific synchronization
-  fields belong under a `metadata` mapping: `source_repo`, `source_path`, and
+  fields belong under a `metadata` mapping: `group`, `loadout`, `loadouts`,
+  `dependencies`, `optional_dependencies`, `source_repo`, `source_path`, and
   `source_url` identify the canonical bundled source; `upstream_repo`,
   `upstream_ref`, optional `upstream_name`, and `version` preserve upstream
   provenance. Legacy `source_ref` and `upstream` are read-only fallbacks for
   `upstream_ref` and `upstream_repo`. Known canonical repositories derive a
   GitHub URL; unknown repositories leave `source_url` unset rather than
   fabricating one.
+- Optional `metadata.inspired_by` records the source of an idea without
+  treating that person as the skill author.
 - **Authority and catalog:** `skills/*/SKILL.md` frontmatter is authoritative.
   `catalog/skills.lock.json` is generated compatibility and index data derived
   from that frontmatter; edit the skill metadata rather than hand-editing the
@@ -188,9 +191,11 @@ installation, synchronization, validation, and CLI selection. When a curated
 skill intentionally uses a different name than its upstream source, record the
 upstream name relative to `metadata.source_repo` as `metadata.upstream_name`.
 For example, `code-review-2axis` uses `upstream_name: code-review`.
-- **Diagnostics & Debugging:** `dr-lexus` (plain language directive) and `rubber-ducking` (interactive user-driven explanation and debugging).
-- **Web Research & Documentation:** `web-source-bundler` (captures web sources, search results, and file lists into deterministic Markdown reference bundles with SHA-256 provenance) and `research` (structured primary source investigations).
-- **Core Engineering & Standards:** `agent-onboarding`, `apply-fed-oss-license`, `arcpy-migration`, `conventional-commits`, `copilot-history-briefing`, `deep-investigative-research`, `doc-consistency`, `github-actions-ci`, `goal-alignment`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `plan-first`, `plan-wave`, `reviewer-architecture`, `reviewer-correctness`, `skill-research`, `tdd`, `verbosity-cleaner`, `wave-orchestration`, and `worker-validation`.
+- **Planning & Workflow:** `adr-distillation`, `agent-onboarding`, `goal-alignment`, `magic-wand`, `plan-first`, `plan-wave`, `wave-orchestration`.
+- **Engineering & Review:** `apply-fed-oss-license`, `arcpy-migration`, `code-review-2axis`, `code-review-subtractive`, `complexity-map`, `conventional-commits`, `doc-consistency`, `git-workflow-standards`, `github-actions-ci`, `reviewer-architecture`, `reviewer-correctness`, `verbosity-cleaner`, `worker-validation`.
+- **History & Evidence:** `copilot-history-briefing`, `copilot-history-miner`, `deep-investigative-research`, `git-history-interval-study`, `research`, `skill-research`, `web-source-bundler`.
+- **Data, Packaging & Utilities:** `bull-in-a-china-shop`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `r-package-testing-workflow`, `usda-open-data-catalog`.
+- **Diagnostics & External Skills:** `caveman`, `dr-lexus`, `grilling`, `ponytail`, `rubber-ducking`, `tdd`.
 
 ## Licensing Model
 

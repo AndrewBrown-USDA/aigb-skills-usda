@@ -521,6 +521,25 @@ try {
   assert.match(authorsContent, /author: Scalar Author/);
   assert.match(authorsContent, /authors: \["First Author","Second Author"\]/);
 
+  const synchronizedMetadataSkill = path.join(metadataRoot, 'synchronized', 'SKILL.md');
+  fs.mkdirSync(path.dirname(synchronizedMetadataSkill), { recursive: true });
+  fs.writeFileSync(synchronizedMetadataSkill, '---\nname: synchronized\nmetadata:\n  source_repo: stale-repo\n---\n# Example\n', 'utf8');
+  updateSkillMetadata(synchronizedMetadataSkill, {
+    name: 'synchronized',
+    source_repo: 'external-repo',
+    source_path: 'skills/synchronized/SKILL.md',
+    group: 'quality-assurance',
+    loadouts: ['software-delivery', 'code-quality'],
+    dependencies: ['required-skill'],
+    optional_dependencies: ['optional-skill']
+  });
+  const synchronizedContent = fs.readFileSync(synchronizedMetadataSkill, 'utf8');
+  assert.match(synchronizedContent, /group: quality-assurance/);
+  assert.match(synchronizedContent, /loadouts: software-delivery,code-quality/);
+  assert.match(synchronizedContent, /dependencies: required-skill/);
+  assert.match(synchronizedContent, /optional_dependencies: optional-skill/);
+  assert.doesNotMatch(synchronizedContent, /source_repo: stale-repo/);
+
   const curatedRoot = path.join(tempRoot, 'curated-round-trip');
   const curatedSkill = path.join(curatedRoot, 'new-keys', 'SKILL.md');
   const legacySkill = path.join(curatedRoot, 'legacy-keys', 'SKILL.md');

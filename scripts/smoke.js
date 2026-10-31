@@ -184,7 +184,7 @@ function main() {
   const applyFedOssLicense = lockfile.skills.find(s => s.name === 'apply-fed-oss-license');
   assert.ok(applyFedOssLicense, 'apply-fed-oss-license must exist');
   assert.equal(applyFedOssLicense.version.status, 'resolved');
-  assert.equal(applyFedOssLicense.version.value, '1.0.0');
+  assert.equal(applyFedOssLicense.version.value, '1.0.1');
 
   const packagedSkillNames = fs.readdirSync(path.join(repoRoot, 'skills'), { withFileTypes: true })
     .filter(entry => entry.isDirectory())
