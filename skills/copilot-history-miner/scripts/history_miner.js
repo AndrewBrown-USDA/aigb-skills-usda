@@ -84,6 +84,25 @@ function cleanRow(row, options) {
   return cleanValue(row || {}, options);
 }
 
+const CANONICAL_FIELDS = {
+  sessions: ['id', 'task_id', 'cwd', 'repository', 'branch', 'summary', 'agent_name', 'agent_description', 'created_at', 'updated_at', 'status'],
+  turns: ['session_id', 'turn_index', 'user_message', 'assistant_response', 'timestamp'],
+  checkpoints: ['session_id', 'checkpoint_number', 'title', 'overview', 'created_at'],
+  session_files: ['session_id', 'file_path', 'tool_name', 'turn_index', 'first_seen_at'],
+  session_refs: ['session_id', 'ref_type', 'ref_value', 'turn_index', 'created_at'],
+  usage: ['session_id', 'usage_model', 'api_call_count', 'input_tokens', 'output_tokens', 'cache_read_tokens', 'cache_write_tokens', 'cost', 'duration', 'first_used_at', 'last_used_at'],
+  tool_executions: ['session_id', 'tool_call_id', 'tool_name', 'started_at', 'completed_at', 'duration_ms', 'success', 'error_code']
+};
+
+function canonicalize(table, row, options) {
+  const cleaned = cleanRow(row, options);
+  for (const field of CANONICAL_FIELDS[table] || []) {
+    if (cleaned[field] === undefined) cleaned[field] = null;
+  }
+  if (table === 'sessions' && cleaned.status === null) cleaned.status = 'unknown';
+  return cleaned;
+}
+
 function recordTimestamp(record) {
   return record.created_at || record.timestamp || record.started_at ||
     record.completed_at || record.updated_at || '';
@@ -147,15 +166,14 @@ function dedupe(table, input) {
 function normalizeHistory(raw, options = {}) {
   const sessions = sortRecords(dedupe('sessions', rows(raw, 'sessions'))
     .map((row, index) => ({
-      ...cleanRow(row, options),
-      status: row.status ?? 'unknown',
+      ...canonicalize('sessions', row, options),
       source_ref: sourceRef('sessions', row, index)
     })));
   const selected = new Set(sessions.map(row => row.id));
   const normalizeTable = table => dedupe(table, rows(raw, table))
     .filter(row => !row.session_id || selected.has(row.session_id))
     .map((row, index) => ({
-      ...cleanRow(row, options),
+      ...canonicalize(table, row, options),
       source_ref: sourceRef(table, row, index)
     }));
   const artifact = {

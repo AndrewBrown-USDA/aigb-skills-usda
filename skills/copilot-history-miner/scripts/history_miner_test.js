@@ -85,6 +85,21 @@ const reversed = normalizeHistory({
 assert.deepEqual(ordered, reversed);
 assert.deepEqual(ordered.turns.map(row => row.source_ref), ['turns:s1:0', 'turns:s1:1']);
 assert.equal(normalizeHistory({ sessions: [{ id: 's1' }] }).sessions[0].status, 'unknown');
+const canonical = normalizeHistory({
+  sessions: [{ id: 's1' }],
+  turns: [{ session_id: 's1' }],
+  checkpoints: [{ session_id: 's1' }],
+  session_files: [{ session_id: 's1' }],
+  session_refs: [{ session_id: 's1' }],
+  session_usage: [{ session_id: 's1', usage_model: 'test' }],
+  tool_executions: [{ session_id: 's1', tool_call_id: 'tool-1' }]
+});
+assert.equal(canonical.turns[0].user_message, null);
+assert.equal(canonical.checkpoints[0].overview, null);
+assert.equal(canonical.files[0].file_path, null);
+assert.equal(canonical.refs[0].ref_value, null);
+assert.equal(canonical.usage[0].cost, null);
+assert.equal(canonical.tools[0].success, null);
 const files = normalizeHistory({
   sessions: [{ id: 's1' }],
   session_files: [
