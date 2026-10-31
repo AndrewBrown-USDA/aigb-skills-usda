@@ -67,7 +67,10 @@ be assumed available for local history mining.
 
 ## Privacy and redaction
 
-Default output is local-only and contains no telemetry. Prompt text, assistant
-text, tool arguments, credentials, secrets, query-string URLs, personal names,
-and full local paths are redacted unless an explicit caller policy permits them.
-The manifest records the redaction rules version and any redaction errors.
+Default output is local-only and contains no telemetry. Credentials, secrets,
+query-string URLs, and complete local paths are redacted by built-in rules,
+including nested sensitive-key values. Callers may add patterns for
+organization-specific prompt or personal-data handling, but automatic
+personal-name and arbitrary prompt-text detection is not promised. Built-in
+rules cannot be disabled through caller patterns. The manifest records the
+redaction rules version and any redaction errors.

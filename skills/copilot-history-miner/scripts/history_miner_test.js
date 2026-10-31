@@ -38,7 +38,17 @@ assert.doesNotMatch(JSON.stringify(mine({
   turns: [{ session_id: 'session-1', turn_index: 0, user_message: 'token=secret-value' }]
 }, { backend: 'local' })), /secret-value/);
 assert.equal(redact('Unix /workspace/repo and Windows C:\\workspace\\repo'), 'Unix [REDACTED_PATH] and Windows [REDACTED_PATH]');
-assert.equal(redact('nested https://example.com/path remains a URL'), 'nested https://example.com/path remains a URL');
+assert.equal(redact('nested https://example.com/path?session=abc123'), 'nested https://example.com/path?[REDACTED]');
+assert.equal(redact('Windows C:\\Users\\Jane Doe\\repo'), 'Windows [REDACTED_PATH]');
+assert.doesNotMatch(redact('token=secret-value', { redactPatterns: [] }), /secret-value/);
+assert.equal(normalizeHistory({
+  sessions: [{ id: 's1' }],
+  turns: [{ session_id: 's1', payload: { token: 'secret', password: 'secret2' } }]
+}).turns[0].payload.token, '[REDACTED]');
+assert.equal(JSON.parse(toNdjson({
+  ...artifact,
+  sessions: [{ type: 'source-type' }]
+}).split('\n')[1]).type, 'sessions');
 const nested = normalizeHistory({
   sessions: [{ id: 's1', created_at: '2026-01-01T00:00:00Z' }],
   turns: [{
@@ -64,15 +74,25 @@ const ordered = normalizeHistory({
     { session_id: 's1', turn_index: 1, timestamp: '2026-01-01', user_message: 'b' },
     { session_id: 's1', turn_index: 0, timestamp: '2026-01-02', user_message: 'a' }
   ]
-});
+}, { generated_at: '2026-01-03T00:00:00.000Z' });
 const reversed = normalizeHistory({
   sessions: [{ id: 's1' }],
   turns: [
     { session_id: 's1', turn_index: 0, timestamp: '2026-01-02', user_message: 'a' },
     { session_id: 's1', turn_index: 1, timestamp: '2026-01-01', user_message: 'b' }
   ]
-});
+}, { generated_at: '2026-01-03T00:00:00.000Z' });
 assert.deepEqual(ordered, reversed);
 assert.deepEqual(ordered.turns.map(row => row.source_ref), ['turns:s1:0', 'turns:s1:1']);
+assert.equal(normalizeHistory({ sessions: [{ id: 's1' }] }).sessions[0].status, 'unknown');
+const files = normalizeHistory({
+  sessions: [{ id: 's1' }],
+  session_files: [
+    { session_id: 's1', file_path: 'one.js', tool_name: 'edit' },
+    { session_id: 's1', file_path: 'two.js', tool_name: 'edit' },
+    { session_id: 's1', file_path: 'two.js', tool_name: 'create' }
+  ]
+});
+assert.equal(new Set(files.files.map(row => row.source_ref)).size, 3);
 
 console.log('history miner tests passed');

@@ -4,6 +4,11 @@ const crypto = require('node:crypto');
 
 const TABLES = ['sessions', 'turns', 'checkpoints', 'session_files', 'session_refs', 'usage', 'session_usage', 'tool_executions'];
 const REDACTION_RULES_VERSION = '1';
+const DEFAULT_REDACT_PATTERNS = [
+  /([?&](?:token|key|secret|password)=)[^&\s]+/gi,
+  /\b(?:api[_-]?key|password|secret|token)\s*[:=]\s*\S+/gi
+];
+const SENSITIVE_KEYS = /^(?:api[_-]?key|key|password|secret|token|credential|authorization)$/i;
 
 function stableJson(value) {
   const normalize = input => {
@@ -24,8 +29,17 @@ function hash(value) {
 
 function sourceRef(table, row, index) {
   const identity = row.id || row.event_id || row.tool_call_id ||
-    (row.session_id && (row.turn_index !== undefined || row.ref_value !== undefined)
-      ? `${row.session_id}:${row.turn_index ?? row.ref_value}`
+    (table === 'session_files' && row.session_id && row.file_path
+      ? `${row.session_id}:${row.file_path}:${hash(row)}`
+      : null) ||
+    (table === 'session_refs' && row.session_id && (row.ref_type || row.ref_value)
+      ? `${row.session_id}:${row.ref_type || ''}:${row.ref_value || ''}`
+      : null) ||
+    (table === 'session_usage' && row.session_id && row.usage_model
+      ? `${row.session_id}:${row.usage_model}`
+      : null) ||
+    (row.session_id && (row.turn_index !== undefined || row.checkpoint_number !== undefined)
+      ? `${row.session_id}:${row.turn_index ?? row.checkpoint_number}`
       : null);
   return `${table}:${identity || hash(row)}`;
 }
@@ -36,28 +50,31 @@ function text(value) {
 
 function redact(value, options = {}) {
   if (typeof value !== 'string') return value;
-  const patterns = options.redactPatterns || [
-    /([?&](?:token|key|secret|password)=)[^&\s]+/gi,
-    /\b(?:api[_-]?key|password|secret|token)\s*[:=]\s*\S+/gi
-  ];
+  const patterns = [...DEFAULT_REDACT_PATTERNS, ...(options.redactPatterns || [])];
   const redacted = patterns.reduce((result, pattern) => result.replace(pattern, match => {
     const separator = match.match(/^([?&][^=]+=|[^:=\s]+[:=]\s*)/);
     return separator ? `${separator[1]}[REDACTED]` : '[REDACTED]';
   }), value);
-  const pathPattern = /(?:[A-Za-z]:[\\/]|\\\\|\/)(?:[^\\/\s"'<>]+[\\/]?)+/g;
-  return redacted.replace(pathPattern, (match, offset, full) => {
-    const prefix = full.slice(0, offset);
-    return /https?:\/$/i.test(prefix) ? match : '[REDACTED_PATH]';
+  const withQueryRedacted = redacted.replace(/(https?:\/\/[^\s"'<>?]+)\?[^\s"'<>]+/gi, '$1?[REDACTED]');
+  const urls = [];
+  const protectedUrls = withQueryRedacted.replace(/https?:\/\/[^\s"'<>]+/gi, match => {
+    urls.push(match);
+    return `__REDACTED_URL_${urls.length - 1}__`;
   });
+  const windowsPath = /\b[A-Za-z]:[\\/][^"'<>;|]+?(?=\s+(?:and|or)\b|$)/g;
+  const unixPath = /(^|[^:])\/(?!\/)(?:[^\/\s"'<>;|]+\/)*[^\/\s"'<>;|]+/g;
+  const withoutWindowsPaths = protectedUrls.replace(windowsPath, '[REDACTED_PATH]');
+  const withoutUnixPaths = withoutWindowsPaths.replace(unixPath, (match, prefix) => `${prefix}[REDACTED_PATH]`);
+  return withoutUnixPaths.replace(/__REDACTED_URL_(\d+)__/g, (_, index) => urls[Number(index)]);
 }
 
-function cleanValue(value, options) {
+function cleanValue(value, options, key) {
   if (typeof value === 'string') return redact(value, options);
   if (Array.isArray(value)) return value.map(item => cleanValue(item, options));
   if (value && typeof value === 'object') {
     return Object.fromEntries(Object.entries(value).map(([key, nested]) => [
       key,
-      cleanValue(nested, options)
+      SENSITIVE_KEYS.test(key) ? '[REDACTED]' : cleanValue(nested, options, key)
     ]));
   }
   return value;
@@ -129,22 +146,29 @@ function dedupe(table, input) {
 
 function normalizeHistory(raw, options = {}) {
   const sessions = sortRecords(dedupe('sessions', rows(raw, 'sessions'))
-    .map((row, index) => ({ ...cleanRow(row, options), source_ref: sourceRef('sessions', row, index) })));
+    .map((row, index) => ({
+      ...cleanRow(row, options),
+      status: row.status ?? 'unknown',
+      source_ref: sourceRef('sessions', row, index)
+    })));
   const selected = new Set(sessions.map(row => row.id));
   const normalizeTable = table => dedupe(table, rows(raw, table))
     .filter(row => !row.session_id || selected.has(row.session_id))
-    .map((row, index) => ({ ...cleanRow(row, options), source_ref: sourceRef(table, row, index) }));
+    .map((row, index) => ({
+      ...cleanRow(row, options),
+      source_ref: sourceRef(table, row, index)
+    }));
   const artifact = {
     schema_version: '1.0',
     miner_version: options.miner_version || '0.1.0',
     generated_at: options.generated_at || new Date().toISOString(),
     backend: options.backend || 'unknown',
-    query: options.query || {},
+    query: cleanValue(options.query || {}, options),
     timezone: options.timezone || 'UTC',
-    source_schema: options.source_schema || {},
+    source_schema: cleanValue(options.source_schema || {}, options),
     record_counts: {},
     redaction_rules_version: REDACTION_RULES_VERSION,
-    incomplete_sources: Array.isArray(options.incomplete_sources) ? [...options.incomplete_sources] : [],
+    incomplete_sources: cleanValue(Array.isArray(options.incomplete_sources) ? options.incomplete_sources : [], options),
     sessions,
     turns: normalizeTable('turns'),
     checkpoints: normalizeTable('checkpoints'),
@@ -153,7 +177,7 @@ function normalizeHistory(raw, options = {}) {
     usage: normalizeTable('usage'),
     tools: normalizeTable('tool_executions'),
     metrics: [],
-    errors: Array.isArray(options.errors) ? [...options.errors] : []
+    errors: cleanValue(Array.isArray(options.errors) ? options.errors : [], options)
   };
   for (const key of ['turns', 'checkpoints', 'files', 'refs', 'usage', 'tools']) {
     artifact[key] = sortRecords(artifact[key]);
@@ -212,7 +236,7 @@ function toNdjson(artifact) {
   );
   const lines = [JSON.stringify({ type: 'manifest', ...manifest })];
   for (const type of recordTypes) {
-    for (const record of artifact[type] || []) lines.push(JSON.stringify({ type, ...record }));
+    for (const record of artifact[type] || []) lines.push(JSON.stringify({ ...record, type }));
   }
   return `${lines.join('\n')}\n`;
 }
