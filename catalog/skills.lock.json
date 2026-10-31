@@ -160,6 +160,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/code-review-subtractive/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "quality-assurance",
+      "loadouts": [
+        "software-delivery",
+        "code-quality",
+        "context-economy"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.1"
@@ -173,6 +179,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/complexity-map/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "quality-assurance",
+      "loadouts": [
+        "software-delivery",
+        "code-quality",
+        "context-economy"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.1"
@@ -221,6 +233,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/copilot-history-miner/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "research-evidence",
+      "loadouts": [
+        "evidence-research",
+        "copilot-insights",
+        "architecture-history"
+      ],
       "version": {
         "status": "resolved",
         "value": "0.1.0"
@@ -309,6 +327,12 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/git-workflow-standards/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "developer-tooling",
+      "loadouts": [
+        "software-delivery",
+        "git-practices",
+        "ci-maintenance"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.1"
@@ -413,6 +437,17 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/magic-wand/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "architecture-planning",
+      "loadouts": [
+        "software-delivery",
+        "wave-delivery",
+        "plan-review"
+      ],
+      "optional_dependencies": [
+        "goal-alignment",
+        "plan-wave",
+        "wave-orchestration"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.1"
@@ -674,6 +709,11 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/usda-open-data-catalog/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "domain-workflows",
+      "loadouts": [
+        "specialist-workflows",
+        "data-utilities"
+      ],
       "version": {
         "status": "resolved",
         "value": "1.0.0"

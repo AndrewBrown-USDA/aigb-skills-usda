@@ -7,6 +7,8 @@ metadata:
   source_repo: aigb-skills
   source_path: skills/usda-open-data-catalog/SKILL.md
   source_url: https://github.com/AndrewBrown-USDA/aigb-skills.git
+  group: domain-workflows
+  loadouts: specialist-workflows,data-utilities
 ---
 
 # USDA Open Data Catalog

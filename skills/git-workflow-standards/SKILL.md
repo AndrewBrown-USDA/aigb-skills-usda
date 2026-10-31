@@ -8,6 +8,8 @@ metadata:
   source_repo: aigb-skills
   source_path: skills/git-workflow-standards/SKILL.md
   source_url: https://github.com/AndrewBrown-USDA/aigb-skills.git
+  group: developer-tooling
+  loadouts: software-delivery,git-practices,ci-maintenance
 ---
 
 # Git Workflow

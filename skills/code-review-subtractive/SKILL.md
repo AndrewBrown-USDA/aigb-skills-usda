@@ -7,6 +7,8 @@ metadata:
   version: 1.1
   source_repo: aigb-skills
   source_path: skills/code-review-subtractive/SKILL.md
+  group: quality-assurance
+  loadouts: software-delivery,code-quality,context-economy
 ---
 
 # Subtractive Code Review

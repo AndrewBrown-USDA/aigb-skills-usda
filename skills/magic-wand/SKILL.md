@@ -8,6 +8,9 @@ metadata:
   source_repo: aigb-skills
   source_path: skills/magic-wand/SKILL.md
   source_url: https://github.com/AndrewBrown-USDA/aigb-skills.git
+  group: architecture-planning
+  loadouts: software-delivery,wave-delivery,plan-review
+  optional_dependencies: goal-alignment,plan-wave,wave-orchestration
 ---
 
 # Magic Wand

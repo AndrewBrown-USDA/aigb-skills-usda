@@ -7,6 +7,8 @@ metadata:
   author: Andrew G. Brown (https://github.com/brownag)
   source_repo: aigb-skills
   source_path: skills/copilot-history-miner/SKILL.md
+  group: research-evidence
+  loadouts: evidence-research,copilot-insights,architecture-history
 ---
 # Copilot history miner
 
