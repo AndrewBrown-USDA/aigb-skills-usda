@@ -558,11 +558,29 @@
       }
     },
     {
-      "name": "r-package-testing-workflow",
+      "name": "r-package-data",
       "author": "Andrew G. Brown (https://github.com/brownag)",
       "license": "MIT",
       "source_repo": "aigb-skills",
-      "source_path": "skills/r-package-testing-workflow/SKILL.md",
+      "source_path": "skills/r-package-data/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "domain-workflows",
+      "loadouts": [
+        "specialist-workflows",
+        "software-delivery",
+        "r-package-quality"
+      ],
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "r-package-testing",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/r-package-testing/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
       "group": "domain-workflows",
       "loadouts": [
@@ -573,6 +591,24 @@
       ],
       "optional_dependencies": [
         "github-actions-ci"
+      ],
+      "version": {
+        "status": "resolved",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "r-package-vignette",
+      "author": "Andrew G. Brown (https://github.com/brownag)",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/r-package-vignette/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "domain-workflows",
+      "loadouts": [
+        "specialist-workflows",
+        "software-delivery",
+        "r-package-quality"
       ],
       "version": {
         "status": "resolved",

@@ -198,7 +198,7 @@ For example, `code-review-2axis` uses `upstream_name: code-review`.
 - **Planning & Workflow:** `adr-distillation`, `agent-onboarding`, `goal-alignment`, `magic-wand`, `plan-first`, `plan-wave`, `wave-orchestration`.
 - **Engineering & Review:** `apply-fed-oss-license`, `arcpy-migration`, `code-review-2axis`, `code-review-subtractive`, `complexity-map`, `conventional-commits`, `doc-consistency`, `git-workflow-standards`, `github-actions-ci`, `reviewer-architecture`, `reviewer-correctness`, `verbosity-cleaner`, `worker-validation`.
 - **History & Evidence:** `copilot-history-briefing`, `copilot-history-miner`, `deep-investigative-research`, `git-history-interval-study`, `research`, `skill-research`, `web-source-bundler`.
-- **Data, Packaging & Utilities:** `bull-in-a-china-shop`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `r-package-testing-workflow`, `usda-open-data-catalog`.
+- **Data, Packaging & Utilities:** `bull-in-a-china-shop`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `r-package-data`, `r-package-testing`, `r-package-vignette`, `usda-open-data-catalog`.
 - **Diagnostics & External Skills:** `caveman`, `dr-lexus`, `grilling`, `ponytail`, `rubber-ducking`, `tdd`.
 
 ## Licensing Model

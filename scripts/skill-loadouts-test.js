@@ -70,8 +70,8 @@ try {
     'git-workflow-standards', 'github-actions-ci', 'goal-alignment',
     'grilling', 'install-skills', 'json-processing-with-jq', 'magic-wand',
     'makefile-development-workflow', 'performance-benchmarking', 'plan-first',
-    'wave-orchestration', 'plan-wave', 'ponytail', 'r-package-testing-workflow',
-    'reviewer-architecture', 'reviewer-correctness', 'rubber-ducking',
+    'wave-orchestration', 'plan-wave', 'ponytail', 'r-package-data',
+    'r-package-testing', 'r-package-vignette', 'reviewer-architecture', 'reviewer-correctness', 'rubber-ducking',
     'skill-research', 'tdd', 'worker-validation'
   ]);
   assert.strictEqual(new Set(names(softwareDelivery)).size, names(softwareDelivery).length);
