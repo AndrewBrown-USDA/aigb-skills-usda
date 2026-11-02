@@ -7,6 +7,8 @@ metadata:
   version: 1.0
   source_repo: aigb-skills
   source_path: skills/r-package-data/SKILL.md
+  group: domain-workflows
+  loadouts: specialist-workflows, software-delivery, r-package-quality
 ---
 
 # R Package Dataset Workflow (`data-raw/` -> `data/*.rda` & `inst/extdata/`)
