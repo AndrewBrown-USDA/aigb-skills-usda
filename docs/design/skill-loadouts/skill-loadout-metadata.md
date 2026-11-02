@@ -40,6 +40,7 @@ ignored. Empty tokens are invalid.
 | `upstream_ref` | No | Immutable or named provenance reference (tag, branch, or commit). |
 | `upstream_path` | No | Provenance path within the upstream repository. |
 | `upstream_name` | No | Human-readable upstream skill name. |
+| `inspired_by` | No | Non-empty scalar string naming the source of an idea (a person, project, or conversation). Normalize surrounding whitespace; empty values are invalid. Records inspiration, not authorship, and never replaces `author`. |
 
 `source_ref` and `upstream` are legacy read-only aliases for `upstream_ref`
 and `upstream_repo`, respectively. New metadata must use the canonical names.
@@ -71,6 +72,10 @@ They must not disagree with their canonical counterparts.
    accepted and normalized to the canonical field without rewriting the source
    file.
 10. Unknown repositories do not receive fabricated `source_url` values.
+11. `inspired_by` is optional attribution metadata. It records where an idea
+    came from, does not confer authorship, never replaces `author`, and must be
+    a non-empty scalar string after trimming; empty values and lists are
+    invalid.
 
 ## Valid examples
 
@@ -85,6 +90,7 @@ metadata:
   loadouts: field-ops, field-reporting
   dependencies: dr-lexus, worker-validation
   optional_dependencies: web-source-bundler
+  inspired_by: Ryon Morrison (idea shared with GitHub Copilot CoP)
   version: 2.1.0
   source_repo: aigb-skills
   source_path: skills/field-reporting/SKILL.md
@@ -141,6 +147,10 @@ metadata:
 metadata:
   upstream_repo: https://github.com/new/source.git
   upstream: https://github.com/old/source.git
+
+# Invalid: attribution must be a non-empty scalar string.
+metadata:
+  inspired_by: ""
 ```
 
 An empty value, trailing comma, whitespace-only token, unknown dependency, or

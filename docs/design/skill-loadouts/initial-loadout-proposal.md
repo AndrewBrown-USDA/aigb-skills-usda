@@ -397,6 +397,24 @@ that evidence maps to the chosen group, loadouts, and edges.
       "rationale": "It is the central wave-delivery skill; ADR distillation and commit guidance are explicit milestone or repository-policy enhancements."
     },
     {
+      "name": "code-review-subtractive",
+      "group": "quality-assurance",
+      "loadouts": ["software-delivery", "code-quality", "context-economy"],
+      "required_dependencies": [],
+      "optional_dependencies": [],
+      "evidence": "Finds code that can likely be deleted or simplified without changing supported behavior.",
+      "rationale": "It is a subtractive code-quality review and independently supports leaner implementations."
+    },
+    {
+      "name": "complexity-map",
+      "group": "quality-assurance",
+      "loadouts": ["software-delivery", "code-quality", "context-economy"],
+      "required_dependencies": [],
+      "optional_dependencies": [],
+      "evidence": "Appends concise complexity and uncertainty assessments to substantive responses.",
+      "rationale": "It exposes uncertainty and simplification opportunities across delivery and quality work."
+    },
+    {
       "name": "web-source-bundler",
       "group": "research-evidence",
       "loadouts": ["evidence-research", "source-research", "data-utilities"],
@@ -404,6 +422,42 @@ that evidence maps to the chosen group, loadouts, and edges.
       "optional_dependencies": [],
       "evidence": "Captures web sources into deterministic Markdown bundles with metadata and checksums.",
       "rationale": "It supports both source research and reproducible data preservation without requiring a research workflow."
+    },
+    {
+      "name": "copilot-history-miner",
+      "group": "research-evidence",
+      "loadouts": ["evidence-research", "copilot-insights", "architecture-history"],
+      "required_dependencies": [],
+      "optional_dependencies": [],
+      "evidence": "Extracts bounded, normalized, provenance-rich evidence from Copilot history.",
+      "rationale": "It is the evidence-producing companion to history-based reporting and remains independently usable."
+    },
+    {
+      "name": "git-workflow-standards",
+      "group": "developer-tooling",
+      "loadouts": ["software-delivery", "git-practices", "ci-maintenance"],
+      "required_dependencies": [],
+      "optional_dependencies": [],
+      "evidence": "Creates safe, focused local Git commits and prepares push instructions without modifying remotes.",
+      "rationale": "It governs repository-safe delivery and commit workflow without requiring another skill."
+    },
+    {
+      "name": "magic-wand",
+      "group": "architecture-planning",
+      "loadouts": ["software-delivery", "wave-delivery", "plan-review"],
+      "required_dependencies": [],
+      "optional_dependencies": ["goal-alignment", "plan-wave", "wave-orchestration"],
+      "evidence": "Finds and ranks candidate goals with a dependency heuristic and hands work to planning skills.",
+      "rationale": "It selects high-leverage goals for delivery planning; companion planning skills are opt-in handoffs."
+    },
+    {
+      "name": "usda-open-data-catalog",
+      "group": "domain-workflows",
+      "loadouts": ["specialist-workflows", "data-utilities"],
+      "required_dependencies": [],
+      "optional_dependencies": [],
+      "evidence": "Discovers and routes USDA datasets through authoritative catalog metadata.",
+      "rationale": "It is a specialized USDA discovery workflow and a structured-data utility."
     },
     {
       "name": "worker-validation",
@@ -440,18 +494,23 @@ that evidence maps to the chosen group, loadouts, and edges.
     "bull-in-a-china-shop",
     "caveman",
     "code-review-2axis",
+    "code-review-subtractive",
+    "complexity-map",
     "conventional-commits",
     "copilot-history-briefing",
+    "copilot-history-miner",
     "deep-investigative-research",
     "doc-consistency",
     "dr-lexus",
     "git-history-interval-study",
+    "git-workflow-standards",
     "github-actions-ci",
     "goal-alignment",
     "grilling",
     "install-skills",
     "json-processing-with-jq",
     "makefile-development-workflow",
+    "magic-wand",
     "performance-benchmarking",
     "plan-first",
     "ponytail",
@@ -461,6 +520,7 @@ that evidence maps to the chosen group, loadouts, and edges.
     "reviewer-correctness",
     "rubber-ducking",
     "tdd",
+    "usda-open-data-catalog",
     "verbosity-cleaner",
     "wave-orchestration",
     "web-source-bundler",

@@ -40,7 +40,7 @@ This repository packages a curated set of agent skills and a dependency-free Nod
 - **Do not run `skills sync` or `make sync` to install skills.** Sync is maintainer-only and rebuilds `skills/` from upstream source checkouts.
 
 ### Maintainer Sync and Catalog
-- `skills/*/SKILL.md` frontmatter is authoritative. It requires top-level `name` and `description`; supported standard optional fields remain top-level. Repository-specific metadata is nested under `metadata`: `source_repo`, `source_path`, and `source_url` identify the canonical bundled source; `upstream_repo`, `upstream_ref`, and optional `upstream_name` preserve provenance. Legacy `source_ref` and `upstream` are read-only fallbacks for `upstream_ref` and `upstream_repo`.
+- `skills/*/SKILL.md` frontmatter is authoritative. It requires top-level `name` and `description`; supported standard optional fields remain top-level. Repository-specific metadata is nested under `metadata`: `source_repo`, `source_path`, and `source_url` identify the canonical bundled source; `upstream_repo`, `upstream_ref`, and optional `upstream_name` preserve provenance; optional `inspired_by` is a non-empty scalar that credits the source of an idea, does not confer authorship, and never replaces `author`. Legacy `source_ref` and `upstream` are read-only fallbacks for `upstream_ref` and `upstream_repo`.
 - `npx --no-install skills sync --mode copy` (or `make sync`) re-materializes `skills/` from repositories indexed in `catalog/skills.lock.json`; it is local-only by default and requires local source checkouts. Use `--allow-network` for explicit clone/fetch recovery; `--no-clone` remains a compatibility alias.
 - `npm run catalog:mine` (or `make catalog`) regenerates the catalog lockfile.
 

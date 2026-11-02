@@ -54,7 +54,9 @@ comma-separated scalar fields, normalized into arrays only in derived catalog
 records.
 
 Arrays, nested mappings, multiline values, tags, and anchors are outside the
-parser contract. Existing skills without loadout fields remain valid.
+parser contract. Existing skills without loadout fields remain valid. Optional
+`inspired_by` credits the source of an idea without conferring authorship and
+never replaces `author`.
 
 ### Consequences
 
@@ -63,6 +65,9 @@ parser contract. Existing skills without loadout fields remain valid.
   dependency.
 - **Negative:** Dependency declarations are less expressive than general YAML
   structures, and richer constraints require explicit future schema work.
+- **Clarification:** `inspired_by` is attribution only. It is optional, is a
+  non-empty scalar string, and carries no authority over identity, ownership,
+  or provenance fields.
 
 ## Validation & Compliance
 

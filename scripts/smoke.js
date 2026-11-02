@@ -123,6 +123,11 @@ function main() {
   // 2a. Verify interval-ledger regression coverage
   runNode(['skills/git-history-interval-study/scripts/interval_ledger-test.js']);
 
+  // 2b. Verify copilot history skill test scripts
+  runNode(['skills/copilot-history-miner/scripts/history_miner_test.js']);
+  runNode(['skills/copilot-history-miner/scripts/adapters_test.js']);
+  runNode(['skills/copilot-history-briefing/scripts/briefing_contract_test.js']);
+
   // 3. Verify lockfile schema and curated skills
   const lockfile = readJson(lockfilePath);
   assert.equal(lockfile.schema_version, 1);
@@ -184,7 +189,7 @@ function main() {
   const applyFedOssLicense = lockfile.skills.find(s => s.name === 'apply-fed-oss-license');
   assert.ok(applyFedOssLicense, 'apply-fed-oss-license must exist');
   assert.equal(applyFedOssLicense.version.status, 'resolved');
-  assert.equal(applyFedOssLicense.version.value, '1.0.0');
+  assert.equal(applyFedOssLicense.version.value, '1.0.1');
 
   const packagedSkillNames = fs.readdirSync(path.join(repoRoot, 'skills'), { withFileTypes: true })
     .filter(entry => entry.isDirectory())

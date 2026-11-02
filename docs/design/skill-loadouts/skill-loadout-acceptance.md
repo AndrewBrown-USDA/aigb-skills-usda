@@ -16,9 +16,9 @@ environment-dependent.
 | Environment-dependent | Required when the environment supports it; otherwise record the command, limitation, and observable evidence without weakening the requirement. |
 
 The current green baseline is `npm run help`, `npm run validate:skills`
-(34 skills, 39 checks), `npm run test:validate`, the focused loadout suites,
+(40 skills, 45 checks), `npm run test:validate`, the focused loadout suites,
 the measurement protocol suite, and the recorded serial `npm test` result for
-34 skills.
+40 skills.
 
 ## 2. Focused acceptance matrix
 

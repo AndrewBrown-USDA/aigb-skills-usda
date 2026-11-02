@@ -5,7 +5,7 @@ license: MIT
 metadata:
   group: research-evidence
   loadouts: evidence-research,copilot-insights,architecture-history
-  version: 1.3
+  version: 1.4
   author: Andrew G. Brown (https://github.com/brownag)
   source_repo: aigb-skills
   source_path: skills/copilot-history-briefing/SKILL.md
@@ -16,14 +16,23 @@ Use this skill to turn Copilot conversation history into evidence-backed briefin
 
 ## Dependencies and setup
 
-- Query the Copilot session store tables directly with SQL: `sessions`, `turns`, `checkpoints`, `session_files`, and `session_refs`.
-- Use `search_index` only when it exists and you need faster keyword discovery.
-- The local store is the SQLite database at `~/.copilot/session-store.db` on the current machine; per-session state files live under `~/.copilot/session-state/<session-id>/session.db`.
-- Use local for this machine's SQLite history at `~/.copilot/session-store.db`; use cloud only for populated shared history through the agent runtime's cloud-backed path.
+- Use the separate `copilot-history-miner` skill to discover sessions, expand selected evidence, normalize records, and calculate deterministic metrics.
+- Treat the miner artifact as the source of truth and load its contract before interpreting fields.
+- The miner supports local history at `~/.copilot/session-store.db` and cloud-backed history through an adapter, but this skill must not assume either backend is populated.
+- Do not duplicate low-level SQL, pagination, redaction, or aggregation logic in this skill.
+
+## Miner artifact input
+
+Require an artifact with `schema_version`, `backend`, `record_counts`,
+`incomplete_sources`, normalized records, metrics, and source references. If the
+artifact is missing, partial, or schema-incompatible, report that limitation
+instead of silently querying broader history. Preserve each metric's `kind`,
+`evidence_tier`, `confidence`, `source_refs`, `method_version`, and
+`limitations` when rendering prose or tables.
 
 ## Process
 
-1. Start with a small test search.
+1. Ask the miner for a small, bounded candidate set.
    - Search the most recent and most relevant sessions first.
    - Use narrow filters by date, summary, repo, branch, session id, or request keywords.
    - Widen the search only if the first pass misses likely sessions.
@@ -48,46 +57,17 @@ Use this skill to turn Copilot conversation history into evidence-backed briefin
      - follow-up work, reusable helper, package, report, or process that came out of the session
    - Keep distinct efforts separate in the working record. Do not merge related projects just because they share a domain, repository, package, or data source.
 
-   Query strategy:
-   - Start with `sessions` to find candidate stories. Narrow by `created_at`, `repository`, `cwd`, `branch`, or `summary` before you touch turn text.
-   - If metadata is too thin, search `search_index` for repo names, skill names, issue numbers, or other distinctive phrases, then reuse the matching `session_id`s in the next table.
-   - Read `checkpoints` for compact session summaries, `turns` for the actual conversation, and `session_files` / `session_refs` for files, commits, PRs, or issues tied to a session.
-   - Use two steps: first identify the relevant `session_id`s, then query only those sessions for the evidence table you need.
-   - Keep queries narrow: use a date window, select only needed columns, and add `LIMIT` early.
-   - Treat the SQL below as a template and replace the placeholders with the repository, workspace, time window, and session ids you need.
-
-   Example pattern:
-   ```sql
- -- step 1: find candidate sessions
-   SELECT id, created_at, repository, cwd, summary
-   FROM sessions
-   WHERE created_at > now() - INTERVAL 'REPLACE_ME_DAYS days'
-    AND (
-      repository ILIKE '%REPLACE_ME_REPOSITORY%'
-      OR cwd ILIKE '%REPLACE_ME_WORKSPACE_FRAGMENT%'
-    )
-   ORDER BY created_at DESC
-   LIMIT REPLACE_ME_LIMIT;
-
- -- step 2: inspect the conversation for the sessions you picked
-   SELECT session_id, turn_index, user_message, assistant_response, timestamp
-   FROM turns
-   WHERE session_id IN (REPLACE_ME_SESSION_ID_LIST)
-   ORDER BY session_id, turn_index
-   LIMIT REPLACE_ME_LIMIT;
-
- -- optional: pull the compact evidence trail for those same sessions
-   SELECT session_id, created_at, title, overview
-   FROM checkpoints
-   WHERE session_id IN (REPLACE_ME_SESSION_ID_LIST)
-   ORDER BY session_id, created_at
-   LIMIT REPLACE_ME_LIMIT;
-   ```
-   - `REPLACE_ME_REPOSITORY`: use a repository name or fragment that matches your local or cloud session metadata.
-   - `REPLACE_ME_WORKSPACE_FRAGMENT`: use a unique substring from the workspace path or cwd for your environment.
-   - `REPLACE_ME_DAYS`: use the date window you want to inspect, such as `7`, `30`, or `90`.
-   - `REPLACE_ME_SESSION_ID_LIST`: use a comma-separated list of session IDs, or replace this block with the exact filter your SQL dialect expects.
-   - `REPLACE_ME_LIMIT`: use the maximum row count appropriate for the query stage.
+ Query strategy:
+ - Ask `copilot-history-miner` for a bounded artifact using the requested date,
+   repository, workspace, branch, session, or keyword filters.
+ - Use the miner's two-stage candidate discovery and selected-session expansion.
+   Do not broaden source tables or turn text outside the selected artifact.
+ - Prefer checkpoints for compact context, turns for actual conversation evidence,
+   files for session/file association, and refs for commits, pull requests, or issues.
+ - Treat unavailable source tables, redacted content, duplicate suppression, and
+   incomplete sessions as explicit gaps.
+ - Load the returned artifact and its contract before interpreting records; do not
+   query the history database directly from this skill.
 
 4. Extract success-story material.
    - First create a detail-rich working brief. It may be longer and more technical than the final answer, because its purpose is to preserve enough raw material for later distillation.
@@ -99,7 +79,8 @@ Use this skill to turn Copilot conversation history into evidence-backed briefin
    - Make the analyst or team the subject of the sentence; Copilot is the tool that helped.
    - Spell out acronyms on first use for executive-facing briefs. If the acronym is unclear, ask the user before using it.
    - Keep test counts, benchmark minutiae, failure details, troubleshooting notes, and "hot path" language out of the summary unless they are the point.
-   - Look for time saved, work avoided, reliability improved, repeatability gained, manual steps removed, and risk reduced.
+   - Look for work avoided, reliability improved, repeatability gained, manual steps removed, and risk reduced.
+   - Never relabel observed duration or model cost as time saved.
    - Include numbers whenever the history provides them. If it does not, say so plainly and do not invent them.
    - Prefer the strongest supported number or scale, then explain its business significance in plain language.
    - Prefer clean outcome metrics over work-log details or measurement mechanics.
@@ -174,6 +155,8 @@ The working section is allowed to be more granular than the final post. It exist
 - Narrow the session set before searching broad turn text.
 - Prefer exact identifiers and session metadata before free-text search.
 - Report only savings, cost avoidance, or priority alignment that the history supports.
+- Preserve miner evidence kinds and confidence labels; do not turn inferred matches into observed facts.
+- Temporal proximity between a session and a commit is not proof of Copilot authorship.
 - Keep technical notes, test counts, benchmark minutiae, and failure details out of the executive summary unless they are the point.
 - Keep "hot path" and similar internal debugging language out of the executive summary.
 - Use plain declarative sentences unless a contrast is genuinely necessary.
