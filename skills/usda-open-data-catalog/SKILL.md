@@ -1,6 +1,7 @@
 ---
 name: usda-open-data-catalog
 description: Discover and route USDA datasets through authoritative catalog metadata, with source-traceable relevance explanations and safe distribution classification.
+license: CC0-1.0
 metadata:
   author: Andrew G. Brown (https://github.com/AndrewBrown-USDA)
   version: 1.0.0

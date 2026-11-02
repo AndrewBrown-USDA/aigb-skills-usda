@@ -34,6 +34,9 @@ jobs:
       - name: Validate packaged skills
         run: npm run validate:skills -- --report .scratch/skills-report.json
 
+      - name: Run packaged skill tests
+        run: npm run test:skills
+
       - name: Upload packaged skill validation report
         if: failure()
         uses: actions/upload-artifact@v4

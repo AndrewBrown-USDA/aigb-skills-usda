@@ -108,6 +108,25 @@ try {
     source_path: 'skills/example/SKILL.md',
     version: '   '
   }).valid, false);
+  assert.equal(validateMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    inspired_by: 'Ryon Morrison (idea shared with GitHub Copilot CoP)'
+  }).valid, true);
+  for (const value of ['', '   ', ['Ryon Morrison'], { name: 'Ryon Morrison' }, 42, null]) {
+    const validation = validateMetadata({
+      source_repo: 'repo',
+      source_path: 'skills/example/SKILL.md',
+      inspired_by: value
+    });
+    assert.equal(validation.valid, false);
+    assert.deepEqual(validation.errors, ['inspired_by must be a non-empty scalar string']);
+  }
+  assert.equal(normalizeMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    inspired_by: '  Ryon Morrison  '
+  }).inspired_by, 'Ryon Morrison');
   assert.deepEqual(normalizeMetadata({
     source_repo: 'repo',
     source_path: 'skills/example/SKILL.md',
@@ -560,6 +579,7 @@ try {
     loadouts: 'software-delivery, code-quality',
     dependencies: 'legacy-keys',
     optional_dependencies: 'worker-validation',
+    inspired_by: 'Ryon Morrison',
     upstream_ref: 'new-ref',
     upstream_repo: 'new-repo',
     source_url: 'https://provenance.example.test/should-not-be-used'
@@ -581,6 +601,7 @@ try {
   assert.deepEqual(minedNew.loadouts, ['software-delivery', 'code-quality']);
   assert.deepEqual(minedNew.dependencies, ['legacy-keys']);
   assert.deepEqual(minedNew.optional_dependencies, ['worker-validation']);
+  assert.equal(minedNew.inspired_by, 'Ryon Morrison');
   assert.equal(minedLegacy.upstream_ref, 'legacy-ref');
   assert.equal(minedLegacy.upstream_repo, 'legacy-repo');
   const invalidRoot = path.join(tempRoot, 'invalid-metadata');
@@ -591,6 +612,17 @@ try {
     loadouts: 'Bad_Name'
   }), 'utf8');
   assert.throws(() => require('./mine-history').scanCuratedSkills(invalidRoot), /Invalid metadata for invalid/);
+  const emptyAttributionRoot = path.join(tempRoot, 'empty-attribution-root');
+  fs.mkdirSync(path.join(emptyAttributionRoot, 'empty-attribution'), { recursive: true });
+  fs.writeFileSync(path.join(emptyAttributionRoot, 'empty-attribution', 'SKILL.md'), frontmatter('empty-attribution', {
+    source_repo: 'aigb-skills',
+    source_path: 'skills/empty-attribution/SKILL.md',
+    inspired_by: '""'
+  }), 'utf8');
+  assert.throws(
+    () => require('./mine-history').scanCuratedSkills(emptyAttributionRoot),
+    /Invalid metadata for empty-attribution: inspired_by must be a non-empty scalar string/
+  );
   console.log('Validator tests passed.');
 } finally {
   fs.rmSync(tempRoot, { recursive: true, force: true });

@@ -8,7 +8,15 @@ const DEFAULT_REDACT_PATTERNS = [
   /([?&](?:token|key|secret|password)=)[^&\s]+/gi,
   /\b(?:api[_-]?key|password|secret|token)\s*[:=]\s*\S+/gi
 ];
-const SENSITIVE_KEYS = /^(?:api[_-]?key|key|password|secret|token|credential|authorization)$/i;
+const SENSITIVE_KEY_PATTERN = /^(?:api[_-]?key|key|password|passwd|secret|token|credential|credentials|authorization|private[_-]?key)$/i;
+
+function isSensitiveKey(key) {
+  const normalized = String(key)
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2');
+  return normalized.split(/[^A-Za-z0-9]+/).filter(Boolean)
+    .some(segment => SENSITIVE_KEY_PATTERN.test(segment));
+}
 
 function stableJson(value) {
   const normalize = input => {
@@ -27,54 +35,107 @@ function hash(value) {
   return crypto.createHash('sha256').update(stableJson(value)).digest('hex');
 }
 
-function sourceRef(table, row, index) {
-  const identity = row.id || row.event_id || row.tool_call_id ||
-    (table === 'session_files' && row.session_id && row.file_path
-      ? `${row.session_id}:${row.file_path}:${hash(row)}`
-      : null) ||
-    (table === 'session_refs' && row.session_id && (row.ref_type || row.ref_value)
-      ? `${row.session_id}:${row.ref_type || ''}:${row.ref_value || ''}`
-      : null) ||
-    (table === 'session_usage' && row.session_id && row.usage_model
-      ? `${row.session_id}:${row.usage_model}`
-      : null) ||
-    (row.session_id && (row.turn_index !== undefined || row.checkpoint_number !== undefined)
-      ? `${row.session_id}:${row.turn_index ?? row.checkpoint_number}`
-      : null);
-  return `${table}:${identity || hash(row)}`;
+function digest(value) {
+  return crypto.createHash('sha256').update(String(value)).digest('hex');
 }
 
 function text(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function recordRedactionError(options, error) {
+  if (!Array.isArray(options.errors)) return;
+  const message = `Redaction pattern failed: ${error && error.message ? error.message : String(error)}`;
+  if (!options.errors.includes(message)) options.errors.push(message);
+}
+
 function redact(value, options = {}) {
   if (typeof value !== 'string') return value;
-  const patterns = [...DEFAULT_REDACT_PATTERNS, ...(options.redactPatterns || [])];
-  const redacted = patterns.reduce((result, pattern) => result.replace(pattern, match => {
-    const separator = match.match(/^([?&][^=]+=|[^:=\s]+[:=]\s*)/);
-    return separator ? `${separator[1]}[REDACTED]` : '[REDACTED]';
-  }), value);
+  const callerPatterns = Array.isArray(options.redactPatterns) ? options.redactPatterns : [];
+  const patterns = [...DEFAULT_REDACT_PATTERNS, ...callerPatterns];
+  let redacted = value;
+  for (const pattern of patterns) {
+    try {
+      redacted = redacted.replace(pattern, match => {
+        const separator = match.match(/^([?&][^=]+=|[^:=\s]+[:=]\s*)/);
+        return separator ? `${separator[1]}[REDACTED]` : '[REDACTED]';
+      });
+    } catch (error) {
+      recordRedactionError(options, error);
+    }
+  }
   const withQueryRedacted = redacted.replace(/(https?:\/\/[^\s"'<>?]+)\?[^\s"'<>]+/gi, '$1?[REDACTED]');
   const urls = [];
   const protectedUrls = withQueryRedacted.replace(/https?:\/\/[^\s"'<>]+/gi, match => {
     urls.push(match);
     return `__REDACTED_URL_${urls.length - 1}__`;
   });
-  const windowsPath = /\b[A-Za-z]:[\\/][^"'<>;|]+?(?=\s+(?:and|or)\b|$)/g;
+  const windowsPath = /\b[A-Za-z]:[\\/][^"'<>;|,\r\n]*?(?=\s+(?:and|or)\b|[,;\r\n]|$)/g;
   const unixPath = /(^|[^:])\/(?!\/)(?:[^\/\s"'<>;|]+\/)*[^\/\s"'<>;|]+/g;
   const withoutWindowsPaths = protectedUrls.replace(windowsPath, '[REDACTED_PATH]');
   const withoutUnixPaths = withoutWindowsPaths.replace(unixPath, (match, prefix) => `${prefix}[REDACTED_PATH]`);
   return withoutUnixPaths.replace(/__REDACTED_URL_(\d+)__/g, (_, index) => urls[Number(index)]);
 }
 
-function cleanValue(value, options, key) {
+function identitySegment(value) {
+  const raw = String(value);
+  return redact(raw) === raw ? raw : digest(raw);
+}
+
+function genericIdentity(row) {
+  for (const field of ['id', 'event_id', 'tool_call_id']) {
+    const value = row[field];
+    if (value !== undefined && value !== null && value !== '') return identitySegment(value);
+  }
+  return null;
+}
+
+function sequenceIdentity(row) {
+  if (!row.session_id) return null;
+  const position = row.turn_index ?? row.checkpoint_number;
+  return position === undefined || position === null
+    ? null
+    : `${identitySegment(row.session_id)}:${position}`;
+}
+
+function sourceFilesIdentity(row) {
+  if (!row.session_id || row.file_path === undefined || row.file_path === null || row.file_path === '') return null;
+  return `${identitySegment(row.session_id)}:${digest(stableJson([row.file_path, row.tool_name ?? null, row.turn_index ?? null]))}`;
+}
+
+function sessionRefsIdentity(row) {
+  if (!row.session_id || (!row.ref_type && !row.ref_value)) return null;
+  return `${identitySegment(row.session_id)}:${digest(stableJson([row.ref_type ?? null, row.ref_value ?? null, row.turn_index ?? null]))}`;
+}
+
+function usageIdentity(row) {
+  if (!row.session_id || !row.usage_model) return null;
+  return `${identitySegment(row.session_id)}:${identitySegment(row.usage_model)}`;
+}
+
+const TABLE_IDENTITY = {
+  sessions: genericIdentity,
+  turns: row => genericIdentity(row) || sequenceIdentity(row),
+  checkpoints: row => genericIdentity(row) || sequenceIdentity(row),
+  session_files: row => sourceFilesIdentity(row) || genericIdentity(row),
+  session_refs: row => sessionRefsIdentity(row) || genericIdentity(row),
+  session_usage: row => usageIdentity(row) || genericIdentity(row),
+  usage: row => usageIdentity(row) || genericIdentity(row),
+  tool_executions: genericIdentity
+};
+
+function sourceRef(table, row) {
+  const identity = (TABLE_IDENTITY[table] || genericIdentity)(row);
+  return `${table}:${identity || hash(row)}`;
+}
+
+function cleanValue(value, options) {
   if (typeof value === 'string') return redact(value, options);
   if (Array.isArray(value)) return value.map(item => cleanValue(item, options));
   if (value && typeof value === 'object') {
     return Object.fromEntries(Object.entries(value).map(([key, nested]) => [
       key,
-      SENSITIVE_KEYS.test(key) ? '[REDACTED]' : cleanValue(nested, options, key)
+      isSensitiveKey(key) ? '[REDACTED]' : cleanValue(nested, options)
     ]));
   }
   return value;
@@ -148,15 +209,19 @@ function loadSessionEvidence(source, sessionIds) {
   const selected = new Set(sessionIds);
   const result = {};
   for (const table of TABLES) {
-    result[table] = rows(source, table).filter(row => !row.session_id || selected.has(row.session_id));
+    result[table] = rows(source, table).filter(row =>
+      table === 'sessions'
+        ? selected.has(row.id)
+        : Boolean(row.session_id) && selected.has(row.session_id)
+    );
   }
   return result;
 }
 
 function dedupe(table, input) {
   const seen = new Set();
-  return input.filter((row, index) => {
-    const ref = sourceRef(table, row, index);
+  return input.filter(row => {
+    const ref = sourceRef(table, row);
     if (seen.has(ref)) return false;
     seen.add(ref);
     return true;
@@ -164,29 +229,33 @@ function dedupe(table, input) {
 }
 
 function normalizeHistory(raw, options = {}) {
+  const errors = Array.isArray(options.errors) ? [...options.errors] : [];
+  const settings = { ...options, errors };
+  const sessionFilter = Array.isArray(options.session) && options.session.length ? new Set(options.session) : null;
   const sessions = sortRecords(dedupe('sessions', rows(raw, 'sessions'))
-    .map((row, index) => ({
-      ...canonicalize('sessions', row, options),
-      source_ref: sourceRef('sessions', row, index)
+    .filter(row => !sessionFilter || sessionFilter.has(row.id))
+    .map(row => ({
+      ...canonicalize('sessions', row, settings),
+      source_ref: sourceRef('sessions', row)
     })));
   const selected = new Set(sessions.map(row => row.id));
   const normalizeTable = table => dedupe(table, rows(raw, table))
-    .filter(row => !row.session_id || selected.has(row.session_id))
-    .map((row, index) => ({
-      ...canonicalize(table, row, options),
-      source_ref: sourceRef(table, row, index)
+    .filter(row => Boolean(row.session_id) && selected.has(row.session_id))
+    .map(row => ({
+      ...canonicalize(table, row, settings),
+      source_ref: sourceRef(table, row)
     }));
   const artifact = {
     schema_version: '1.0',
     miner_version: options.miner_version || '0.1.0',
     generated_at: options.generated_at || new Date().toISOString(),
     backend: options.backend || 'unknown',
-    query: cleanValue(options.query || {}, options),
+    query: cleanValue(options.query || {}, settings),
     timezone: options.timezone || 'UTC',
-    source_schema: cleanValue(options.source_schema || {}, options),
+    source_schema: cleanValue(options.source_schema || {}, settings),
     record_counts: {},
     redaction_rules_version: REDACTION_RULES_VERSION,
-    incomplete_sources: cleanValue(Array.isArray(options.incomplete_sources) ? options.incomplete_sources : [], options),
+    incomplete_sources: cleanValue(Array.isArray(options.incomplete_sources) ? options.incomplete_sources : [], settings),
     sessions,
     turns: normalizeTable('turns'),
     checkpoints: normalizeTable('checkpoints'),
@@ -195,7 +264,7 @@ function normalizeHistory(raw, options = {}) {
     usage: normalizeTable('usage'),
     tools: normalizeTable('tool_executions'),
     metrics: [],
-    errors: cleanValue(Array.isArray(options.errors) ? options.errors : [], options)
+    errors: cleanValue(errors, settings)
   };
   for (const key of ['turns', 'checkpoints', 'files', 'refs', 'usage', 'tools']) {
     artifact[key] = sortRecords(artifact[key]);
@@ -240,9 +309,10 @@ function calculateMetrics(artifact) {
 }
 
 function mine(raw, options = {}) {
-  const candidates = discoverSessions(raw, options);
-  const selected = options.session?.length ? candidates.filter(row => options.session.includes(row.id)) : candidates;
-  const artifact = normalizeHistory({ ...loadSessionEvidence(raw, selected.map(row => row.id)), sessions: selected }, options);
+  const errors = Array.isArray(options.errors) ? [...options.errors] : [];
+  const settings = { ...options, errors };
+  const selected = discoverSessions(raw, settings);
+  const artifact = normalizeHistory({ ...loadSessionEvidence(raw, selected.map(row => row.id)), sessions: selected }, settings);
   artifact.metrics = calculateMetrics(artifact);
   return artifact;
 }

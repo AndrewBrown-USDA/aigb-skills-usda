@@ -167,17 +167,18 @@ The catalog includes 40 curated skills:
 
 - **Skill metadata contract:** Each `skills/*/SKILL.md` frontmatter must provide
   the standard top-level `name` and `description` fields. Supported standard
-  optional fields remain top-level when used. Repository-specific synchronization
-  fields belong under a `metadata` mapping: `group`, `loadout`, `loadouts`,
-  `dependencies`, `optional_dependencies`, `source_repo`, `source_path`, and
+  optional fields, including `license`, remain top-level when used.
+  Repository-specific synchronization fields belong under a `metadata` mapping:
+  `group`, `loadout`, `loadouts`, `dependencies`, and `optional_dependencies`
+  describe taxonomy and dependencies; `source_repo`, `source_path`, and
   `source_url` identify the canonical bundled source; `upstream_repo`,
   `upstream_ref`, optional `upstream_name`, and `version` preserve upstream
-  provenance. Legacy `source_ref` and `upstream` are read-only fallbacks for
-  `upstream_ref` and `upstream_repo`. Known canonical repositories derive a
-  GitHub URL; unknown repositories leave `source_url` unset rather than
-  fabricating one.
-- Optional `metadata.inspired_by` records the source of an idea without
-  treating that person as the skill author.
+  provenance; and `author` credits the skill author. Legacy `source_ref` and
+  `upstream` are read-only fallbacks for `upstream_ref` and `upstream_repo`.
+  Known canonical repositories derive a GitHub URL; unknown repositories leave
+  `source_url` unset rather than fabricating one.
+- Optional `metadata.inspired_by` records the source of an idea, does not confer
+  authorship, and never replaces `author`.
 - **Authority and catalog:** `skills/*/SKILL.md` frontmatter is authoritative.
   `catalog/skills.lock.json` is generated compatibility and index data derived
   from that frontmatter; edit the skill metadata rather than hand-editing the
@@ -191,15 +192,19 @@ installation, synchronization, validation, and CLI selection. When a curated
 skill intentionally uses a different name than its upstream source, record the
 upstream name relative to `metadata.source_repo` as `metadata.upstream_name`.
 For example, `code-review-2axis` uses `upstream_name: code-review`.
+
+### Curated skill categories
+
 - **Planning & Workflow:** `adr-distillation`, `agent-onboarding`, `goal-alignment`, `magic-wand`, `plan-first`, `plan-wave`, `wave-orchestration`.
 - **Engineering & Review:** `apply-fed-oss-license`, `arcpy-migration`, `code-review-2axis`, `code-review-subtractive`, `complexity-map`, `conventional-commits`, `doc-consistency`, `git-workflow-standards`, `github-actions-ci`, `reviewer-architecture`, `reviewer-correctness`, `verbosity-cleaner`, `worker-validation`.
 - **History & Evidence:** `copilot-history-briefing`, `copilot-history-miner`, `deep-investigative-research`, `git-history-interval-study`, `research`, `skill-research`, `web-source-bundler`.
-- **Data, Packaging & Utilities:** `bull-in-a-china-shop`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `r-package-testing-workflow`, `usda-open-data-catalog`.
+- **Data, Packaging & Utilities:** `bull-in-a-china-shop`, `install-skills`, `json-processing-with-jq`, `makefile-development-workflow`, `performance-benchmarking`, `r-package-data`, `r-package-testing`, `r-package-vignette`, `usda-open-data-catalog`.
 - **Diagnostics & External Skills:** `caveman`, `dr-lexus`, `grilling`, `ponytail`, `rubber-ducking`, `tdd`.
 
 ## Licensing Model
 
 - **Repository License:** MIT License with 17 U.S.C. § 105 federal public domain notice (see `LICENSE` and `INTENT.md`).
+- **Skill Licenses:** Individual skills declare their own license in `skills/*/SKILL.md` frontmatter, which may differ from the repository MIT license; for example, `usda-open-data-catalog` is CC0-1.0.
 - **Attribution:** All imported third-party skills maintain MIT compatibility with author attribution in `SKILL.md` YAML frontmatter.
 
 ## Troubleshooting

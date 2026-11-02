@@ -37,6 +37,12 @@ supporting evidence.
 
 ## Artifact
 
+`scripts/adapters.js` exposes `loadSource(options)`, which synchronously returns
+`{ raw, backend, incomplete_sources, errors }`. `raw` contains only observed
+tables; `backend` is a reported label (`local`, `cloud`, or `unknown`), not a
+driver selection; and `incomplete_sources` names tables observed as
+`local:<table>:missing|partial` or `cloud:<table>:missing|partial`.
+
 The implementation in `scripts/history_miner.js` exposes:
 
 ```js
@@ -45,9 +51,14 @@ loadSessionEvidence(source, sessionIds)
 normalizeHistory(raw, options)
 calculateMetrics(artifact, options)
 mine(raw, options)
+toNdjson(artifact)
 ```
 
-It accepts already-loaded source-shaped records so callers can provide local
-SQLite or cloud adapters without coupling this skill to a database driver.
-Output is returned in memory; callers explicitly choose whether to serialize
-JSON or NDJSON.
+`toNdjson` emits one manifest line followed by one typed line per record, so
+callers can stream the artifact without adding a serialization dependency.
+
+The miner accepts already-loaded source-shaped records so callers supply the
+local SQLite or cloud adapter themselves. The skill ships no database driver and
+no built-in network client: `loadSource` only reads a caller-provided filesystem
+`root` or invokes a caller-provided `transport` function. Output is returned in
+memory; callers explicitly choose whether to serialize JSON or NDJSON.

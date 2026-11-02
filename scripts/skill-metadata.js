@@ -45,7 +45,9 @@ function normalizeMetadata(input = {}) {
     ...(metadata.upstream_name ? { upstream_name: metadata.upstream_name } : {}),
     ...(metadata.author ? { author: metadata.author } : {}),
     ...(metadata.authors ? { authors: metadata.authors } : {}),
-    ...(metadata.inspired_by ? { inspired_by: metadata.inspired_by } : {}),
+    ...(metadata.inspired_by !== undefined
+      ? { inspired_by: typeof metadata.inspired_by === 'string' ? metadata.inspired_by.trim() : metadata.inspired_by }
+      : {}),
     ...(version !== undefined ? { version } : {})
   };
 }
@@ -93,6 +95,10 @@ function validateMetadata(input) {
       (!['string', 'number'].includes(typeof metadata.version) ||
        (typeof metadata.version === 'string' && metadata.version.trim() === ''))) {
     errors.push('version must be a non-empty scalar');
+  }
+  if (metadata.inspired_by !== undefined &&
+      (typeof metadata.inspired_by !== 'string' || metadata.inspired_by === '')) {
+    errors.push('inspired_by must be a non-empty scalar string');
   }
   if (input.upstream_repo !== undefined && input.upstream !== undefined &&
       String(input.upstream_repo).trim() !== String(input.upstream).trim()) {

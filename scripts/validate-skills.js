@@ -168,6 +168,16 @@ function validateSkill(entry, skillsDir, results) {
     addResult(results, entry.name, 'structure', 'failed', 'Missing or malformed YAML frontmatter');
     return;
   }
+  if (frontmatter.metadata.inspired_by !== undefined) {
+    const inspiredByErrors = validateMetadata({
+      source_repo: entry.source_repo,
+      source_path: entry.source_path,
+      inspired_by: frontmatter.metadata.inspired_by
+    }).errors.filter((error) => error.startsWith('inspired_by'));
+    if (inspiredByErrors.length) {
+      addResult(results, entry.name, 'metadata', 'failed', inspiredByErrors.join('; '));
+    }
+  }
   if (frontmatter.fields.name !== entry.name) {
     addResult(results, entry.name, 'structure', 'failed', 'Frontmatter name does not match catalog entry');
   }

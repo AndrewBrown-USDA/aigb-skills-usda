@@ -58,6 +58,18 @@ Missing optional fields remain `null`; they are not silently replaced.
 
 ## Backend and joins
 
+`loadSource({ backend, root, transport, query, session })` is synchronous and
+returns `{ raw, backend, incomplete_sources, errors }`. `backend` defaults to
+`auto`, whose detection precedence is: a readable filesystem `root` selects
+`local`; otherwise a supplied `transport` function selects `cloud`; otherwise
+the result is `unknown` with an explicit limitation. A supplied but unreadable
+root falls back to `cloud` when a transport is also supplied, and the local
+error is retained in `errors`. Async transports are rejected.
+
+`backend` is a reported label (`local`, `cloud`, or `unknown`) describing which
+path produced the records; it is not a driver selection. `incomplete_sources`
+entries are `local:<table>:missing|partial` or `cloud:<table>:missing|partial`.
+
 Adapters must feature-detect tables and columns before querying them. A backend
 reports unavailable or partially read sources in `incomplete_sources` and
 continues with the records it can validate. Git, GitHub, and CI integrations

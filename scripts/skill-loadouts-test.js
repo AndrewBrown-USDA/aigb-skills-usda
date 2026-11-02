@@ -35,13 +35,13 @@ const catalogPath = path.join(__dirname, '..', 'catalog', 'skills.lock.json');
 const realCatalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
 const packaged = scanCuratedSkills();
 const generated = buildLockfile();
-const scratch = path.join(__dirname, '..', '.scratch', 'loadout-tests', '18.4.1');
+const scratch = path.join(__dirname, '..', '.scratch', 'loadout-tests', '14.1.3');
 fs.mkdirSync(scratch, { recursive: true });
 try {
   assert.strictEqual(realCatalog.schema_version, 1);
   assert.strictEqual(realCatalog.generated_by, 'scripts/mine-history.js');
   assert.deepStrictEqual(realCatalog.generated_from, generated.generated_from);
-  assert.strictEqual(realCatalog.skills.length, 40);
+  assert.strictEqual(realCatalog.skills.length, packaged.length);
   assert.deepStrictEqual(realCatalog.skills.map(x => x.name), [...realCatalog.skills.map(x => x.name)].sort());
   assert.deepStrictEqual(realCatalog.skills, packaged);
   assert.deepStrictEqual(realCatalog.skills, generated.skills);
@@ -65,12 +65,13 @@ try {
   assert.deepStrictEqual(names(softwareDelivery), [
     'adr-distillation', 'agent-onboarding', 'apply-fed-oss-license',
     'arcpy-migration', 'bull-in-a-china-shop', 'code-review-2axis',
+    'code-review-subtractive', 'complexity-map',
     'conventional-commits', 'doc-consistency', 'git-history-interval-study',
-    'github-actions-ci', 'goal-alignment', 'grilling', 'install-skills',
-    'json-processing-with-jq', 'makefile-development-workflow',
-    'performance-benchmarking', 'plan-first', 'wave-orchestration',
-    'plan-wave', 'ponytail', 'r-package-testing-workflow',
-    'reviewer-architecture', 'reviewer-correctness', 'rubber-ducking',
+    'git-workflow-standards', 'github-actions-ci', 'goal-alignment',
+    'grilling', 'install-skills', 'json-processing-with-jq', 'magic-wand',
+    'makefile-development-workflow', 'performance-benchmarking', 'plan-first',
+    'wave-orchestration', 'plan-wave', 'ponytail', 'r-package-data',
+    'r-package-testing', 'r-package-vignette', 'reviewer-architecture', 'reviewer-correctness', 'rubber-ducking',
     'skill-research', 'tdd', 'worker-validation'
   ]);
   assert.strictEqual(new Set(names(softwareDelivery)).size, names(softwareDelivery).length);
@@ -79,7 +80,8 @@ try {
   assert.strictEqual(waveDelivery.ok, true);
   assert.deepStrictEqual(names(waveDelivery), [
     'adr-distillation', 'conventional-commits', 'goal-alignment', 'grilling',
-    'plan-first', 'wave-orchestration', 'plan-wave', 'worker-validation'
+    'magic-wand', 'plan-first', 'wave-orchestration', 'plan-wave',
+    'worker-validation'
   ]);
   assert.strictEqual(new Set(names(waveDelivery)).size, names(waveDelivery).length);
 
@@ -182,7 +184,8 @@ try {
   const unsafeResult = resolve(['x'], unsafe);
   assert.strictEqual(unsafeResult.ok, false);
   assert.deepStrictEqual(unsafeResult.diagnostics.map(d => [d.code, d.subject]), [['invalid-catalog', '', ''].slice(0, 2)]);
-  assert.strictEqual(resolve(['x'], { skills: [s('x', { source_path: path.join('skills', 'x', 'SKILL.md') })] }).ok, false);
+  assert.strictEqual(resolve(['x'], { skills: [s('x', { source_path: 'skills\\x\\SKILL.md' })] }).ok, false);
+  assert.strictEqual(resolve(['x'], { skills: [s('x', { source_path: 'skills/x/SKILL.md' })] }).ok, true);
   assert.strictEqual(resolve(['a'], fixtureCatalog).skills[1].source_path, 'skills/a/SKILL.md');
   assert.deepStrictEqual(resolve(['a', 'a'], fixtureCatalog).skills.map(x => x.name), ['c', 'a']);
   console.log('Skill loadout tests passed.');

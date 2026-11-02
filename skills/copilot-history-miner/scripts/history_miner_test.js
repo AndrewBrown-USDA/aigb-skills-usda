@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const { mine, normalizeHistory, redact, toNdjson } = require('./history_miner');
+const { loadSessionEvidence, mine, normalizeHistory, redact, toNdjson } = require('./history_miner');
 
 const fixture = require(path.join(__dirname, '..', 'fixtures', 'local-history.json'));
 const artifact = mine(fixture, {
@@ -109,5 +109,71 @@ const files = normalizeHistory({
   ]
 });
 assert.equal(new Set(files.files.map(row => row.source_ref)).size, 3);
+assert.equal(redact('cwd C:\\workspace\\repo, branch main'), 'cwd [REDACTED_PATH], branch main');
+assert.equal(redact('paths C:\\one\\two; C:\\three\\four'), 'paths [REDACTED_PATH]; [REDACTED_PATH]');
+const leakyFiles = normalizeHistory({
+  sessions: [{ id: 's1' }],
+  session_files: [
+    { session_id: 's1', file_path: 'C:\\Users\\Jane Doe\\repo\\src\\index.js', tool_name: 'edit' },
+    { session_id: 's1', file_path: 'C:\\Users\\Other\\repo\\src\\index.js', tool_name: 'edit' }
+  ]
+});
+assert.deepEqual(leakyFiles.files.map(row => row.file_path), ['[REDACTED_PATH]', '[REDACTED_PATH]']);
+assert.equal(new Set(leakyFiles.files.map(row => row.source_ref)).size, 2);
+assert.doesNotMatch(JSON.stringify(leakyFiles.files.map(row => row.source_ref)), /Users|Jane|repo|index|\\\\/);
+const sensitive = normalizeHistory({
+  sessions: [{ id: 's1' }],
+  turns: [{
+    session_id: 's1',
+    payload: {
+      access_token: 'a', refresh_token: 'b', client_secret: 'c', private_key: 'd',
+      authorization: 'e', credential: 'f', input_tokens: 10, cache_read_tokens: 5
+    }
+  }],
+  session_usage: [{ session_id: 's1', usage_model: 'm', input_tokens: 10, cache_read_tokens: 5 }]
+});
+assert.deepEqual(sensitive.turns[0].payload, {
+  access_token: '[REDACTED]', refresh_token: '[REDACTED]', client_secret: '[REDACTED]',
+  private_key: '[REDACTED]', authorization: '[REDACTED]', credential: '[REDACTED]',
+  input_tokens: 10, cache_read_tokens: 5
+});
+assert.equal(sensitive.usage[0].input_tokens, 10);
+assert.equal(sensitive.usage[0].cache_read_tokens, 5);
+const evidence = loadSessionEvidence({
+  sessions: [{ id: 's1' }, { id: 's2' }],
+  turns: [{ session_id: 's1' }, { session_id: 's2' }, { turn_index: 0 }]
+}, ['s1']);
+assert.deepEqual(evidence.sessions.map(row => row.id), ['s1']);
+assert.deepEqual(evidence.turns, [{ session_id: 's1' }]);
+const bounded = normalizeHistory({
+  sessions: [{ id: 's1' }, { id: 's2' }],
+  turns: [{ session_id: 's1' }, { session_id: 's2' }, { turn_index: 0 }],
+  session_files: [{ file_path: 'orphan.js' }],
+  session_refs: [{ ref_value: 'orphan' }],
+  session_usage: [{ usage_model: 'm' }],
+  tool_executions: [{ tool_call_id: 'orphan' }]
+}, { session: ['s1'] });
+assert.deepEqual(bounded.sessions.map(row => row.id), ['s1']);
+assert.equal(bounded.turns.length, 1);
+assert.equal(bounded.files.length, 0);
+assert.equal(bounded.refs.length, 0);
+assert.equal(bounded.usage.length, 0);
+assert.equal(bounded.tools.length, 0);
+const unselected = normalizeHistory({
+  sessions: [{ id: 's1' }, { id: 's2' }],
+  turns: [{ session_id: 's1' }, { turn_index: 0 }]
+});
+assert.equal(unselected.sessions.length, 2);
+assert.equal(unselected.turns.length, 1);
+const failingPattern = { [Symbol.replace]() { throw new Error('pattern boom'); } };
+const failedRedaction = normalizeHistory({
+  sessions: [{ id: 's1' }],
+  turns: [{ session_id: 's1', user_message: 'hello' }]
+}, { redactPatterns: [failingPattern] });
+assert.equal(failedRedaction.turns[0].user_message, 'hello');
+assert.equal(failedRedaction.errors.filter(message => /pattern boom/.test(message)).length, 1);
+assert.doesNotThrow(() => mine(fixture, { redactPatterns: [failingPattern] }));
+assert.equal(mine(fixture, { redactPatterns: [failingPattern] }).errors
+  .filter(message => /pattern boom/.test(message)).length, 1);
 
 console.log('history miner tests passed');

@@ -17,6 +17,7 @@
     "smoke": "node scripts/smoke.js",
     "test": "node scripts/smoke.js",
     "test:validate": "node scripts/validate-skills-test.js",
+    "test:skills": "node skills/copilot-history-miner/scripts/history_miner_test.js && node skills/copilot-history-miner/scripts/adapters_test.js && node skills/copilot-history-briefing/scripts/briefing_contract_test.js",
     "validate:skills": "node scripts/validate-skills.js",
     "catalog:mine": "node scripts/mine-history.js --output catalog/skills.lock.json",
     "skills:sync": "node scripts/sync-skills.js",
