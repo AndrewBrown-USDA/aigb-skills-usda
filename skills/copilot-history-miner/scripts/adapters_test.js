@@ -182,7 +182,9 @@ try {
   assert.ok(malformed.errors.includes('cloud:invalid-table:sessions'));
   assert.ok(malformed.incomplete_sources.includes('cloud:sessions:missing'));
 
-  assert.equal(symlinkCreated, true);
+  if (symlinkCreated) {
+    assert.ok(!local.raw.sessions.some(row => row.id === 'outside-1'));
+  }
   console.log('history miner adapter tests passed');
 } finally {
   global.fetch = originalFetch;

@@ -7,7 +7,7 @@
     "policy": "no application cache",
     "declaration": "Each sample is a fresh serial Node.js child process reading files from the operating-system filesystem."
   },
-  "source_commit": "51b562f6a0425b12cbb00d532bacd48f37c325d8",
+  "source_commit": "cefa5c77d305e0e1631d2911751a5e079927f86a",
   "catalog": "catalog/skills.lock.json",
   "corpus": [
     "adr-distillation",
@@ -17,29 +17,37 @@
     "bull-in-a-china-shop",
     "caveman",
     "code-review-2axis",
+    "code-review-subtractive",
+    "complexity-map",
     "conventional-commits",
     "copilot-history-briefing",
+    "copilot-history-miner",
     "deep-investigative-research",
     "doc-consistency",
     "dr-lexus",
     "git-history-interval-study",
+    "git-workflow-standards",
     "github-actions-ci",
     "goal-alignment",
     "grilling",
     "install-skills",
     "json-processing-with-jq",
+    "magic-wand",
     "makefile-development-workflow",
     "performance-benchmarking",
     "plan-first",
     "plan-wave",
     "ponytail",
-    "r-package-testing-workflow",
+    "r-package-data",
+    "r-package-testing",
+    "r-package-vignette",
     "research",
     "reviewer-architecture",
     "reviewer-correctness",
     "rubber-ducking",
     "skill-research",
     "tdd",
+    "usda-open-data-catalog",
     "verbosity-cleaner",
     "wave-orchestration",
     "web-source-bundler",
@@ -48,8 +56,8 @@
   "corpus_files": [
     {
       "path": "skills/adr-distillation/SKILL.md",
-      "bytes": 8200,
-      "sha256": "26c961da5dc89126a2dd3adc99d6331dd217bc72be5d37758f375450dfc4c0eb"
+      "bytes": 8354,
+      "sha256": "be308a43e346d8aed4ccaded0b67867cfa47f5d6d4670dfea68e5fc53119d06d"
     },
     {
       "path": "skills/agent-onboarding/assets/AGENTS_template.md",
@@ -63,13 +71,13 @@
     },
     {
       "path": "skills/agent-onboarding/SKILL.md",
-      "bytes": 4201,
-      "sha256": "0cadb491ea2ec0ee84866d6cac52b590f82dc8b9e6f6078b6a6ab89e2cf26e3f"
+      "bytes": 4305,
+      "sha256": "0aa64f48a70681c56eb31bf6da7d18b03aa107c41ed02dc35bc0f600c70fb4b3"
     },
     {
       "path": "skills/apply-fed-oss-license/SKILL.md",
-      "bytes": 7133,
-      "sha256": "67552202bf5227d64aa17776560d9f1141f59b0fddae90404348dcdd8a12f19c"
+      "bytes": 7376,
+      "sha256": "a42840a96e7b3611b360f5534001ee6554dcecb85f62155cf6992bbf8d7f1a45"
     },
     {
       "path": "skills/arcpy-migration/examples/explicit-workflow.md",
@@ -93,8 +101,8 @@
     },
     {
       "path": "skills/arcpy-migration/SKILL.md",
-      "bytes": 7890,
-      "sha256": "99a9941fdf805dcc117a6d10da929e665dd11142dbacfb7951c847fecded56bf"
+      "bytes": 8036,
+      "sha256": "8335e39bf289b244c97e252d3b8708e75737b900823780585560595198a0badd"
     },
     {
       "path": "skills/arcpy-migration/templates/migration-manifest.yaml",
@@ -118,8 +126,8 @@
     },
     {
       "path": "skills/bull-in-a-china-shop/SKILL.md",
-      "bytes": 5380,
-      "sha256": "7408615d885d2b306197fdac4c000c6bb6b8cabdc2a9ac1a1e74d97c6428a57d"
+      "bytes": 5464,
+      "sha256": "7188b4dcd6fdff0016250a98a2587c3cb4984ae86ce1f4060683ea57805465da"
     },
     {
       "path": "skills/caveman/README.md",
@@ -128,8 +136,8 @@
     },
     {
       "path": "skills/caveman/SKILL.md",
-      "bytes": 7374,
-      "sha256": "27abea35c454f7648c4a912f3b5faf9719e72fe4632f657d3045e0d2c1191fef"
+      "bytes": 7467,
+      "sha256": "b9107df0fa51c6f22b3b72cacf43e1d99cc372ed325fa7dabc2625e989b145f7"
     },
     {
       "path": "skills/code-review-2axis/agents/openai.yaml",
@@ -138,28 +146,83 @@
     },
     {
       "path": "skills/code-review-2axis/SKILL.md",
-      "bytes": 7158,
-      "sha256": "316191bceb9fb700f46a2f1e5f47d141e76c33dfe400bb3087d87334d7b457e6"
+      "bytes": 7258,
+      "sha256": "bee85fb2de36a180ee489465ae59df419875ac44b7b3329b4ceddeadfa96620a"
+    },
+    {
+      "path": "skills/code-review-subtractive/SKILL.md",
+      "bytes": 10618,
+      "sha256": "9e7848e6907c5aba12a8bde6ea83e7ac40328063cae00d82a196290d06f2e004"
+    },
+    {
+      "path": "skills/complexity-map/SKILL.md",
+      "bytes": 3548,
+      "sha256": "ff4c87edfd8e6f3af8e445c7aa547e9ef616c7aa0984035d2cdb34bd51ed3185"
     },
     {
       "path": "skills/conventional-commits/SKILL.md",
-      "bytes": 6539,
-      "sha256": "b358f3ab8f27e80aabf34cf92d57f5ef1dd28e0cfb0c425f27e7c72969e2669e"
+      "bytes": 7112,
+      "sha256": "eb2522829a88f7576e20be5116dc96a8a79e67c063a497178d01f17725e3db41"
+    },
+    {
+      "path": "skills/copilot-history-briefing/scripts/briefing_contract_test.js",
+      "bytes": 566,
+      "sha256": "01bb732802644386ff03be99aa07083b54669294bfcf94b8f2a2cc40afbff501"
     },
     {
       "path": "skills/copilot-history-briefing/SKILL.md",
-      "bytes": 11077,
-      "sha256": "6fc8e1a47aa604946e864f62884c26241ef0904e708f3feed07ad36181116efd"
+      "bytes": 10309,
+      "sha256": "ef0ab4f69c6adb49d31736cf0d48bb4017574ab128d5b533095a8ea533544f4e"
+    },
+    {
+      "path": "skills/copilot-history-miner/fixtures/cloud-history.json",
+      "bytes": 703,
+      "sha256": "5cccae49eac43dfd65189945b2e3079e0d9332d58f04c4f8e9662ecb00eec933"
+    },
+    {
+      "path": "skills/copilot-history-miner/fixtures/local-history.json",
+      "bytes": 1075,
+      "sha256": "489fb061ad45fe5de4de4c75c0f0e4796f6d6926ead099093c30d949d17ac939"
+    },
+    {
+      "path": "skills/copilot-history-miner/references/contract.md",
+      "bytes": 3769,
+      "sha256": "628f6dfdba2646ea0e6ccfc94045adce09f4cd1eb31c53a925c75a01a1696696"
+    },
+    {
+      "path": "skills/copilot-history-miner/scripts/adapters_test.js",
+      "bytes": 9643,
+      "sha256": "0b5a32ddbba5db60c991e7a2ed49a9a9c9eb2b93b97a8206cb28f510ef4baa48"
+    },
+    {
+      "path": "skills/copilot-history-miner/scripts/adapters.js",
+      "bytes": 12507,
+      "sha256": "010c74425353dea2ebfb6c542b952cc37c9b181d74367e63e70465ed214a4839"
+    },
+    {
+      "path": "skills/copilot-history-miner/scripts/history_miner_test.js",
+      "bytes": 8417,
+      "sha256": "21c5eb0c822fcb1c2b23dabfbab6d11e0e69c58b43825b7d1a300f27c8af551c"
+    },
+    {
+      "path": "skills/copilot-history-miner/scripts/history_miner.js",
+      "bytes": 14630,
+      "sha256": "1083fbab966ce9e617848c4e37eeb958df7e480104f9813571c39ea54ddc9915"
+    },
+    {
+      "path": "skills/copilot-history-miner/SKILL.md",
+      "bytes": 2882,
+      "sha256": "f66cc5c8b02b73c8c757899c4dbe4b82ef5e89d68b19e52039031eee4df51c6f"
     },
     {
       "path": "skills/deep-investigative-research/SKILL.md",
-      "bytes": 8915,
-      "sha256": "5257425dddca39717d5afb7cd70f7933271754690bdb28d0fa377d674e5251f5"
+      "bytes": 9142,
+      "sha256": "7a0d3486aa0a770782960786d8f52abb03ff6bfdaefde3a7050ad29f26f671d2"
     },
     {
       "path": "skills/doc-consistency/SKILL.md",
-      "bytes": 2292,
-      "sha256": "be3cb66b6cc1bb65d760adc29107398908e631bad5b3a9fe1f3d4545aeb5be8e"
+      "bytes": 2357,
+      "sha256": "af6859ee09ae0a33326f6213aef5772768a2635c7f9c9074cda944103e00106d"
     },
     {
       "path": "skills/dr-lexus/references/VOCABULARY.md",
@@ -168,8 +231,8 @@
     },
     {
       "path": "skills/dr-lexus/SKILL.md",
-      "bytes": 3621,
-      "sha256": "bf78f36317b3c0fbdf3518a64198ae8899e4fbd11c444d2975cbff4e2ff0bfcd"
+      "bytes": 3694,
+      "sha256": "1e84f9b119628ff3626178250e4ef05c448db0ecd3de3273af54477665684f9c"
     },
     {
       "path": "skills/git-history-interval-study/scripts/interval_ledger-test.js",
@@ -185,6 +248,11 @@
       "path": "skills/git-history-interval-study/SKILL.md",
       "bytes": 8256,
       "sha256": "7fe3fa1e0b41fc9de591c0c8933007e9625e796c3eacffad0f4075ae12356beb"
+    },
+    {
+      "path": "skills/git-workflow-standards/SKILL.md",
+      "bytes": 5473,
+      "sha256": "d36b94566e23966f1910fcfcccd78b67b51c8f1282044a8275fc5278765509e5"
     },
     {
       "path": "skills/github-actions-ci/SKILL.md",
@@ -237,6 +305,11 @@
       "sha256": "319ad46367d1c34d0276443f748ec5e75bdf871648be28ac0e18daef547e5838"
     },
     {
+      "path": "skills/magic-wand/SKILL.md",
+      "bytes": 4674,
+      "sha256": "ddc6c688c8b063862c7549433794d2190dcdc94187d6c47dd4cec361deb70205"
+    },
+    {
       "path": "skills/makefile-development-workflow/references/anatomy.md",
       "bytes": 18495,
       "sha256": "01771229c694fad94262dc5ceab50f06e6453a53a1a557cc5abe2aa5e644130e"
@@ -282,9 +355,44 @@
       "sha256": "cfd69aedaafcc365f0a8108f98db4c82bb686ab8c7cf088432e7d6653e6bebf3"
     },
     {
-      "path": "skills/r-package-testing-workflow/SKILL.md",
-      "bytes": 6550,
-      "sha256": "f768d9c4f5482c85cd195a820b62fb78567decba6c56ab5a230d4fd51a63f85e"
+      "path": "skills/r-package-data/SKILL.md",
+      "bytes": 5771,
+      "sha256": "8d82fa12fac094ec9a52febe7b43692dbfc4ed4df45a540c83ed8f2a1e21f28f"
+    },
+    {
+      "path": "skills/r-package-testing/references/memory-testing.md",
+      "bytes": 4056,
+      "sha256": "d511131b8d63e9eeb27383ecb62a828fe23736dfa089204efbe1e7a2d9751306"
+    },
+    {
+      "path": "skills/r-package-testing/references/testthat.md",
+      "bytes": 2229,
+      "sha256": "81f5d7b6e3741c833da1607b8432b4cd35cc0b6b265a115b4658c2763edb99bb"
+    },
+    {
+      "path": "skills/r-package-testing/references/tinytest.md",
+      "bytes": 2963,
+      "sha256": "0c92dffe079cd229f53e2982838e5e297504631ea904958e1a87be4feb613675"
+    },
+    {
+      "path": "skills/r-package-testing/SKILL.md",
+      "bytes": 5187,
+      "sha256": "36f41c48df2b57e094dea8c2e4ab50bee35b667fab7a99b2bbbe82b2f6c8ad04"
+    },
+    {
+      "path": "skills/r-package-vignette/references/knitr-rmarkdown.md",
+      "bytes": 2442,
+      "sha256": "cc3566863194e2063f44c2ca825ffc0111b67d39083181cdff694c8a236b5621"
+    },
+    {
+      "path": "skills/r-package-vignette/references/litedown.md",
+      "bytes": 2406,
+      "sha256": "9c5763a2b127d8c9100d53628e7182dea510db10fb91d1ab6edcfa2c1134b9a8"
+    },
+    {
+      "path": "skills/r-package-vignette/SKILL.md",
+      "bytes": 4760,
+      "sha256": "4b6dbc2e7105b014d671f2036ef81b221af5f75fe63fae64f4a1f9d88194dabf"
     },
     {
       "path": "skills/research/agents/openai.yaml",
@@ -367,9 +475,39 @@
       "sha256": "3eaa860b178580805e89b70c8df49f076a625ef1baf457360428dffc8fcf2350"
     },
     {
+      "path": "skills/skill-research/references/agentskills-spec.md",
+      "bytes": 988,
+      "sha256": "b5d81c979873402be28be3327633bf0f6bd512db33c3f92ef1b9b0c453556911"
+    },
+    {
+      "path": "skills/skill-research/references/authoring-best-practices.md",
+      "bytes": 766,
+      "sha256": "c8798f320abc7631d1fba99b87c76842261dcfe33c9250f499a1913b68ae3783"
+    },
+    {
+      "path": "skills/skill-research/references/research-evidence.md",
+      "bytes": 992,
+      "sha256": "adb510d4193a24550c2f235961fe2167dd938183d603a12da91b5ed436f1c045"
+    },
+    {
+      "path": "skills/skill-research/references/skill-evaluation.md",
+      "bytes": 599,
+      "sha256": "6d38cb63679a597ea682d8c4fba118d50daf01fc5f73bd63ce37928f6d328c29"
+    },
+    {
+      "path": "skills/skill-research/references/trigger-evaluation.md",
+      "bytes": 647,
+      "sha256": "32376c3025138b45f4fb9906eecf358200ce046d84d58c5971127edc89951c29"
+    },
+    {
+      "path": "skills/skill-research/references/validation-tools.md",
+      "bytes": 1451,
+      "sha256": "d1d165d04f22adb120bb72bd0616e0f94f9f3664df363a8cdd83ba2620fb7f1b"
+    },
+    {
       "path": "skills/skill-research/SKILL.md",
-      "bytes": 4950,
-      "sha256": "d10be12a8408209d5c5be8218998a3d0cffc62e40973271a9322255ca8bb4e6a"
+      "bytes": 6052,
+      "sha256": "ad35c5ecc33665654d4b200c453d10c13acf2bf3ede933a56673598494ea4582"
     },
     {
       "path": "skills/tdd/agents/openai.yaml",
@@ -390,6 +528,26 @@
       "path": "skills/tdd/tests.md",
       "bytes": 2291,
       "sha256": "0b401f98bd3684d2fea6440d6946afcf8f5f68ac6a65599dd7a2b90dd9f02eb5"
+    },
+    {
+      "path": "skills/usda-open-data-catalog/references/catalog-schema-and-semantics.md",
+      "bytes": 1088,
+      "sha256": "4c6c8b6e7f0c5ea618ac42a916daabe36de7fa6af449975e3c84644b32b09ed2"
+    },
+    {
+      "path": "skills/usda-open-data-catalog/references/evaluation-and-safety.md",
+      "bytes": 1094,
+      "sha256": "ab70a10abee32782f1976dcbc44af2358de3035502ed2ac0e24d89ad138c0f65"
+    },
+    {
+      "path": "skills/usda-open-data-catalog/references/source-routing.md",
+      "bytes": 1060,
+      "sha256": "7e605ed35f530272eefbc7c4c6a35962ad89ed8d935bfef37a9e73eb7183b2d3"
+    },
+    {
+      "path": "skills/usda-open-data-catalog/SKILL.md",
+      "bytes": 6477,
+      "sha256": "56651b12ff58fab3c106bae8c99d3f54a1fda4615bb25cb1ec4dd16afe31430f"
     },
     {
       "path": "skills/verbosity-cleaner/SKILL.md",
@@ -423,29 +581,37 @@
         "bull-in-a-china-shop",
         "caveman",
         "code-review-2axis",
+        "code-review-subtractive",
+        "complexity-map",
         "conventional-commits",
         "copilot-history-briefing",
+        "copilot-history-miner",
         "deep-investigative-research",
         "doc-consistency",
         "dr-lexus",
         "git-history-interval-study",
+        "git-workflow-standards",
         "github-actions-ci",
         "goal-alignment",
         "grilling",
         "install-skills",
         "json-processing-with-jq",
+        "magic-wand",
         "makefile-development-workflow",
         "performance-benchmarking",
         "plan-first",
         "plan-wave",
         "ponytail",
-        "r-package-testing-workflow",
+        "r-package-data",
+        "r-package-testing",
+        "r-package-vignette",
         "research",
         "reviewer-architecture",
         "reviewer-correctness",
         "rubber-ducking",
         "skill-research",
         "tdd",
+        "usda-open-data-catalog",
         "verbosity-cleaner",
         "wave-orchestration",
         "web-source-bundler",
@@ -461,30 +627,38 @@
         "bull-in-a-china-shop",
         "caveman",
         "code-review-2axis",
+        "code-review-subtractive",
+        "complexity-map",
         "conventional-commits",
         "copilot-history-briefing",
+        "copilot-history-miner",
         "deep-investigative-research",
         "doc-consistency",
         "dr-lexus",
         "git-history-interval-study",
+        "git-workflow-standards",
         "github-actions-ci",
         "goal-alignment",
         "grilling",
         "install-skills",
         "json-processing-with-jq",
+        "magic-wand",
         "makefile-development-workflow",
         "performance-benchmarking",
         "plan-first",
         "wave-orchestration",
         "plan-wave",
         "ponytail",
-        "r-package-testing-workflow",
+        "r-package-data",
+        "r-package-testing",
+        "r-package-vignette",
         "research",
         "reviewer-architecture",
         "reviewer-correctness",
         "rubber-ducking",
         "skill-research",
         "tdd",
+        "usda-open-data-catalog",
         "verbosity-cleaner",
         "web-source-bundler",
         "worker-validation"
@@ -512,27 +686,35 @@
         "bull-in-a-china-shop",
         "caveman",
         "code-review-2axis",
+        "code-review-subtractive",
+        "complexity-map",
         "conventional-commits",
         "copilot-history-briefing",
+        "copilot-history-miner",
         "deep-investigative-research",
         "doc-consistency",
         "dr-lexus",
         "git-history-interval-study",
+        "git-workflow-standards",
         "github-actions-ci",
         "goal-alignment",
         "install-skills",
         "json-processing-with-jq",
+        "magic-wand",
         "makefile-development-workflow",
         "performance-benchmarking",
         "plan-first",
         "ponytail",
-        "r-package-testing-workflow",
+        "r-package-data",
+        "r-package-testing",
+        "r-package-vignette",
         "research",
         "reviewer-architecture",
         "reviewer-correctness",
         "rubber-ducking",
         "skill-research",
         "tdd",
+        "usda-open-data-catalog",
         "verbosity-cleaner",
         "web-source-bundler",
         "worker-validation"
@@ -551,6 +733,7 @@
         "conventional-commits",
         "goal-alignment",
         "grilling",
+        "magic-wand",
         "plan-first",
         "wave-orchestration",
         "plan-wave",
@@ -563,24 +746,31 @@
         "bull-in-a-china-shop",
         "caveman",
         "code-review-2axis",
+        "code-review-subtractive",
+        "complexity-map",
         "copilot-history-briefing",
+        "copilot-history-miner",
         "deep-investigative-research",
         "doc-consistency",
         "dr-lexus",
         "git-history-interval-study",
+        "git-workflow-standards",
         "github-actions-ci",
         "install-skills",
         "json-processing-with-jq",
         "makefile-development-workflow",
         "performance-benchmarking",
         "ponytail",
-        "r-package-testing-workflow",
+        "r-package-data",
+        "r-package-testing",
+        "r-package-vignette",
         "research",
         "reviewer-architecture",
         "reviewer-correctness",
         "rubber-ducking",
         "skill-research",
         "tdd",
+        "usda-open-data-catalog",
         "verbosity-cleaner",
         "web-source-bundler"
       ],
@@ -608,27 +798,35 @@
         "arcpy-migration",
         "bull-in-a-china-shop",
         "caveman",
+        "code-review-subtractive",
+        "complexity-map",
         "conventional-commits",
         "copilot-history-briefing",
+        "copilot-history-miner",
         "deep-investigative-research",
         "doc-consistency",
         "dr-lexus",
         "git-history-interval-study",
+        "git-workflow-standards",
         "github-actions-ci",
         "goal-alignment",
         "install-skills",
         "json-processing-with-jq",
+        "magic-wand",
         "makefile-development-workflow",
         "performance-benchmarking",
         "plan-first",
         "ponytail",
-        "r-package-testing-workflow",
+        "r-package-data",
+        "r-package-testing",
+        "r-package-vignette",
         "research",
         "reviewer-architecture",
         "reviewer-correctness",
         "rubber-ducking",
         "skill-research",
         "tdd",
+        "usda-open-data-catalog",
         "verbosity-cleaner",
         "web-source-bundler",
         "worker-validation"
@@ -653,28 +851,36 @@
         "bull-in-a-china-shop",
         "caveman",
         "code-review-2axis",
+        "code-review-subtractive",
+        "complexity-map",
         "conventional-commits",
         "copilot-history-briefing",
+        "copilot-history-miner",
         "deep-investigative-research",
         "doc-consistency",
         "dr-lexus",
         "git-history-interval-study",
+        "git-workflow-standards",
         "github-actions-ci",
         "goal-alignment",
         "install-skills",
         "json-processing-with-jq",
+        "magic-wand",
         "makefile-development-workflow",
         "performance-benchmarking",
         "plan-first",
         "plan-wave",
         "ponytail",
-        "r-package-testing-workflow",
+        "r-package-data",
+        "r-package-testing",
+        "r-package-vignette",
         "research",
         "reviewer-architecture",
         "reviewer-correctness",
         "rubber-ducking",
         "skill-research",
         "tdd",
+        "usda-open-data-catalog",
         "verbosity-cleaner",
         "wave-orchestration",
         "web-source-bundler",
@@ -696,21 +902,27 @@
         "arcpy-migration",
         "bull-in-a-china-shop",
         "code-review-2axis",
+        "code-review-subtractive",
+        "complexity-map",
         "conventional-commits",
         "doc-consistency",
         "git-history-interval-study",
+        "git-workflow-standards",
         "github-actions-ci",
         "goal-alignment",
         "grilling",
         "install-skills",
         "json-processing-with-jq",
+        "magic-wand",
         "makefile-development-workflow",
         "performance-benchmarking",
         "plan-first",
         "wave-orchestration",
         "plan-wave",
         "ponytail",
-        "r-package-testing-workflow",
+        "r-package-data",
+        "r-package-testing",
+        "r-package-vignette",
         "reviewer-architecture",
         "reviewer-correctness",
         "rubber-ducking",
@@ -721,9 +933,11 @@
       "omitted": [
         "caveman",
         "copilot-history-briefing",
+        "copilot-history-miner",
         "deep-investigative-research",
         "dr-lexus",
         "research",
+        "usda-open-data-catalog",
         "verbosity-cleaner",
         "web-source-bundler"
       ],
@@ -752,29 +966,37 @@
         "bull-in-a-china-shop",
         "caveman",
         "code-review-2axis",
+        "code-review-subtractive",
+        "complexity-map",
         "conventional-commits",
         "copilot-history-briefing",
+        "copilot-history-miner",
         "deep-investigative-research",
         "doc-consistency",
         "dr-lexus",
         "git-history-interval-study",
+        "git-workflow-standards",
         "github-actions-ci",
         "goal-alignment",
         "grilling",
         "install-skills",
         "json-processing-with-jq",
+        "magic-wand",
         "makefile-development-workflow",
         "performance-benchmarking",
         "plan-first",
         "plan-wave",
         "ponytail",
-        "r-package-testing-workflow",
+        "r-package-data",
+        "r-package-testing",
+        "r-package-vignette",
         "research",
         "reviewer-architecture",
         "reviewer-correctness",
         "rubber-ducking",
         "skill-research",
         "tdd",
+        "usda-open-data-catalog",
         "verbosity-cleaner",
         "wave-orchestration",
         "web-source-bundler",
@@ -789,30 +1011,38 @@
         "bull-in-a-china-shop",
         "caveman",
         "code-review-2axis",
+        "code-review-subtractive",
+        "complexity-map",
         "conventional-commits",
         "copilot-history-briefing",
+        "copilot-history-miner",
         "deep-investigative-research",
         "doc-consistency",
         "dr-lexus",
         "git-history-interval-study",
+        "git-workflow-standards",
         "github-actions-ci",
         "goal-alignment",
         "grilling",
         "install-skills",
         "json-processing-with-jq",
+        "magic-wand",
         "makefile-development-workflow",
         "performance-benchmarking",
         "plan-first",
         "wave-orchestration",
         "plan-wave",
         "ponytail",
-        "r-package-testing-workflow",
+        "r-package-data",
+        "r-package-testing",
+        "r-package-vignette",
         "research",
         "reviewer-architecture",
         "reviewer-correctness",
         "rubber-ducking",
         "skill-research",
         "tdd",
+        "usda-open-data-catalog",
         "verbosity-cleaner",
         "web-source-bundler",
         "worker-validation"
@@ -820,13 +1050,13 @@
       "diagnostics": [],
       "raw_sample_file": "full-corpus.raw.json",
       "sample_count": 5,
-      "median_bytes": 387052,
-      "minimum_bytes": 387052,
-      "maximum_bytes": 387052,
+      "median_bytes": 507710,
+      "minimum_bytes": 507710,
+      "maximum_bytes": 507710,
       "spread_bytes": 0,
       "tokenizer_model_metrics": null,
-      "baseline_bytes": 387052,
-      "target_bytes": 387052,
+      "baseline_bytes": 507710,
+      "target_bytes": 507710,
       "absolute_reduction_bytes": 0,
       "reduction_ratio": 0
     },
@@ -849,10 +1079,10 @@
       "maximum_bytes": 21100,
       "spread_bytes": 0,
       "tokenizer_model_metrics": null,
-      "baseline_bytes": 387052,
+      "baseline_bytes": 507710,
       "target_bytes": 21100,
-      "absolute_reduction_bytes": 365952,
-      "reduction_ratio": 0.9454853611401052
+      "absolute_reduction_bytes": 486610,
+      "reduction_ratio": 0.9584408422130744
     },
     {
       "name": "wave-delivery",
@@ -865,6 +1095,7 @@
         "conventional-commits",
         "goal-alignment",
         "grilling",
+        "magic-wand",
         "plan-first",
         "wave-orchestration",
         "plan-wave",
@@ -873,15 +1104,15 @@
       "diagnostics": [],
       "raw_sample_file": "wave-delivery.raw.json",
       "sample_count": 5,
-      "median_bytes": 51633,
-      "minimum_bytes": 51633,
-      "maximum_bytes": 51633,
+      "median_bytes": 57062,
+      "minimum_bytes": 57062,
+      "maximum_bytes": 57062,
       "spread_bytes": 0,
       "tokenizer_model_metrics": null,
-      "baseline_bytes": 387052,
-      "target_bytes": 51633,
-      "absolute_reduction_bytes": 335419,
-      "reduction_ratio": 0.866599319988012
+      "baseline_bytes": 507710,
+      "target_bytes": 57062,
+      "absolute_reduction_bytes": 450648,
+      "reduction_ratio": 0.8876090681688366
     },
     {
       "name": "wave-delivery-with-code-review-2axis",
@@ -902,15 +1133,15 @@
       "diagnostics": [],
       "raw_sample_file": "wave-delivery-with-code-review-2axis.raw.json",
       "sample_count": 5,
-      "median_bytes": 28441,
-      "minimum_bytes": 28441,
-      "maximum_bytes": 28441,
+      "median_bytes": 28541,
+      "minimum_bytes": 28541,
+      "maximum_bytes": 28541,
       "spread_bytes": 0,
       "tokenizer_model_metrics": null,
-      "baseline_bytes": 387052,
-      "target_bytes": 28441,
-      "absolute_reduction_bytes": 358611,
-      "reduction_ratio": 0.926518917354774
+      "baseline_bytes": 507710,
+      "target_bytes": 28541,
+      "absolute_reduction_bytes": 479169,
+      "reduction_ratio": 0.9437848378011069
     },
     {
       "name": "minimal-direct-selection",
@@ -929,10 +1160,10 @@
       "maximum_bytes": 2486,
       "spread_bytes": 0,
       "tokenizer_model_metrics": null,
-      "baseline_bytes": 387052,
+      "baseline_bytes": 507710,
       "target_bytes": 2486,
-      "absolute_reduction_bytes": 384566,
-      "reduction_ratio": 0.9935770904167915
+      "absolute_reduction_bytes": 505224,
+      "reduction_ratio": 0.9951035039688011
     },
     {
       "name": "software-delivery",
@@ -947,21 +1178,27 @@
         "arcpy-migration",
         "bull-in-a-china-shop",
         "code-review-2axis",
+        "code-review-subtractive",
+        "complexity-map",
         "conventional-commits",
         "doc-consistency",
         "git-history-interval-study",
+        "git-workflow-standards",
         "github-actions-ci",
         "goal-alignment",
         "grilling",
         "install-skills",
         "json-processing-with-jq",
+        "magic-wand",
         "makefile-development-workflow",
         "performance-benchmarking",
         "plan-first",
         "wave-orchestration",
         "plan-wave",
         "ponytail",
-        "r-package-testing-workflow",
+        "r-package-data",
+        "r-package-testing",
+        "r-package-vignette",
         "reviewer-architecture",
         "reviewer-correctness",
         "rubber-ducking",
@@ -972,16 +1209,15 @@
       "diagnostics": [],
       "raw_sample_file": "software-delivery.raw.json",
       "sample_count": 5,
-      "median_bytes": 339271,
-      "minimum_bytes": 339271,
-      "maximum_bytes": 339271,
+      "median_bytes": 395657,
+      "minimum_bytes": 395657,
+      "maximum_bytes": 395657,
       "spread_bytes": 0,
       "tokenizer_model_metrics": null,
-      "baseline_bytes": 387052,
-      "target_bytes": 339271,
-      "absolute_reduction_bytes": 47781,
-      "reduction_ratio": 0.12344852887984044
+      "baseline_bytes": 507710,
+      "target_bytes": 395657,
+      "absolute_reduction_bytes": 112053,
+      "reduction_ratio": 0.22070276338854858
     }
-  ],
-  "retained_run": ".scratch/loadout-measurement/18.5.1/orchestration-18-evidence-v1"
+  ]
 }
