@@ -34,6 +34,20 @@ jobs:
       - name: Validate packaged skills
         run: npm run validate:skills -- --report .scratch/skills-report.json
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned skills-ref
+        run: python -m pip install "git+https://github.com/agentskills/agentskills.git@83021e2be457a9b6679148719c1f6074f0ad975e#subdirectory=skills-ref"
+
+      - name: Validate Agent Skills format
+        run: |
+          for skill_dir in skills/*/; do
+            skills-ref validate "$skill_dir"
+          done
+
       - name: Run packaged skill tests
         run: npm run test:skills
 

@@ -542,9 +542,6 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/ponytail/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_ref": "v4.10.0",
-      "upstream_repo": "https://github.com/DietrichGebert/ponytail",
-      "upstream_path": "skills/ponytail/SKILL.md",
       "group": "quality-assurance",
       "loadouts": [
         "software-delivery",
