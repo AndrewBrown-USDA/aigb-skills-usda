@@ -184,7 +184,7 @@ function validateSkill(entry, skillsDir, results) {
   if (!frontmatter.fields.description) {
     addResult(results, entry.name, 'structure', 'failed', 'Frontmatter description is missing');
   }
-  const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools', 'argument-hint']);
+  const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools']);
   const customTopLevel = Object.keys(frontmatter.fields).filter((key) => !standardFields.has(key));
   if (customTopLevel.length) {
     addResult(results, entry.name, 'metadata', 'failed', `Custom top-level metadata keys are not allowed: ${customTopLevel.join(', ')}`);

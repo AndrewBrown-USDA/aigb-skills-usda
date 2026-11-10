@@ -205,7 +205,7 @@ function main() {
   for (const skillName of ['conventional-commits', 'arcpy-migration', 'goal-alignment']) {
     assert.ok(catalogSkillNames.includes(skillName), `${skillName} must exist in the catalog`);
   }
-  const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools', 'argument-hint']);
+  const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools']);
   for (const skill of lockfile.skills) {
     const skillFile = path.join(repoRoot, 'skills', skill.name, 'SKILL.md');
     const parsed = parseFrontmatter(fs.readFileSync(skillFile, 'utf8'));
