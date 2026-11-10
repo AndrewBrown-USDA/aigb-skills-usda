@@ -1,59 +1,47 @@
 # Agent Skill Directory Paths
 
-This reference lists where each supported coding agent looks for skills.
+Skill directories are agent-specific, not a universal standard. The examples
+below are the Vercel Skills CLI's documented project and user paths, checked
+2026-11-09. Confirm the current path with the relevant agent's documentation;
+paths, supported agents, and platform behavior may change.
 
-## Agent Directory Locations
+## Selected Agent Paths
 
-| Agent | OS | Path | Environment Variable |
-|---|---|---|---|
-| **Claude Code** | Linux/macOS | `~/.claude/skills/` | `$HOME/.claude/skills` |
-| | Windows | `%APPDATA%/.claude/skills/` | `%APPDATA%/.claude/skills` |
-| **Cursor** | Linux/macOS | `~/.cursor/skills/` | `$HOME/.cursor/skills` |
-| | Windows | `%APPDATA%/.cursor/skills/` | `%APPDATA%/.cursor/skills` |
-| **GitHub Copilot** | Linux/macOS | `~/.github/skills/` | `$HOME/.github/skills` |
-| | Windows | `%APPDATA%/.github/skills/` | `%APPDATA%/.github/skills` |
-| **Pi** | Linux/macOS | `~/.pi/agent/skills/` | `$HOME/.pi/agent/skills` |
-| | Windows | `%APPDATA%/.pi/agent/skills/` | `%APPDATA%/.pi/agent/skills` |
-| **OpenAI Codex** | Linux/macOS | `~/.codex/skills/` | `$HOME/.codex/skills` |
-| | Windows | `%APPDATA%/.codex/skills/` | `%APPDATA%/.codex/skills` |
+| Agent | Project-level path | User-level path |
+|---|---|---|
+| Claude Code | `.claude/skills/` | `~/.claude/skills/` |
+| Cursor | `.agents/skills/` | `~/.cursor/skills/` |
+| GitHub Copilot | `.agents/skills/` | `~/.copilot/skills/` |
+| Pi | `.agents/skills/` | `~/.agents/skills/` |
+| OpenAI Codex | `.agents/skills/` | `~/.agents/skills/` |
 
-## Creating Directories
+These are examples, not claims that every agent shares a path. See the
+[Vercel Skills CLI supported-agents reference](https://github.com/vercel-labs/skills/blob/main/docs/agents.md)
+for its current full list and paths. The CLI's choices are not a guarantee of
+skills.sh repository listing.
 
-If a directory doesn't exist, create it with the matching path for your OS:
+## Manual Installation
 
-```bash
-# Claude Code
-mkdir -p ~/.claude/skills/
-
-# Cursor
-mkdir -p ~/.cursor/skills/
-
-# GitHub Copilot
-mkdir -p ~/.github/skills/
-
-# Pi
-mkdir -p ~/.pi/agent/skills/
-
-# OpenAI Codex
-mkdir -p ~/.codex/skills/
-```
-
-On Windows, use `%APPDATA%` or the full Roaming path if you are creating the directory manually. The installer handles that resolution automatically.
-
-## Verifying Installation
-
-Check what skills are currently installed:
+When copying or symlinking skill folders manually, use the directory documented
+by the target agent. For example, a project-level install into `.agents/skills/`
+can be made with:
 
 ```bash
-ls ~/.claude/skills/
-# Lists all skill folders
-
-ls -l ~/.claude/skills/
-# Shows whether entries are symlinks (->) or copies
+mkdir -p .agents/skills
+cp -R /path/to/aigb-skills-usda/skills/plan-first .agents/skills/
 ```
 
-## Cross-Platform Expansion
+Or, to link the skill to the checkout:
 
-On Unix-like systems, `~` expands to `$HOME` or the user's home directory. On Windows, use `%APPDATA%` or the full Roaming path (for example, `C:\Users\YourName\AppData\Roaming\.claude\skills\`).
+```bash
+ln -s /path/to/aigb-skills-usda/skills/plan-first .agents/skills/plan-first
+```
 
-The `install.sh` script handles this resolution automatically for the target platform.
+Replace `.agents/skills/` with the target agent's project or user-level path.
+On Windows, use the equivalent copy or directory-symlink command for the
+target agent and shell.
+
+The repository's own `skills install` command also accepts an explicit target
+directory; its target need not match these examples. It installs the bundled
+skills and does not fetch upstream sources. `skills sync` is a separate,
+maintainer-only workflow.

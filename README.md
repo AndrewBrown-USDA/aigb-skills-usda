@@ -12,6 +12,20 @@
 
 ## Quick Start (Installing Skills)
 
+### Optional: Vercel Skills CLI
+
+The Vercel Skills CLI is a separate, optional tool for installing from GitHub.
+Its [current official README](https://github.com/vercel-labs/skills#install-a-skill)
+requires Node.js 22.20 or newer:
+
+```bash
+npx skills add AndrewBrown-USDA/aigb-skills-usda
+```
+
+This runs Vercel's `skills` package; it is not this repository's own `skills`
+executable or its `skills install` command. The Vercel CLI may prompt you to
+choose skills and agents.
+
 From a checkout containing the packaged `skills/` directory, install the local package link first, then use `npx` to invoke its CLI; Node.js 18 or newer is required:
 
 ```bash
@@ -60,13 +74,44 @@ working on `skills sync`; it is not the packaged-only CI contract.
 
 ### Common Agent Install Targets
 
-After running `npm link` in this checkout:
+After running `npm link` in this checkout, this repository's installer copies
+the packaged skills into the selected target:
 
-- Copilot CLI / Universal Agents: `npx --no-install skills install --target ~/.agents/skills`
+- GitHub Copilot (user-level): `npx --no-install skills install --target ~/.copilot/skills`
 - Claude Code: `npx --no-install skills install --target ~/.claude/skills`
-- Pi coding agent: `npx --no-install skills install --target ~/.pi/agent/skills`
+- Cursor, Pi, or Codex (user-level): `npx --no-install skills install --target ~/.agents/skills`
+- Copilot, Cursor, Pi, or Codex (project-level): `npx --no-install skills install --target ./.agents/skills`
 
 These commands copy the packaged skills from this checkout. Existing matching names cause installation to refuse; add `--force` only when you intend to replace those destination skills.
+
+Agent skill directories are agent-specific and can change. The targets above
+are examples for this repository's installer, not a universal convention; see
+the [agent path reference](skills/install-skills/references/agent-paths.md)
+and the agent's current documentation.
+
+### Manual Clone, Copy, or Symlink
+
+You can also clone this repository and manually copy or symlink selected
+folders from `skills/`, without installing either CLI. For a project-level
+install, use the project's agent-specific directory (for example
+`.agents/skills/`); for a user-level install, use that agent's user directory.
+The following POSIX-shell examples use the shared `.agents/skills/` paths:
+
+```bash
+git clone https://github.com/AndrewBrown-USDA/aigb-skills-usda.git
+mkdir -p .agents/skills
+cp -R aigb-skills-usda/skills/plan-first .agents/skills/
+# Or symlink instead of copying (use an absolute source path if needed):
+ln -s "$(pwd)/aigb-skills-usda/skills/plan-first" .agents/skills/plan-first
+
+mkdir -p ~/.agents/skills
+cp -R aigb-skills-usda/skills/plan-first ~/.agents/skills/
+```
+
+Replace `plan-first` and the destination with the skill and project/user
+directory appropriate for your agent. Copies are standalone; symlinks continue
+to refer to the cloned checkout. On Windows, use the equivalent copy or
+directory-symlink command for your shell and agent-specific target.
 
 ### Project-Directory & Skill-Specific Installs
 
@@ -75,17 +120,16 @@ You can install skills directly into a local repository/project directory:
 ```bash
 # Install all skills into a local project's agent or GitHub Copilot folder
 npx --no-install skills install --target ./.agents/skills
-# or: npx --no-install skills install --target ./.github/skills
 ```
 
 To install a specific skill or a subset of skills, use `--skill` or `--skills` with single or comma-separated names:
 
 ```bash
-# Install a single skill to Pi coding agent
-npx --no-install skills install --target ~/.pi/agent/skills --skill plan-first
+# Install a single skill to a shared user-level target
+npx --no-install skills install --target ~/.agents/skills --skill plan-first
 
 # Install multiple selected skills
-npx --no-install skills install --target ~/.pi/agent/skills --skills plan-first,dr-lexus,code-review-2axis
+npx --no-install skills install --target ~/.agents/skills --skills plan-first,dr-lexus,code-review-2axis
 
 # Install selected skills into a project directory
 npx --no-install skills install --target ./.agents/skills --skills plan-first,web-source-bundler
