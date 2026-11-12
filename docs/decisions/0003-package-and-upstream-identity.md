@@ -10,53 +10,65 @@ superseded_by: null
 source_context: "EXECUTION_PLAN_7"
 ---
 
-# 3. Keep Package Identity Separate from Upstream History
+# 3. Keep Package Identity Separate from Source Attribution and Sync
 
 ## Context and Problem Statement
 
-This repository ships its own packaged copy of each skill. Some skills also
-came from another repository. Those are two different facts:
+This repository ships its own packaged copy of each skill. A skill can retain
+its original author, source URL, and release version even when the repository
+no longer synchronizes it from that source. Package identity, source
+attribution, and active synchronization are separate facts:
 
 1. **Package identity:** where this repository stores and installs the skill.
-2. **Upstream provenance:** where the skill originally came from.
+2. **Source attribution:** who authored the skill and where it originated.
+3. **Active synchronization:** which source repository and ref the maintainer
+   workflow uses to update the packaged copy.
 
-If one field serves both purposes, a provenance link can accidentally be
-treated as the package's install source.
+Using attribution as a synchronization input would make a retained source link
+accidentally control updates.
 
 ## Decision Drivers
 
 - Installation must have a stable local identity.
-- Upstream attribution and pinned references should be retained.
+- Attribution and release versions must remain available for manually maintained
+  vendor copies.
+- Sync must be driven only by explicit synchronization metadata.
 - Old metadata names must continue to work during migration.
 - Unknown repositories must not produce invented URLs.
 
 ## Considered Options
 
 1. Use one mixed set of source fields.
-2. Remove upstream information from packaged metadata.
-3. Store package identity and upstream provenance in separate fields.
+2. Remove all source attribution when synchronization ends.
+3. Store package identity, source attribution, and sync configuration separately.
 
 ## Decision Outcome
 
-We use separate fields:
+We use distinct metadata for each fact:
 
 | Fact | Fields |
 |---|---|
 | Package identity | `source_repo`, `source_path`, `source_url` |
-| Upstream provenance | `upstream_repo`, `upstream_ref`, `upstream_name` |
+| Source attribution | `author`, `original_source_url`, `version` |
+| Active synchronization | `upstream_repo`, `upstream_ref`, `upstream_path`, `upstream_name` |
 
-The package identity determines what the repository installs. Provenance
-describes history and attribution; it does not replace package identity.
-Legacy `source_ref` and `upstream` names remain read-only compatibility
-aliases. Unknown repositories do not receive fabricated canonical URLs.
+The package identity determines what the repository installs. Source
+attribution and version describe authorship and history; they do not activate
+synchronization or replace package identity. A skill without active upstream
+metadata is maintained from the canonical package source. Legacy `source_ref`
+and `upstream` names remain read-only compatibility aliases for sync metadata.
+Unknown repositories do not receive fabricated canonical URLs.
 
 ### Consequences
 
-- Consumers must carry two concepts instead of one.
+- Metadata carries separate identity, attribution, and optional sync concepts.
+- Manually maintained vendor copies can retain origin and version without
+  remaining sync targets.
 - Install, catalog, and sync code can make their source choice explicit.
-- Provenance remains available without making normal installation depend on it.
 
 ## Validation & Compliance
 
 `scripts/skill-metadata.js`, the validator, catalog generation, and smoke
-checks enforce these distinctions and normalize legacy aliases.
+checks enforce these distinctions, require a version for packaged skills, and
+normalize legacy aliases. `original_source_url` is validated and preserved as
+attribution only; it is not used to resolve synchronization sources.

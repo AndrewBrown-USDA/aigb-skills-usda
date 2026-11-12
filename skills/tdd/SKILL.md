@@ -6,10 +6,8 @@ metadata:
   author: Matt Pocock (https://github.com/mattpocock/skills)
   source_repo: aigb-skills
   source_path: skills/tdd/SKILL.md
-  original_source_repo: mattpocock-skills
-  upstream_path: skills/engineering/tdd/SKILL.md
-  source_ref: v1.2.0
-  upstream: https://github.com/mattpocock/skills
+  original_source_url: https://github.com/mattpocock/skills
+  version: v1.2.0
   group: quality-assurance
   loadouts: software-delivery, code-quality, test-validation
   optional_dependencies: reviewer-correctness

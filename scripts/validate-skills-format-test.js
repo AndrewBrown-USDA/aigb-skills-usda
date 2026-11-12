@@ -17,8 +17,13 @@ function writeFixture(root, metadata, frontmatterMetadata = metadata) {
   const skillDir = path.join(skillsDir, 'fixture');
   fs.mkdirSync(skillDir, { recursive: true });
   const metadataLines = Object.entries(frontmatterMetadata)
-    .filter(([key]) => ['author', 'authors', 'source_repo', 'source_path', 'source_url', 'upstream_path'].includes(key))
-    .map(([key, value]) => `  ${key}: ${Array.isArray(value) ? JSON.stringify(value) : value}`);
+    .filter(([key]) => ['author', 'authors', 'source_repo', 'source_path', 'source_url', 'upstream_path', 'version'].includes(key))
+    .map(([key, value]) => {
+      const frontmatterValue = key === 'version' && value && typeof value === 'object' && 'value' in value
+        ? value.value
+        : value;
+      return `  ${key}: ${Array.isArray(frontmatterValue) ? JSON.stringify(frontmatterValue) : frontmatterValue}`;
+    });
   fs.writeFileSync(path.join(skillDir, 'SKILL.md'), [
     '---',
     'name: fixture',
@@ -79,7 +84,8 @@ const validMetadata = {
   source_repo: 'example-repo',
   source_path: 'skills/fixture/SKILL.md',
   source_url: 'https://example.test/source',
-  upstream_path: 'skills/fixture/SKILL.md'
+  upstream_path: 'skills/fixture/SKILL.md',
+  version: { status: 'resolved', value: '1.0' }
 };
 const valid = runFixture(validMetadata);
 assert.equal(valid.exitCode, 0);
@@ -118,7 +124,8 @@ for (const field of ['source_url', 'author', 'upstream_path']) {
 const legacyMetadata = {
   name: 'fixture',
   source_repo: 'example-repo',
-  source_path: 'skills/fixture/SKILL.md'
+  source_path: 'skills/fixture/SKILL.md',
+  version: { status: 'resolved', value: '1.0' }
 };
 const legacy = runFixture(legacyMetadata, legacyMetadata);
 assert.equal(legacy.exitCode, 0);

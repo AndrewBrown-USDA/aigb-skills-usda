@@ -458,7 +458,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   if (normalized.authors) metadata.push(['authors', formatMetadataValue('authors', normalized.authors)]);
   if (normalized.inspired_by) metadata.push(['inspired_by', formatMetadataValue('inspired_by', normalized.inspired_by)]);
   for (const key of [
-    'source_repo', 'source_path', 'source_url', 'source_ref', 'upstream_repo',
+    'source_repo', 'source_path', 'source_url', 'original_source_url', 'source_ref', 'upstream_repo',
     'upstream_ref', 'upstream_path', 'upstream_name', 'version', 'group',
     'loadout', 'loadouts', 'dependencies', 'optional_dependencies'
   ]) {
@@ -472,7 +472,7 @@ function updateSkillMetadata(destSkillMd, entry) {
   }
 
   const addMissingMetadata = (block) => {
-    const lines = block.split(/\r?\n/).filter((line) => !/^\s*(author|authors|inspired_by|license|source|source_repo|source_path|source_url|source_ref|upstream|upstream_repo|upstream_ref|upstream_path|upstream_name|version|group|loadout|loadouts|dependencies|optional_dependencies):/.test(line));
+    const lines = block.split(/\r?\n/).filter((line) => !/^\s*(author|authors|inspired_by|license|source|source_repo|source_path|source_url|original_source_url|source_ref|upstream|upstream_repo|upstream_ref|upstream_path|upstream_name|version|group|loadout|loadouts|dependencies|optional_dependencies):/.test(line));
     let updatedBlock = lines.join('\n').trimEnd();
     const packagedNamePattern = /^name:\s*.*$/m;
     if (packagedNamePattern.test(updatedBlock)) {

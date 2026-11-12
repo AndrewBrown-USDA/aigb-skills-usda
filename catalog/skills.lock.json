@@ -112,20 +112,19 @@
     },
     {
       "name": "caveman",
+      "author": "Julius Brussee",
       "source_repo": "aigb-skills",
       "source_path": "skills/caveman/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_ref": "v2.7.0",
-      "upstream_repo": "https://github.com/JuliusBrussee/caveman",
-      "upstream_path": "skills/caveman/SKILL.md",
+      "original_source_url": "https://github.com/JuliusBrussee/caveman",
       "group": "communication-documentation",
       "loadouts": [
         "documentation",
         "context-economy"
       ],
       "version": {
-        "status": "missing",
-        "value": null
+        "status": "resolved",
+        "value": "v2.7.0"
       }
     },
     {
@@ -134,10 +133,7 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/code-review-2axis/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_name": "code-review",
-      "upstream_ref": "v1.2.0",
-      "upstream_repo": "https://github.com/mattpocock/skills",
-      "upstream_path": "skills/engineering/code-review/SKILL.md",
+      "original_source_url": "https://github.com/mattpocock/skills",
       "group": "quality-assurance",
       "loadouts": [
         "software-delivery",
@@ -149,8 +145,8 @@
         "reviewer-correctness"
       ],
       "version": {
-        "status": "missing",
-        "value": null
+        "status": "resolved",
+        "value": "v1.2.0"
       }
     },
     {
@@ -380,9 +376,7 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/grilling/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_ref": "v1.2.0",
-      "upstream_repo": "https://github.com/mattpocock/skills",
-      "upstream_path": "skills/productivity/grilling/SKILL.md",
+      "original_source_url": "https://github.com/mattpocock/skills",
       "group": "architecture-planning",
       "loadouts": [
         "software-delivery",
@@ -390,8 +384,8 @@
         "wave-delivery"
       ],
       "version": {
-        "status": "missing",
-        "value": null
+        "status": "resolved",
+        "value": "v1.2.0"
       }
     },
     {
@@ -538,13 +532,12 @@
     },
     {
       "name": "ponytail",
+      "author": "Dietrich Gebert",
       "license": "MIT",
       "source_repo": "aigb-skills",
       "source_path": "skills/ponytail/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_ref": "v4.10.0",
-      "upstream_repo": "https://github.com/DietrichGebert/ponytail",
-      "upstream_path": "skills/ponytail/SKILL.md",
+      "original_source_url": "https://github.com/DietrichGebert/ponytail",
       "group": "quality-assurance",
       "loadouts": [
         "software-delivery",
@@ -553,8 +546,8 @@
         "context-economy"
       ],
       "version": {
-        "status": "missing",
-        "value": null
+        "status": "resolved",
+        "value": "v4.10.0"
       }
     },
     {
@@ -621,9 +614,7 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/research/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_ref": "v1.2.0",
-      "upstream_repo": "https://github.com/mattpocock/skills",
-      "upstream_path": "skills/engineering/research/SKILL.md",
+      "original_source_url": "https://github.com/mattpocock/skills",
       "group": "research-evidence",
       "loadouts": [
         "evidence-research",
@@ -633,8 +624,8 @@
         "web-source-bundler"
       ],
       "version": {
-        "status": "missing",
-        "value": null
+        "status": "resolved",
+        "value": "v1.2.0"
       }
     },
     {
@@ -722,9 +713,7 @@
       "source_repo": "aigb-skills",
       "source_path": "skills/tdd/SKILL.md",
       "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
-      "upstream_ref": "v1.2.0",
-      "upstream_repo": "https://github.com/mattpocock/skills",
-      "upstream_path": "skills/engineering/tdd/SKILL.md",
+      "original_source_url": "https://github.com/mattpocock/skills",
       "group": "quality-assurance",
       "loadouts": [
         "software-delivery",
@@ -735,8 +724,8 @@
         "reviewer-correctness"
       ],
       "version": {
-        "status": "missing",
-        "value": null
+        "status": "resolved",
+        "value": "v1.2.0"
       }
     },
     {

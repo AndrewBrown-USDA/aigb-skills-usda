@@ -139,7 +139,7 @@ function validateSkill(entry, skillsDir, results) {
   const metadataValidation = validateMetadata({
     ...entry,
     ...(entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {})
-  });
+  }, { requireVersion: true });
   if (!metadataValidation.valid) {
     addResult(results, entry.name, 'metadata', 'failed', metadataValidation.errors.join('; '));
   }
@@ -184,14 +184,14 @@ function validateSkill(entry, skillsDir, results) {
   if (!frontmatter.fields.description) {
     addResult(results, entry.name, 'structure', 'failed', 'Frontmatter description is missing');
   }
-  const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools', 'argument-hint']);
+  const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools']);
   const customTopLevel = Object.keys(frontmatter.fields).filter((key) => !standardFields.has(key));
   if (customTopLevel.length) {
     addResult(results, entry.name, 'metadata', 'failed', `Custom top-level metadata keys are not allowed: ${customTopLevel.join(', ')}`);
   }
   const normalizedEntry = normalizeMetadata(entry);
   const metadataFields = [
-    'author', 'authors', 'inspired_by', 'source_repo', 'source_path', 'source_url',
+    'author', 'authors', 'inspired_by', 'source_repo', 'source_path', 'source_url', 'original_source_url',
     'source_ref', 'upstream', 'upstream_name', 'upstream_repo', 'upstream_ref',
     'upstream_path', 'group', 'loadout', 'loadouts', 'dependencies',
     'optional_dependencies'

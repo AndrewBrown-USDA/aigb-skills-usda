@@ -97,8 +97,11 @@ function assertGrillingContent(targetDir, requireAttribution = true) {
   assert.match(content, /Each question should be formatted like so:/);
   if (requireAttribution) {
     const metadata = parseFrontmatter(content).metadata;
-    assert.equal(metadata.upstream_ref || metadata.source_ref, 'v1.2.0');
-    assert.match(parseFrontmatter(content).metadata.author, /Matt Pocock/i);
+    assert.equal(metadata.original_source_url, 'https://github.com/mattpocock/skills');
+    assert.equal(metadata.version, 'v1.2.0');
+    assert.match(metadata.author, /Matt Pocock/i);
+    assert.equal(metadata.upstream_ref, undefined);
+    assert.equal(metadata.source_ref, undefined);
   }
 }
 
@@ -152,16 +155,9 @@ function main() {
     assert.equal(entry.selection_status, undefined);
     assert.equal(entry.rationale, undefined);
     assert.ok(entry.version && typeof entry.version === 'object', 'entry.version must be an object');
-    assert.ok(
-      entry.version.status === 'resolved' || entry.version.status === 'missing',
-      `invalid version status: ${entry.version.status} for ${entry.name}`
-    );
-    if (entry.version.status === 'resolved') {
-      assert.equal(typeof entry.version.value, 'string', `resolved version must be a string for ${entry.name}`);
-      assert.ok(entry.version.value.length > 0, `resolved version must not be empty for ${entry.name}`);
-    } else {
-      assert.equal(entry.version.value, null, `missing version value must be null for ${entry.name}`);
-    }
+    assert.equal(entry.version.status, 'resolved', `version must be resolved for ${entry.name}`);
+    assert.equal(typeof entry.version.value, 'string', `resolved version must be a string for ${entry.name}`);
+    assert.ok(entry.version.value.length > 0, `resolved version must not be empty for ${entry.name}`);
     if (entry.upstream_repo !== undefined) assert.match(entry.upstream_repo, /^https?:\/\//);
     if (entry.upstream_path !== undefined) assert.equal(typeof entry.upstream_path, 'string');
   }
@@ -172,10 +168,25 @@ function main() {
   assert.equal(planFirst.version.value, '1.0');
   assert.match(planFirst.upstream_repo, /https:\/\/www\.reddit\.com\/r\/LocalLLaMA\/s\/w0G0mMp1js/);
 
-  const grilling = lockfile.skills.find(s => s.name === 'grilling');
-  assert.ok(grilling, 'grilling must exist');
-  assert.equal(grilling.upstream_ref, 'v1.2.0');
-  assert.equal(grilling.upstream_repo, 'https://github.com/mattpocock/skills');
+  const thirdPartySkills = [
+    ['ponytail', 'Dietrich Gebert', 'https://github.com/DietrichGebert/ponytail', 'v4.10.0'],
+    ['caveman', 'Julius Brussee', 'https://github.com/JuliusBrussee/caveman', 'v2.7.0'],
+    ['code-review-2axis', 'Matt Pocock (https://github.com/mattpocock/skills)', 'https://github.com/mattpocock/skills', 'v1.2.0'],
+    ['grilling', 'Matt Pocock (https://github.com/mattpocock/skills)', 'https://github.com/mattpocock/skills', 'v1.2.0'],
+    ['research', 'Matt Pocock (https://github.com/mattpocock/skills)', 'https://github.com/mattpocock/skills', 'v1.2.0'],
+    ['tdd', 'Matt Pocock (https://github.com/mattpocock/skills)', 'https://github.com/mattpocock/skills', 'v1.2.0']
+  ];
+  for (const [name, author, originalSourceUrl, version] of thirdPartySkills) {
+    const entry = lockfile.skills.find(skill => skill.name === name);
+    assert.ok(entry, `${name} must exist`);
+    assert.equal(entry.author, author, `${name} author`);
+    assert.equal(entry.original_source_url, originalSourceUrl, `${name} original source URL`);
+    assert.equal(entry.version.status, 'resolved', `${name} version status`);
+    assert.equal(entry.version.value, version, `${name} source version`);
+    for (const key of ['upstream', 'upstream_name', 'upstream_path', 'upstream_ref', 'upstream_repo', 'source_ref']) {
+      assert.equal(entry[key], undefined, `${name} must not retain ${key}`);
+    }
+  }
 
   const tdd = lockfile.skills.find(s => s.name === 'tdd');
   assert.ok(tdd, 'tdd must exist');
@@ -183,8 +194,6 @@ function main() {
   assert.equal(tdd.license, 'MIT');
   assert.equal(tdd.source_repo, 'aigb-skills');
   assert.equal(tdd.source_url, 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
-  assert.equal(tdd.upstream_ref, 'v1.2.0');
-  assert.match(tdd.upstream_repo, /github\.com\/mattpocock\/skills/);
 
   const applyFedOssLicense = lockfile.skills.find(s => s.name === 'apply-fed-oss-license');
   assert.ok(applyFedOssLicense, 'apply-fed-oss-license must exist');
@@ -205,14 +214,14 @@ function main() {
   for (const skillName of ['conventional-commits', 'arcpy-migration', 'goal-alignment']) {
     assert.ok(catalogSkillNames.includes(skillName), `${skillName} must exist in the catalog`);
   }
-  const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools', 'argument-hint']);
+  const standardFields = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools']);
   for (const skill of lockfile.skills) {
     const skillFile = path.join(repoRoot, 'skills', skill.name, 'SKILL.md');
     const parsed = parseFrontmatter(fs.readFileSync(skillFile, 'utf8'));
     assert.equal(parsed.fields.name, skill.name);
     assert.equal(typeof parsed.fields.description, 'string');
     assert.ok(parsed.metadata && typeof parsed.metadata === 'object');
-    for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream_repo', 'upstream_ref']) {
+    for (const key of ['source_repo', 'source_path', 'source_ref', 'upstream_repo', 'upstream_ref', 'original_source_url']) {
       if (skill[key] !== undefined) {
         const actual = key === 'upstream_repo'
           ? (parsed.metadata.upstream_repo || parsed.metadata.upstream)
@@ -453,12 +462,19 @@ function main() {
     symlinkResult.stdout.trim(),
     `Synced ${expectedCount} skills to ${symlinkTarget} using symlink mode.`
   );
-  assert.match(
-    symlinkResult.stderr,
-    /symlink mode is unavailable for (?:git-pinned|aliased) skill ".+"; falling back to copy mode/i
-  );
   assertSkillLayout(symlinkTarget, lockfile.skills);
   assertGrillingContent(symlinkTarget, false);
+  const needsCopyFallback = lockfile.skills.some(skill =>
+    skill.upstream_ref || (skill.upstream_name && !skill.source_ref)
+  );
+  if (needsCopyFallback) {
+    assert.match(
+      symlinkResult.stderr,
+      /symlink mode is unavailable for (?:git-pinned|aliased) skill ".+"; falling back to copy mode/i
+    );
+  } else {
+    assert.equal(symlinkResult.stderr.trim(), '');
+  }
   const aliasedSkill = lockfile.skills.find(skill => skill.upstream_name);
   if (aliasedSkill && !aliasedSkill.source_ref) {
     const aliasedSkillFile = path.join(symlinkTarget, aliasedSkill.name, 'SKILL.md');

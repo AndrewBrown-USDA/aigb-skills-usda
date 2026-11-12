@@ -12,6 +12,20 @@
 
 ## Quick Start (Installing Skills)
 
+### Optional: Vercel Skills CLI
+
+The Vercel Skills CLI is a separate, optional tool for installing from GitHub.
+Its [current official README](https://github.com/vercel-labs/skills#install-a-skill)
+requires Node.js 22.20 or newer:
+
+```bash
+npx skills add AndrewBrown-USDA/aigb-skills-usda
+```
+
+This runs Vercel's `skills` package; it is not this repository's own `skills`
+executable or its `skills install` command. The Vercel CLI may prompt you to
+choose skills and agents.
+
 From a checkout containing the packaged `skills/` directory, install the local package link first, then use `npx` to invoke its CLI; Node.js 18 or newer is required:
 
 ```bash
@@ -60,13 +74,21 @@ working on `skills sync`; it is not the packaged-only CI contract.
 
 ### Common Agent Install Targets
 
-After running `npm link` in this checkout:
+The shared `.agents/skills/` directory works with Copilot CLI and other
+compatible agents. After running `npm link`, install skills for your user or
+for the current project:
 
-- Copilot CLI / Universal Agents: `npx --no-install skills install --target ~/.agents/skills`
-- Claude Code: `npx --no-install skills install --target ~/.claude/skills`
-- Pi coding agent: `npx --no-install skills install --target ~/.pi/agent/skills`
+```bash
+# User-level
+npx --no-install skills install --target ~/.agents/skills
 
-These commands copy the packaged skills from this checkout. Existing matching names cause installation to refuse; add `--force` only when you intend to replace those destination skills.
+# Current project
+npx --no-install skills install --target ./.agents/skills
+```
+
+The installer copies the packaged skills and refuses to overwrite existing
+ones unless you pass `--force`. For manual copying or agents that require a
+different directory, see the [agent path reference](skills/install-skills/references/agent-paths.md).
 
 ### Project-Directory & Skill-Specific Installs
 
@@ -75,17 +97,16 @@ You can install skills directly into a local repository/project directory:
 ```bash
 # Install all skills into a local project's agent or GitHub Copilot folder
 npx --no-install skills install --target ./.agents/skills
-# or: npx --no-install skills install --target ./.github/skills
 ```
 
 To install a specific skill or a subset of skills, use `--skill` or `--skills` with single or comma-separated names:
 
 ```bash
-# Install a single skill to Pi coding agent
-npx --no-install skills install --target ~/.pi/agent/skills --skill plan-first
+# Install a single skill to a shared user-level target
+npx --no-install skills install --target ~/.agents/skills --skill plan-first
 
 # Install multiple selected skills
-npx --no-install skills install --target ~/.pi/agent/skills --skills plan-first,dr-lexus,code-review-2axis
+npx --no-install skills install --target ~/.agents/skills --skills plan-first,dr-lexus,code-review-2axis
 
 # Install selected skills into a project directory
 npx --no-install skills install --target ./.agents/skills --skills plan-first,web-source-bundler
@@ -167,14 +188,18 @@ The catalog includes 42 curated skills:
 
 - **Skill metadata contract:** Each `skills/*/SKILL.md` frontmatter must provide
   the standard top-level `name` and `description` fields. Supported standard
-  optional fields, including `license`, remain top-level when used.
-  Repository-specific synchronization fields belong under a `metadata` mapping:
+  optional fields, including `license`, remain top-level when used. Every
+  packaged skill must also provide a non-empty `metadata.version`.
+  Repository-specific fields belong under a `metadata` mapping:
   `group`, `loadout`, `loadouts`, `dependencies`, and `optional_dependencies`
   describe taxonomy and dependencies; `source_repo`, `source_path`, and
   `source_url` identify the canonical bundled source; `upstream_repo`,
-  `upstream_ref`, optional `upstream_name`, and `version` preserve upstream
-  provenance; and `author` credits the skill author. Legacy `source_ref` and
-  `upstream` are read-only fallbacks for `upstream_ref` and `upstream_repo`.
+  `upstream_ref`, `upstream_path`, and optional `upstream_name` control
+  synchronization. `author` credits the skill author and `original_source_url`
+  records attribution; neither is a synchronization input. `version` records
+  the skill version independently of synchronization state. Legacy
+  `source_ref` and `upstream` are read-only fallbacks for `upstream_ref` and
+  `upstream_repo`.
   Known canonical repositories derive a GitHub URL; unknown repositories leave
   `source_url` unset rather than fabricating one.
 - Optional `metadata.inspired_by` records the source of an idea, does not confer
@@ -183,7 +208,7 @@ The catalog includes 42 curated skills:
   `catalog/skills.lock.json` is generated compatibility and index data derived
   from that frontmatter; edit the skill metadata rather than hand-editing the
   catalog.
-- **External Skills:** `grilling`, `code-review-2axis`, `research`, and `tdd` are authored by Matt Pocock (https://github.com/mattpocock/skills). `caveman` is authored by Julius Brussee (https://github.com/JuliusBrussee/caveman). `ponytail` is authored by Dietrich Gebert (https://github.com/DietrichGebert/ponytail). Each skill's `SKILL.md` frontmatter carries its source, exact pinned ref, attribution, and upstream URL; the catalog is generated from that metadata.
+- **External Skills:** `grilling`, `code-review-2axis`, `research`, and `tdd` are authored by Matt Pocock (https://github.com/mattpocock/skills). `caveman` is authored by Julius Brussee (https://github.com/JuliusBrussee/caveman). `ponytail` is authored by Dietrich Gebert (https://github.com/DietrichGebert/ponytail). Their frontmatter preserves author, original source URL, and source version; these attribution fields do not enable upstream synchronization.
 
 ### Curated aliases
 

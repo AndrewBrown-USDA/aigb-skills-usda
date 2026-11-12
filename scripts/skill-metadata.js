@@ -34,6 +34,7 @@ function normalizeMetadata(input = {}) {
     source_repo: sourceRepo || null,
     source_path: sourcePath || null,
     source_url: sourceUrl,
+    ...(metadata.original_source_url !== undefined ? { original_source_url: metadata.original_source_url } : {}),
     upstream_repo: upstreamRepo,
     upstream_ref: upstreamRef,
     ...(upstreamPath ? { upstream_path: upstreamPath } : {}),
@@ -52,7 +53,7 @@ function normalizeMetadata(input = {}) {
   };
 }
 
-function validateMetadata(input) {
+function validateMetadata(input, { requireVersion = false } = {}) {
   const metadata = normalizeMetadata(input);
   const errors = [];
   const legacyMissingVersion = input.version === null || (
@@ -67,6 +68,10 @@ function validateMetadata(input) {
   }
   if (metadata.source_url !== null && !/^https?:\/\/\S+$/.test(metadata.source_url)) {
     errors.push('source_url must be an absolute URL');
+  }
+  if (metadata.original_source_url !== undefined &&
+      (typeof metadata.original_source_url !== 'string' || !/^https?:\/\/\S+$/.test(metadata.original_source_url))) {
+    errors.push('original_source_url must be an absolute URL');
   }
   const expectedUrl = deriveSourceUrl(metadata.source_repo);
   if (expectedUrl && input.source_url && input.source_url !== expectedUrl) {
@@ -90,6 +95,9 @@ function validateMetadata(input) {
     if (Array.isArray(tokens) && new Set(tokens).size !== tokens.length) {
       errors.push(`${field} contains duplicate dependencies`);
     }
+  }
+  if (requireVersion && (metadata.version === undefined || metadata.version === null)) {
+    errors.push('version is required');
   }
   if (metadata.version !== undefined && !(metadata.version === null && legacyMissingVersion) &&
       (!['string', 'number'].includes(typeof metadata.version) ||
