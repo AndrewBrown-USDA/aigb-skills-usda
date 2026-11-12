@@ -188,14 +188,18 @@ The catalog includes 42 curated skills:
 
 - **Skill metadata contract:** Each `skills/*/SKILL.md` frontmatter must provide
   the standard top-level `name` and `description` fields. Supported standard
-  optional fields, including `license`, remain top-level when used.
-  Repository-specific synchronization fields belong under a `metadata` mapping:
+  optional fields, including `license`, remain top-level when used. Every
+  packaged skill must also provide a non-empty `metadata.version`.
+  Repository-specific fields belong under a `metadata` mapping:
   `group`, `loadout`, `loadouts`, `dependencies`, and `optional_dependencies`
   describe taxonomy and dependencies; `source_repo`, `source_path`, and
   `source_url` identify the canonical bundled source; `upstream_repo`,
-  `upstream_ref`, optional `upstream_name`, and `version` preserve upstream
-  provenance; and `author` credits the skill author. Legacy `source_ref` and
-  `upstream` are read-only fallbacks for `upstream_ref` and `upstream_repo`.
+  `upstream_ref`, `upstream_path`, and optional `upstream_name` control
+  synchronization. `author` credits the skill author and `original_source_url`
+  records attribution; neither is a synchronization input. `version` records
+  the skill version independently of synchronization state. Legacy
+  `source_ref` and `upstream` are read-only fallbacks for `upstream_ref` and
+  `upstream_repo`.
   Known canonical repositories derive a GitHub URL; unknown repositories leave
   `source_url` unset rather than fabricating one.
 - Optional `metadata.inspired_by` records the source of an idea, does not confer
