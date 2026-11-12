@@ -6,9 +6,9 @@ Address all three PR #23 review comments and make plan-first Git, planning-artif
 ## Tasks
 
 ### 1. Correct PR #23 review findings
-- [ ] Update the smoke-test assertion for the bumped `plan-first` version and keep the catalog version in sync.
-- [ ] Reorder plan-first completion bookkeeping so the final task checkbox is marked complete before its final planning commit.
-- [ ] Permit workers to create the required scoped micro-TODO before approval, while keeping implementation changes and other state-changing commands gated.
+- [x] Update the smoke-test assertion for the bumped `plan-first` version and keep the catalog version in sync.
+- [x] Reorder plan-first completion bookkeeping so the final task checkbox is marked complete before its final planning commit.
+- [x] Permit workers to create the required scoped micro-TODO before approval, while keeping implementation changes and other state-changing commands gated.
 
 ### 2. Define planning-artifact and repository setup policy
 - [ ] In `git-workflow-standards`, ask before initializing Git when a workspace is not a repository; initialize only after explicit user approval.
