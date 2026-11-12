@@ -4,7 +4,7 @@ description: Decomposes a large implementation plan into small-model-sized tasks
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.1
+  version: 1.2
   source_repo: aigb-skills
   source_path: skills/wave-orchestration/SKILL.md
   group: architecture-planning
@@ -16,8 +16,10 @@ metadata:
 An architecture for executing a large, multi-workstream plan as a pipeline of small, cheap worker agents supervised by one frontier-model orchestrator. Three ideas do all the work:
 
 1. **Waves over a task DAG** -- tasks grouped into coherent work clusters; tasks within a wave touch disjoint files and can run in parallel; waves are sequential and depend on prior waves. Every orchestration (planning-file set) can contain multiple waves.
-2. **Plan-first inside every task** -- a worker may not write code until its micro-plan is approved. The approval gate is the *orchestrator*, not the human, so the loop stays autonomous.
+2. **Plan-first inside every task** -- a worker may not write code or run state-changing commands until its micro-plan is approved. The approval gate is the *orchestrator*, not the human, so the loop stays autonomous.
 3. **State on disk, not in context** -- a `STATE.md` file is the single resume point. Worker context never enters the orchestrator; the orchestrator's own context is disposable after every wave (compact or clear freely).
+
+For repository state, branch selection, focused local commits, and remote-action boundaries, follow `git-workflow-standards`. An approved task plan and micro-plan authorize focused local commits after logical work units pass verification; neither authorizes remote actions.
 
 ## Key terms
 
@@ -29,8 +31,8 @@ An architecture for executing a large, multi-workstream plan as a pipeline of sm
 
 | Role | Model | Responsibilities | Never does |
 | --- | --- | --- | --- |
-| Orchestrator | frontier (one session) | decompose plan into waves, spawn workers, gate plans, verify diffs/tests, commit, maintain STATE_N.md | write feature code |
-| Worker | small/cheap (one per task) | read scoped context, produce micro-TODO, stop, execute after approval, run targeted tests, report | pick its own scope, run shared/global test suites, work off-plan |
+| Orchestrator | frontier (one session) | inspect Git repository/branch/worktree state; decompose plan into waves; spawn workers; gate plans; verify diffs/tests; integrate and record commits; maintain STATE_N.md | write feature code |
+| Worker | small/cheap (one per task) | read scoped context, produce micro-TODO, stop, execute after approval, run targeted tests, commit verified logical task work locally, report commit IDs | pick its own scope, run shared/global test suites, work off-plan, perform remote actions |
 
 ## Artifacts (all under `planning/` in the target repo)
 
@@ -57,6 +59,8 @@ Break the master plan into tasks sized for a small model. A task is right-sized 
 
 Each task spec records: id, repo, files in scope (with temp folder location), depends-on, spec prose, anchors, acceptance + targeted test command.
 
+Before planning Git operations, determine whether each target workspace is a Git repository and record its current branch/worktree state. Reuse a branch identified by the user or task context; if the intended branch is unclear, ask the user before choosing or creating one. Do not initialize a repository or switch branches in a way that risks existing changes.
+
 ### Building the wave table
 
 Cluster tasks by **logical work phase**, not just parallelism. Tasks in a wave are sequenced together and run in parallel (file scopes are disjoint):
@@ -81,6 +85,7 @@ that reviews your plan before you may write code.
 
 ## Ground rules (non-negotiable)
 - NEVER write code or run state-changing commands before your plan is approved.
+- After approval, a focused local commit is part of executing the approved task; no separate per-commit approval is required. This does not authorize pushes, pull requests, comments, remote changes, or other outward-facing actions; obtain explicit user instruction for those.
 - NEVER touch files outside "Files in scope"; if required, STOP and report.
 - NEVER go off-plan; discovered work goes in "## Discovered" and waits.
 - NEVER assume: resolve unknowns by reading code in Analysis; anything still
@@ -102,11 +107,14 @@ Output the file contents as your report and END YOUR TURN.
 
 ## [Worker] Execution
 Work the TODO strictly in order, flipping - [ ] to - [x]. Match surrounding
-code style. Run only the targeted tests named in the spec.
+code style. Run only the targeted tests named in the spec. Commit each
+verified, reviewable logical unit locally rather than waiting for the entire
+orchestration. If using a worktree, commit its in-scope deliverables, including
+assigned planning artifacts, before integration; report each commit ID.
 
 ## [Worker] Reporting
 Append to planning/STATE_N.md under ## {{id}} (<=15 lines): status; files
-changed with line ranges; exact test commands + pass/fail counts; deviations
+changed with line ranges; commit IDs; exact test commands + pass/fail counts; deviations
 from the approved plan (or "none"); gotchas for dependent tasks.
 ```
 
@@ -122,7 +130,7 @@ Read the current orchestration's STATE_N.md. Repeat until the wave board is all 
 4. **Unblock worker** -- use SendMessage or equivalent to send `APPROVED -- execute the plan as written. [Answers to any questions from their plan.]` to the agent. This message is mandatory and unblocks Phase 3 execution; the worker reads it as the execution trigger.
 5. **Inform user** -- tell the user you've sent the approval and what the agent will do next (reference the task id and goal).
 6. **Verify** -- inspect diff, re-run targeted tests. At wave end, run full suites serially (shared resources flake under concurrency).
-7. **Commit** -- pass: merge worktree, one commit per task (conventional format, no orchestration/wave in message), distill report into STATE_N.md (<=15 lines), mark done. Fail: escalation ladder.
+7. **Commit and record** -- after each task passes its targeted verification, ensure its work is committed locally in a focused Conventional Commit; do not defer all commits until the end of the wave or orchestration. Before integrating a worktree, verify its in-scope code and planning deliverables are committed. Preserve and record the task commit IDs in STATE_N.md, commit coherent orchestration plan/state changes in the orchestration branch, then mark the task done. Fail: escalation ladder.
 8. **Distill Decisions (optional / milestone)** -- run **adr-distillation** to extract enduring architectural decisions from `EXECUTION_PLAN_N.md` and `STATE_N.md` into `docs/decisions/` before compacting or archiving planning state.
 9. **Wave done** -- update wave board in STATE_N.md, then `/compact` or `/clear` orchestrator.
 
@@ -142,4 +150,5 @@ Read the current orchestration's STATE_N.md. Repeat until the wave board is all 
 - **Targeted tests only**: full suites are slow and flaky under concurrency; orchestrator owns pass/fail.
 - **<=15-line reports**: forces distillation; keeps resume file readable.
 - **One commit per task**: bisectable history; failed tasks revert cleanly.
+- **Local versus remote authorization**: task approval permits verified local commits only; every outward-facing or remote Git action still requires explicit user instruction.
 - **Escalation caps**: converts silent thrash into visible, priced decisions.

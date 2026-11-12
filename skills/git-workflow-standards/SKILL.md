@@ -4,7 +4,7 @@ description: Create safe, focused local Git commits during coding tasks. Use whe
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.1
+  version: 1.2
   source_repo: aigb-skills
   source_path: skills/git-workflow-standards/SKILL.md
   source_url: https://github.com/AndrewBrown-USDA/aigb-skills.git
@@ -19,10 +19,11 @@ Make focused local commits. Keep control of branches, history, and remotes with 
 ## Rules
 
 - Treat all pre-existing changes as user-owned.
-- Work on a task branch, not the default or base branch.
-- When the user or standing task instructions authorize commits, make them after logical, reviewable, revertible chunks rather than waiting for the entire task.
+- Before Git operations, determine whether the workspace is inside a Git repository. If it is not, do not assume Git is available or initialize a repository; continue without Git or explain any task limitation.
+- Work on the task's branch, not the default or base branch. Use a branch established by the user or task context; if the branch to use or create is unclear, ask the user which branch they want.
+- A coding request or approved task plan authorizes focused local commits for logical, verified, reviewable, revertible chunks. Do not wait until the entire plan or orchestration is complete, and do not ask for separate approval for each such commit.
 - Make one commit per reviewable, revertible change.
-- Never push, pull, fetch, open a pull request, change a remote, or perform any other remote action unless the user explicitly instructs you to do so.
+- Never push, pull, fetch, open a pull request, post comments, change a remote, or perform any other outward-facing or remote action unless the user explicitly instructs you to do so. Local commit authorization does not authorize these actions.
 - Never discard, stash, reset, or overwrite user changes without approval.
 - Do not amend, rebase, or rewrite commits unless requested.
 - Follow repository instructions and commit conventions.
@@ -43,7 +44,8 @@ A clean tree is not required. Leave unrelated changes alone.
 
 Ask before proceeding when:
 
-- the branch is the default or base branch;
+- the branch to use or create is unclear from the user request, task plan, and current repository context;
+- the current branch is the default or base branch and no task branch has been identified;
 - unrelated changes are staged;
 - existing changes overlap the files or hunks you need;
 - the task requires files outside its stated scope;
@@ -59,6 +61,8 @@ Do not switch branches if doing so could overwrite or conflict with existing wor
 
 ## Worktrees
 
+- Commit each worktree's in-scope deliverables, including planning artifacts assigned to that task, before integrating or releasing the worktree. Preserve the task commits during integration; do not rely on untracked worktree files to carry results.
+- Commit orchestration plan/state changes in the orchestration branch as they become coherent, and record task commit identifiers in the state file before declaring a task or wave complete.
 - Retain agent-created worktrees until their changes are merged to the main branch or the user or orchestrator explicitly releases them.
 - Sequential orchestrations must detect and account for prior worktrees so unexplained accumulation is avoided.
 - Record each worktree's repository path, worktree path, branch, orchestration/task identifier, creation time, and lifecycle status.
