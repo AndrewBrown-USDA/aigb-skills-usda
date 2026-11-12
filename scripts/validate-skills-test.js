@@ -91,6 +91,16 @@ try {
   }).valid, false);
   assert.equal(validateMetadata({
     source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    original_source_url: 'not-a-url'
+  }).valid, false);
+  assert.equal(validateMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    original_source_url: 'https://example.test/original'
+  }).valid, true);
+  assert.equal(validateMetadata({
+    source_repo: 'repo',
     source_path: 'skills/example/SKILL.md'
   }).valid, true);
   assert.equal(validateMetadata({
@@ -108,6 +118,15 @@ try {
     source_path: 'skills/example/SKILL.md',
     version: '   '
   }).valid, false);
+  assert.equal(validateMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md'
+  }, { requireVersion: true }).valid, false);
+  assert.equal(validateMetadata({
+    source_repo: 'repo',
+    source_path: 'skills/example/SKILL.md',
+    version: '1.0'
+  }, { requireVersion: true }).valid, true);
   assert.equal(validateMetadata({
     source_repo: 'repo',
     source_path: 'skills/example/SKILL.md',
@@ -306,7 +325,7 @@ try {
   fs.mkdirSync(skillDir, { recursive: true });
   fs.writeFileSync(
     path.join(skillDir, 'SKILL.md'),
-    '---\nname: example-alias\ndescription: Example skill\nmetadata:\n  source_repo: example-repo\n  source_path: skills/example/SKILL.md\n  source_ref: v1.0.0\n  upstream: https://example.test/skills\n  upstream_name: example\n  version: 1.0\n---\n\n# Example\n',
+    '---\nname: example-alias\ndescription: Example skill\nmetadata:\n  source_repo: example-repo\n  source_path: skills/example/SKILL.md\n  source_ref: v1.0.0\n  upstream: https://example.test/skills\n  upstream_name: example\n  original_source_url: https://example.test/original\n  version: 1.0\n---\n\n# Example\n',
     'utf8'
   );
 
@@ -340,7 +359,7 @@ try {
   const catalogFixture = path.join(tempRoot, 'catalog-skills');
   fs.mkdirSync(path.join(catalogFixture, 'owned'), { recursive: true });
   fs.writeFileSync(path.join(catalogFixture, 'owned', 'SKILL.md'),
-    '---\nname: owned\nmetadata:\n  source_repo: example\n  source_path: skills/owned/SKILL.md\n---\n# Owned\n', 'utf8');
+    '---\nname: owned\nmetadata:\n  source_repo: example\n  source_path: skills/owned/SKILL.md\n  version: 1.0\n---\n# Owned\n', 'utf8');
   const generated = require('./mine-history').buildLockfile(catalogFixture);
   assert.equal(generated.schema_version, 1);
   assert.equal(generated.skills[0].source_path, 'skills/owned/SKILL.md');
@@ -363,6 +382,7 @@ try {
         source_ref: 'v1.0.0',
         upstream: 'https://example.test/skills',
         upstream_name: 'example',
+        original_source_url: 'https://example.test/original',
         version: { status: 'resolved', value: '1.0' }
       }]
     }),
@@ -381,6 +401,17 @@ try {
   assert.equal(passing.status, 0, passing.stderr);
   const passingReport = JSON.parse(fs.readFileSync(report, 'utf8'));
   assert.ok(passingReport.checks.some((check) => check.status === 'passed'));
+
+  const missingVersionEntry = JSON.parse(fs.readFileSync(lockfile, 'utf8'));
+  missingVersionEntry.skills[0].version = { status: 'missing', value: null };
+  fs.writeFileSync(lockfile, JSON.stringify(missingVersionEntry), 'utf8');
+  const missingVersion = spawnSync(process.execPath, [
+    validator, '--lockfile', lockfile, '--skills-dir', skillsDir
+  ], { encoding: 'utf8' });
+  assert.equal(missingVersion.status, 1);
+  assert.match(missingVersion.stdout + missingVersion.stderr, /version is required/);
+  missingVersionEntry.skills[0].version = { status: 'resolved', value: '1.0' };
+  fs.writeFileSync(lockfile, JSON.stringify(missingVersionEntry), 'utf8');
 
   for (const [field, value] of [
     ['dependencies', 'duplicate-skill, duplicate-skill'],
@@ -535,10 +566,12 @@ try {
   fs.mkdirSync(path.dirname(authorsSkill), { recursive: true });
   fs.writeFileSync(authorsSkill, '---\nname: authors\n---\n# Example\n', 'utf8');
   updateSkillMetadata(authorsSkill, { name: 'authors', source_repo: 'repo', source_path: 'skills/authors/SKILL.md',
-    author: 'Scalar Author', authors: ['First Author', 'Second Author'] });
+    author: 'Scalar Author', authors: ['First Author', 'Second Author'],
+    original_source_url: 'https://example.test/original' });
   const authorsContent = fs.readFileSync(authorsSkill, 'utf8');
   assert.match(authorsContent, /author: Scalar Author/);
   assert.match(authorsContent, /authors: \["First Author","Second Author"\]/);
+  assert.match(authorsContent, /original_source_url: https:\/\/example\.test\/original/);
 
   const synchronizedMetadataSkill = path.join(metadataRoot, 'synchronized', 'SKILL.md');
   fs.mkdirSync(path.dirname(synchronizedMetadataSkill), { recursive: true });
@@ -575,6 +608,8 @@ try {
   fs.writeFileSync(curatedSkill, frontmatter('new-keys', {
     source_repo: 'aigb-skills',
     source_path: 'skills/new-keys/SKILL.md',
+    original_source_url: 'https://example.test/original',
+    version: '1.0',
     group: 'quality-assurance',
     loadouts: 'software-delivery, code-quality',
     dependencies: 'legacy-keys',
@@ -587,6 +622,7 @@ try {
   fs.writeFileSync(legacySkill, frontmatter('legacy-keys', {
     source_repo: 'aigb-skills',
     source_path: 'skills/legacy-keys/SKILL.md',
+    version: '1.0',
     source_ref: 'legacy-ref',
     upstream: 'legacy-repo'
   }), 'utf8');
@@ -597,6 +633,8 @@ try {
   assert.equal(minedNew.upstream_repo, 'new-repo');
   assert.equal(minedNew.upstream_path, undefined);
   assert.equal(minedNew.source_url, 'https://github.com/AndrewBrown-USDA/aigb-skills.git');
+  assert.equal(minedNew.original_source_url, 'https://example.test/original');
+  assert.deepEqual(minedNew.version, { status: 'resolved', value: '1.0' });
   assert.equal(minedNew.group, 'quality-assurance');
   assert.deepEqual(minedNew.loadouts, ['software-delivery', 'code-quality']);
   assert.deepEqual(minedNew.dependencies, ['legacy-keys']);
@@ -609,6 +647,7 @@ try {
   fs.writeFileSync(path.join(invalidRoot, 'invalid', 'SKILL.md'), frontmatter('invalid', {
     source_repo: 'aigb-skills',
     source_path: 'skills/invalid/SKILL.md',
+    version: '1.0',
     loadouts: 'Bad_Name'
   }), 'utf8');
   assert.throws(() => require('./mine-history').scanCuratedSkills(invalidRoot), /Invalid metadata for invalid/);
@@ -617,6 +656,7 @@ try {
   fs.writeFileSync(path.join(emptyAttributionRoot, 'empty-attribution', 'SKILL.md'), frontmatter('empty-attribution', {
     source_repo: 'aigb-skills',
     source_path: 'skills/empty-attribution/SKILL.md',
+    version: '1.0',
     inspired_by: '""'
   }), 'utf8');
   assert.throws(

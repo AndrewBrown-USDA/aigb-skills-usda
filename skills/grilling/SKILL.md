@@ -7,10 +7,8 @@ metadata:
   author: Matt Pocock (https://github.com/mattpocock/skills)
   source_repo: aigb-skills
   source_path: skills/grilling/SKILL.md
-  original_source_repo: mattpocock-skills
-  upstream_path: skills/productivity/grilling/SKILL.md
-  source_ref: v1.2.0
-  upstream: https://github.com/mattpocock/skills
+  original_source_url: https://github.com/mattpocock/skills
+  version: v1.2.0
 ---
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
 

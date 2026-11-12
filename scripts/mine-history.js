@@ -78,7 +78,7 @@ function scanCuratedSkills(skillsDir = SKILLS_DIR) {
       source_repo: metadata.source_repo || 'aigb-skills',
       source_path: metadata.source_path || `skills/${skillName}/SKILL.md`
     });
-    const validation = validateMetadata({ name, ...normalized });
+    const validation = validateMetadata({ name, ...normalized }, { requireVersion: true });
     if (!validation.valid) {
       throw new Error(`Invalid metadata for ${name}: ${validation.errors.join('; ')}`);
     }
@@ -98,6 +98,7 @@ function scanCuratedSkills(skillsDir = SKILLS_DIR) {
       source_repo: normalized.source_repo,
       source_path: normalized.source_path,
       source_url: normalized.source_url,
+      ...(normalized.original_source_url ? { original_source_url: normalized.original_source_url } : {}),
       ...(normalized.upstream_name ? { upstream_name: normalized.upstream_name } : {}),
       ...(normalized.upstream_ref ? { upstream_ref: normalized.upstream_ref } : {}),
       ...(normalized.upstream_repo ? { upstream_repo: normalized.upstream_repo } : {}),

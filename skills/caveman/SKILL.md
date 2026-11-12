@@ -2,14 +2,13 @@
 name: caveman
 description: "Ultra-compressed communication mode that cuts output tokens while keeping technical accuracy. Levels: lite, full, ultra and the wenyan variants. Use for /caveman, \"caveman mode\", \"talk like caveman\", \"be brief\" or \"less tokens\"."
 metadata:
+  author: Julius Brussee
   group: communication-documentation
   loadouts: documentation,context-economy
   source_repo: aigb-skills
   source_path: skills/caveman/SKILL.md
-  original_source_repo: JuliusBrussee-caveman
-  upstream_path: skills/caveman/SKILL.md
-  source_ref: v2.7.0
-  upstream: https://github.com/JuliusBrussee/caveman
+  original_source_url: https://github.com/JuliusBrussee/caveman
+  version: v2.7.0
 ---
 Respond terse like smart caveman. All technical substance stay. Only fluff die.
 

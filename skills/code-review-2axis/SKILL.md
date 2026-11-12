@@ -8,11 +8,8 @@ metadata:
   author: Matt Pocock (https://github.com/mattpocock/skills)
   source_repo: aigb-skills
   source_path: skills/code-review-2axis/SKILL.md
-  original_source_repo: mattpocock-skills
-  upstream_path: skills/engineering/code-review/SKILL.md
-  source_ref: v1.2.0
-  upstream: https://github.com/mattpocock/skills
-  upstream_name: code-review
+  original_source_url: https://github.com/mattpocock/skills
+  version: v1.2.0
 ---
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 

@@ -139,7 +139,7 @@ function validateSkill(entry, skillsDir, results) {
   const metadataValidation = validateMetadata({
     ...entry,
     ...(entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {})
-  });
+  }, { requireVersion: true });
   if (!metadataValidation.valid) {
     addResult(results, entry.name, 'metadata', 'failed', metadataValidation.errors.join('; '));
   }
@@ -191,7 +191,7 @@ function validateSkill(entry, skillsDir, results) {
   }
   const normalizedEntry = normalizeMetadata(entry);
   const metadataFields = [
-    'author', 'authors', 'inspired_by', 'source_repo', 'source_path', 'source_url',
+    'author', 'authors', 'inspired_by', 'source_repo', 'source_path', 'source_url', 'original_source_url',
     'source_ref', 'upstream', 'upstream_name', 'upstream_repo', 'upstream_ref',
     'upstream_path', 'group', 'loadout', 'loadouts', 'dependencies',
     'optional_dependencies'

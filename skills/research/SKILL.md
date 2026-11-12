@@ -5,10 +5,8 @@ metadata:
   author: Matt Pocock (https://github.com/mattpocock/skills)
   source_repo: aigb-skills
   source_path: skills/research/SKILL.md
-  original_source_repo: mattpocock-skills
-  upstream_path: skills/engineering/research/SKILL.md
-  source_ref: v1.2.0
-  upstream: https://github.com/mattpocock/skills
+  original_source_url: https://github.com/mattpocock/skills
+  version: v1.2.0
   group: research-evidence
   loadouts: evidence-research, source-research
   optional_dependencies: web-source-bundler

@@ -15,11 +15,13 @@ description: >
   summaries, recipes).
 license: MIT
 metadata:
+  author: Dietrich Gebert
   group: quality-assurance
   loadouts: software-delivery,documentation,code-quality,context-economy
   source_repo: aigb-skills
   source_path: skills/ponytail/SKILL.md
-  original_source_repo: DietrichGebert-ponytail
+  original_source_url: https://github.com/DietrichGebert/ponytail
+  version: v4.10.0
 ---
 # Ponytail
 
