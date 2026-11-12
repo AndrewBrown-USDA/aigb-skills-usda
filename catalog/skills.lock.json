@@ -150,6 +150,24 @@
       }
     },
     {
+      "name": "code-review-state-machines",
+      "author": "Andrew Brown",
+      "license": "MIT",
+      "source_repo": "aigb-skills",
+      "source_path": "skills/code-review-state-machines/SKILL.md",
+      "source_url": "https://github.com/AndrewBrown-USDA/aigb-skills.git",
+      "group": "quality-assurance",
+      "loadouts": [
+        "software-delivery",
+        "code-quality",
+        "plan-review"
+      ],
+      "version": {
+        "status": "resolved",
+        "value": "1.0.0"
+      }
+    },
+    {
       "name": "code-review-subtractive",
       "author": "Andrew G. Brown (https://github.com/brownag)",
       "license": "MIT",
