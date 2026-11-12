@@ -8,7 +8,7 @@ metadata:
   dependencies: wave-orchestration,grilling
   optional_dependencies: code-review-2axis,goal-alignment,adr-distillation
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.2
+  version: 1.3
   source_repo: aigb-skills
   source_path: skills/plan-wave/SKILL.md
 ---

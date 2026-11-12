@@ -4,7 +4,7 @@ description: Decomposes a large implementation plan into small-model-sized tasks
 license: MIT
 metadata:
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.2
+  version: 1.3
   source_repo: aigb-skills
   source_path: skills/wave-orchestration/SKILL.md
   group: architecture-planning

@@ -7,7 +7,7 @@ metadata:
   loadouts: software-delivery,wave-delivery
   optional_dependencies: goal-alignment
   author: SoAp9035 (Reddit)
-  version: 1.1
+  version: 1.2
   source_repo: aigb-skills
   source_path: skills/plan-first/SKILL.md
   upstream: https://www.reddit.com/r/LocalLLaMA/s/w0G0mMp1js
