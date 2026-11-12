@@ -84,7 +84,7 @@ that reviews your plan before you may write code.
 {{task spec verbatim}}
 
 ## Ground rules (non-negotiable)
-- NEVER write code or run state-changing commands before your plan is approved.
+- NEVER make implementation changes or run implementation state-changing commands before your plan is approved. Creating or updating the scoped micro-TODO and other planning artifacts required for review is allowed before approval; if tracked, commit those planning-only changes separately using `docs(planning):`.
 - After approval, a focused local commit is part of executing the approved task; no separate per-commit approval is required. This does not authorize pushes, pull requests, comments, remote changes, or other outward-facing actions; obtain explicit user instruction for those.
 - NEVER touch files outside "Files in scope"; if required, STOP and report.
 - NEVER go off-plan; discovered work goes in "## Discovered" and waits.

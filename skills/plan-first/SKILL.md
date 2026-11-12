@@ -128,9 +128,10 @@ Once approved:
 
 1. Work through tasks **in order**, one at a time.
 2. Before implementation, establish the task branch from the approved plan and current Git context, following `git-workflow-standards`. Ask the user if the intended branch remains unclear.
-3. After each verified logical, reviewable unit, make a focused local commit rather than waiting until the full plan is complete. Include the corresponding `TODO.md` progress and planning artifacts in the appropriate commit so the committed state is current.
-4. After completing each task, mark it done in `TODO.md`:
+3. After each verified logical, reviewable unit, make a focused local commit rather than waiting until the full plan is complete. Keep code changes and planning artifacts in separate commits.
+4. After completing each task, mark it done in `TODO.md` before its final task commit:
    - Change `- [ ]` to `- [x]`
+   - If the user chose to track planning artifacts, commit the updated plan and task status separately using a `docs(planning):` Conventional Commit. If the user chose to ignore planning artifacts, do not stage or commit them.
 5. State which task you are starting before you begin it.
 6. Do not start the next task until the current one is complete.
 7. Do not perform any work not listed in `TODO.md`.
