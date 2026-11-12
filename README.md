@@ -74,44 +74,21 @@ working on `skills sync`; it is not the packaged-only CI contract.
 
 ### Common Agent Install Targets
 
-After running `npm link` in this checkout, this repository's installer copies
-the packaged skills into the selected target:
-
-- GitHub Copilot (user-level): `npx --no-install skills install --target ~/.copilot/skills`
-- Claude Code: `npx --no-install skills install --target ~/.claude/skills`
-- Cursor, Pi, or Codex (user-level): `npx --no-install skills install --target ~/.agents/skills`
-- Copilot, Cursor, Pi, or Codex (project-level): `npx --no-install skills install --target ./.agents/skills`
-
-These commands copy the packaged skills from this checkout. Existing matching names cause installation to refuse; add `--force` only when you intend to replace those destination skills.
-
-Agent skill directories are agent-specific and can change. The targets above
-are examples for this repository's installer, not a universal convention; see
-the [agent path reference](skills/install-skills/references/agent-paths.md)
-and the agent's current documentation.
-
-### Manual Clone, Copy, or Symlink
-
-You can also clone this repository and manually copy or symlink selected
-folders from `skills/`, without installing either CLI. For a project-level
-install, use the project's agent-specific directory (for example
-`.agents/skills/`); for a user-level install, use that agent's user directory.
-The following POSIX-shell examples use the shared `.agents/skills/` paths:
+The shared `.agents/skills/` directory works with Copilot CLI and other
+compatible agents. After running `npm link`, install skills for your user or
+for the current project:
 
 ```bash
-git clone https://github.com/AndrewBrown-USDA/aigb-skills-usda.git
-mkdir -p .agents/skills
-cp -R aigb-skills-usda/skills/plan-first .agents/skills/
-# Or symlink instead of copying (use an absolute source path if needed):
-ln -s "$(pwd)/aigb-skills-usda/skills/plan-first" .agents/skills/plan-first
+# User-level
+npx --no-install skills install --target ~/.agents/skills
 
-mkdir -p ~/.agents/skills
-cp -R aigb-skills-usda/skills/plan-first ~/.agents/skills/
+# Current project
+npx --no-install skills install --target ./.agents/skills
 ```
 
-Replace `plan-first` and the destination with the skill and project/user
-directory appropriate for your agent. Copies are standalone; symlinks continue
-to refer to the cloned checkout. On Windows, use the equivalent copy or
-directory-symlink command for your shell and agent-specific target.
+The installer copies the packaged skills and refuses to overwrite existing
+ones unless you pass `--force`. For manual copying or agents that require a
+different directory, see the [agent path reference](skills/install-skills/references/agent-paths.md).
 
 ### Project-Directory & Skill-Specific Installs
 
