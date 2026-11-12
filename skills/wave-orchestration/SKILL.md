@@ -59,7 +59,9 @@ Break the master plan into tasks sized for a small model. A task is right-sized 
 
 Each task spec records: id, repo, files in scope (with temp folder location), depends-on, spec prose, anchors, acceptance + targeted test command.
 
-Before planning Git operations, determine whether each target workspace is a Git repository and record its current branch/worktree state. Reuse a branch identified by the user or task context; if the intended branch is unclear, ask the user before choosing or creating one. Do not initialize a repository or switch branches in a way that risks existing changes.
+Before planning Git operations, determine whether each target workspace is a Git repository and record its current branch/worktree state. If there is no repository, ask whether the user wants one initialized and do not initialize without explicit approval. Reuse a branch identified by the user or task context; if the intended branch is unclear, ask the user before choosing or creating one. Do not switch branches in a way that risks existing changes.
+
+Use the planning-artifact tracking choice recorded in the approved plan. If none is recorded, ask the user whether to track or ignore the orchestration artifacts before creating them. When tracked, make planning-only `docs(planning):` commits separate from task code. When ignored, ensure the applicable `planning/` and other planning paths are ignored and never stage or commit those artifacts.
 
 ### Building the wave table
 
@@ -109,12 +111,13 @@ Output the file contents as your report and END YOUR TURN.
 Work the TODO strictly in order, flipping - [ ] to - [x]. Match surrounding
 code style. Run only the targeted tests named in the spec. Commit each
 verified, reviewable logical unit locally rather than waiting for the entire
-orchestration. If using a worktree, commit its in-scope deliverables, including
-assigned planning artifacts, before integration; report each commit ID.
+orchestration. If using a worktree, commit its in-scope implementation
+deliverables before integration; report each code commit ID. Keep planning
+artifact updates out of code commits.
 
 ## [Worker] Reporting
 Append to planning/STATE_N.md under ## {{id}} (<=15 lines): status; files
-changed with line ranges; commit IDs; exact test commands + pass/fail counts; deviations
+changed with line ranges; code commit IDs; exact test commands + pass/fail counts; deviations
 from the approved plan (or "none"); gotchas for dependent tasks.
 ```
 
@@ -130,7 +133,7 @@ Read the current orchestration's STATE_N.md. Repeat until the wave board is all 
 4. **Unblock worker** -- use SendMessage or equivalent to send `APPROVED -- execute the plan as written. [Answers to any questions from their plan.]` to the agent. This message is mandatory and unblocks Phase 3 execution; the worker reads it as the execution trigger.
 5. **Inform user** -- tell the user you've sent the approval and what the agent will do next (reference the task id and goal).
 6. **Verify** -- inspect diff, re-run targeted tests. At wave end, run full suites serially (shared resources flake under concurrency).
-7. **Commit and record** -- after each task passes its targeted verification, ensure its work is committed locally in a focused Conventional Commit; do not defer all commits until the end of the wave or orchestration. Before integrating a worktree, verify its in-scope code and planning deliverables are committed. Preserve and record the task commit IDs in STATE_N.md, commit coherent orchestration plan/state changes in the orchestration branch, then mark the task done. Fail: escalation ladder.
+7. **Commit and record** -- after each task passes its targeted verification, ensure its implementation is committed locally in a focused Conventional Commit; do not defer all commits until the end of the wave or orchestration. Before integrating a worktree, verify its in-scope implementation is committed. Preserve and record code commit IDs in STATE_N.md. If planning artifacts are tracked, commit coherent plan/state updates separately with `docs(planning):`; if ignored, never stage them. Mark the task done only after its verified work and required planning-state update are recorded. Fail: escalation ladder.
 8. **Distill Decisions (optional / milestone)** -- run **adr-distillation** to extract enduring architectural decisions from `EXECUTION_PLAN_N.md` and `STATE_N.md` into `docs/decisions/` before compacting or archiving planning state.
 9. **Wave done** -- update wave board in STATE_N.md, then `/compact` or `/clear` orchestrator.
 
@@ -151,4 +154,5 @@ Read the current orchestration's STATE_N.md. Repeat until the wave board is all 
 - **<=15-line reports**: forces distillation; keeps resume file readable.
 - **One commit per task**: bisectable history; failed tasks revert cleanly.
 - **Local versus remote authorization**: task approval permits verified local commits only; every outward-facing or remote Git action still requires explicit user instruction.
+- **Planning versus implementation history**: tracked planning artifacts use separate `docs(planning):` commits; ignored artifacts never enter code commits.
 - **Escalation caps**: converts silent thrash into visible, priced decisions.

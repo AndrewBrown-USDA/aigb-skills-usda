@@ -19,7 +19,7 @@ Make focused local commits. Keep control of branches, history, and remotes with 
 ## Rules
 
 - Treat all pre-existing changes as user-owned.
-- Before Git operations, determine whether the workspace is inside a Git repository. If it is not, do not assume Git is available or initialize a repository; continue without Git or explain any task limitation.
+- Before Git operations, determine whether the workspace is inside a Git repository. If it is not, ask the user whether they want one initialized. Initialize only after explicit user approval and after the operation is in the approved task scope; if they decline, continue without Git or explain any task limitation.
 - Work on the task's branch, not the default or base branch. Use a branch established by the user or task context; if the branch to use or create is unclear, ask the user which branch they want.
 - A coding request or approved task plan authorizes focused local commits for logical, verified, reviewable, revertible chunks. Do not wait until the entire plan or orchestration is complete, and do not ask for separate approval for each such commit.
 - Make one commit per reviewable, revertible change.
@@ -27,6 +27,12 @@ Make focused local commits. Keep control of branches, history, and remotes with 
 - Never discard, stash, reset, or overwrite user changes without approval.
 - Do not amend, rebase, or rewrite commits unless requested.
 - Follow repository instructions and commit conventions.
+
+## Planning artifacts
+
+- At the start of a planning workflow, ask whether that run's planning artifacts should be tracked or ignored. Do not infer the choice from the current `.gitignore`.
+- If the user chooses tracking, commit planning-only changes separately using a Conventional Commit with the `docs(planning):` prefix. Do not mix planning artifacts with implementation, tests, or other code changes.
+- If the user chooses not to track planning artifacts, never stage or commit them. Ensure the applicable root `TODO.md`, `planning/`, and other generated planning paths are ignored by `.gitignore` or an appropriate local exclude; add missing ignore rules when needed.
 
 ## Inspect repository state
 
@@ -61,8 +67,8 @@ Do not switch branches if doing so could overwrite or conflict with existing wor
 
 ## Worktrees
 
-- Commit each worktree's in-scope deliverables, including planning artifacts assigned to that task, before integrating or releasing the worktree. Preserve the task commits during integration; do not rely on untracked worktree files to carry results.
-- Commit orchestration plan/state changes in the orchestration branch as they become coherent, and record task commit identifiers in the state file before declaring a task or wave complete.
+- Commit each worktree's in-scope implementation deliverables before integrating or releasing the worktree. Preserve the task commits during integration; do not rely on untracked worktree files to carry results.
+- If planning artifacts are tracked, commit them separately with `docs(planning):` and record planning and implementation commit identifiers in the state file. If ignored, do not stage or commit them.
 - Retain agent-created worktrees until their changes are merged to the main branch or the user or orchestrator explicitly releases them.
 - Sequential orchestrations must detect and account for prior worktrees so unexplained accumulation is avoided.
 - Record each worktree's repository path, worktree path, branch, orchestration/task identifier, creation time, and lifecycle status.
@@ -73,7 +79,8 @@ Do not switch branches if doing so could overwrite or conflict with existing wor
 ## Build commits
 
 - Keep implementation, related tests, and docs together.
-- Do not split commits by phase, file type, or arbitrary step.
+- Keep planning artifacts out of implementation commits; use the planning-artifact policy above.
+- Do not split implementation commits by phase, file type, or arbitrary step.
 - Do not combine unrelated fixes.
 - If a file has unrelated edits, stage only the needed hunks.
 
@@ -105,6 +112,7 @@ type(scope): description
 - Keep the header short, preferably under 72 characters.
 - Add a body when it explains rationale, constraints, or non-obvious behavior.
 - Mark breaking changes using the repository's convention.
+- For tracked planning-only changes, use the Conventional Commit prefix `docs(planning):` and keep them separate from implementation commits.
 
 Do not put phases, waves, or task steps in commit messages.
 
