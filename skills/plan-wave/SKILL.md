@@ -8,7 +8,7 @@ metadata:
   dependencies: wave-orchestration,grilling
   optional_dependencies: code-review-2axis,goal-alignment,adr-distillation
   author: Andrew G. Brown (https://github.com/brownag)
-  version: 1.2
+  version: 1.3
   source_repo: aigb-skills
   source_path: skills/plan-wave/SKILL.md
 ---
@@ -18,7 +18,7 @@ Produces the `planning/` artifact set that the **wave-orchestration** skill cons
 
 Here, `N` is the next available orchestration number. For example, orchestration plan 3 uses `EXECUTION_PLAN_3.md`, `PROMPT_TEMPLATE_3.md`, and `STATE_3.md`.
 
-Division of labor with the user, borrowed from **grilling**: *facts* come from the codebase -- look them up, never ask. *Decisions* belong to the user -- put each one to them and wait. Nothing is executed here; this skill ends at an approved plan.
+Division of labor with the user, borrowed from **grilling**: *facts* come from the codebase -- look them up, never ask. *Decisions* belong to the user -- put each one to them and wait. This skill ends at an approved plan; it does not start implementation.
 
 ## Phase 1 -- Intake (embed the user's input)
 
@@ -38,6 +38,7 @@ Before asking the user anything, establish from the repo(s):
 - Entry-point files and their sizes (`wc -l`) -- oversized files dictate the grep-anchor rule and often the parallelization boundaries
 - Test infrastructure: commands, suites, how e2e servers bind (shared ports and resources decide whether suites can ever run concurrently)
 - Conventions files (AGENTS.md, CONTRIBUTING, existing plan docs) and any prior TODO/state files recording what already shipped
+- Git repository/branch/worktree state and ignore rules affecting `planning/`
 - Architecture Decision Records: scan `docs/decisions/README.md` and active ADRs (`status: Accepted`) to discover enduring architectural constraints and conventions
 - The current green baseline per suite (run them if cheap; otherwise note as a pre-wave-1 step)
 - Existing code that new work should pattern-match (candidate "reference implementations" for task specs)
@@ -57,8 +58,11 @@ Interview per the **grilling** skill's method: one question per message, a recom
 6. Worker/escalation models and budget (which small model, escalate to what)
 7. Acceptance bar: which suites must be green per wave, what's deferred to manual/device testing
 8. Anything from Phase 1 that mapped to no task and no deferral
+9. Whether the user wants planning artifacts tracked or ignored; if the workspace is not a Git repository, whether they want one initialized
 
 Record each answer as a dated decision line -- these go in EXECUTION_PLAN_N.md so workers and future orchestrators inherit the *why*, not just the *what*. If an accepted ADR is to be superseded upon implementation, record the target ADR ID explicitly.
+Do not initialize Git without explicit user approval; follow `git-workflow-standards` for repository setup and branch safety.
+Ask the user directly whether to track or ignore the generated plan, prompt template, and state files. If tracked, record that choice in the decision log and keep their commits separate from implementation. If ignored, ensure the paths are ignored and do not stage or commit them.
 
 ## Phase 4 -- Draft the artifacts
 
@@ -79,7 +83,7 @@ Fix findings, then re-check anything structural (a task split in review can chan
 
 ## Phase 6 -- User approval loop
 
-Present: the wave table, a one-line-per-task summary, the decision log, and anything the review flagged as judgment calls. Then ask for approval -- plainly, e.g. "Does this plan look right? Reply yes to finalize, or tell me what to change." Revise and re-present until approved. Do not start execution: the handoff on approval is a single closing pointer --
+Present: the wave table, a one-line-per-task summary, the decision log, and anything the review flagged as judgment calls. Then ask for approval -- plainly, e.g. "Does this plan look right? Reply yes to finalize, or tell me what to change." Revise and re-present until approved. After approval, do not start implementation. If the user chose to track planning artifacts, commit the approved plan files separately using a `docs(planning):` Conventional Commit; do not combine them with code changes. If the user chose to ignore planning artifacts, ensure `planning/` and any other generated planning paths are ignored and do not stage or commit them. End with the handoff pointer:
 
 > Plan approved and written to `planning/`. To execute, invoke
 > **wave-orchestration** (say "run wave 1") in this or any fresh session.
