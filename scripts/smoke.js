@@ -165,7 +165,7 @@ function main() {
   const planFirst = lockfile.skills.find(s => s.name === 'plan-first');
   assert.ok(planFirst, 'plan-first must exist');
   assert.equal(planFirst.version.status, 'resolved');
-  assert.equal(planFirst.version.value, '1.0');
+  assert.equal(planFirst.version.value, '1.2');
   assert.match(planFirst.upstream_repo, /https:\/\/www\.reddit\.com\/r\/LocalLLaMA\/s\/w0G0mMp1js/);
 
   const thirdPartySkills = [
